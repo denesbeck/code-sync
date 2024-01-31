@@ -34,7 +34,7 @@ var initCmd = &cobra.Command{
 func runInitCommand() error {
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		color.Red("CSync already initialized")
-		log.Fatal(err)
+		return nil
 	}
 	if err := os.MkdirAll(stagingAdded, os.ModePerm); err != nil {
 		log.Fatal(err)
@@ -60,7 +60,7 @@ func runInitCommand() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.WriteString("default=main")
+	f.WriteString("default=main\ncurrent=main")
 	f.Close()
 
 	color.Green("CSync initialized")
