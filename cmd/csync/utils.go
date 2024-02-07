@@ -18,6 +18,11 @@ type File struct {
 	Path      string
 }
 
+type Metadata struct {
+	Default string
+	Current string
+}
+
 func readCsyncIgnore() []string {
 	_, err := os.Stat(".csyncignore.json")
 	if os.IsNotExist(err) {
@@ -76,6 +81,19 @@ func CreateFileList() error {
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func CreateBranchesMetadata() error {
+	branchesMetadata := Metadata{
+		Default: "main",
+		Current: "main",
+	}
+
+	err := writeJson(".csync/branches/metadata.json", branchesMetadata)
 	if err != nil {
 		return err
 	}
