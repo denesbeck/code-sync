@@ -45,18 +45,20 @@ func readCsyncIgnore() []string {
 	return payload
 }
 
-func writeJson(path string, data interface{}) error {
-	jsonData, err := json.Marshal(data)
+// Add
+func CheckIfFileInLogs(path string) bool {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	err = os.WriteFile(path, jsonData, 0644)
-	if err != nil {
-		return err
+	var payload []string
+	if err = json.Unmarshal(logs, &payload); err != nil {
+		log.Fatal(err)
 	}
-	return nil
+	return slices.Contains(payload, path)
 }
 
+// Init
 func CreateFileList() error {
 	var fileList []File
 	content := readCsyncIgnore()
@@ -100,6 +102,7 @@ func CreateBranchesMetadata() error {
 	return nil
 }
 
+// Common
 func CheckIfInitialized() bool {
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		return true
@@ -151,4 +154,16 @@ func ParsePath(path string) (string, string) {
 	}
 
 	return dirs, file
+}
+
+func writeJson(path string, data interface{}) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(path, jsonData, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }

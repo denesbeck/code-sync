@@ -36,6 +36,11 @@ func runAddCommand(path string) error {
 		color.Red("File does not exist")
 		return nil
 	}
+	fileInLogs := CheckIfFileInLogs(path)
+	if fileInLogs {
+		color.Red("File already added")
+		return nil
+	}
 
 	dirs, file := ParsePath(path)
 
