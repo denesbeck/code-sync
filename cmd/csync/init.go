@@ -9,9 +9,12 @@ import (
 )
 
 const (
-	stagingAdded          = ".csync/staging/added"
-	stagingModified       = ".csync/staging/modified"
-	stagingRemoved        = ".csync/staging/removed"
+	// staging directories for add, modify, remove
+	stagingAdded    = ".csync/staging/added"
+	stagingModified = ".csync/staging/modified"
+	stagingRemoved  = ".csync/staging/removed"
+	// log files for any add command operations
+	// format: op: ADD | MOD | REM, path: path/to/file
 	stagingLogs           = ".csync/staging/logs.json"
 	stagingFileList       = ".csync/staging/filelist.json"
 	commits               = ".csync/commits"

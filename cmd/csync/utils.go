@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/fatih/color"
@@ -17,12 +18,17 @@ type File struct {
 	Timestamp string
 	Path      string
 }
+type LogFile struct {
+	Operation string
+	Path      string
+}
 
 type Metadata struct {
 	Default string
 	Current string
 }
 
+// read the .csyncignore.json file and return its content
 func readCsyncIgnore() []string {
 	_, err := os.Stat(".csyncignore.json")
 	if os.IsNotExist(err) {
@@ -46,16 +52,89 @@ func readCsyncIgnore() []string {
 }
 
 // Add
-func CheckIfFileInLogs(path string) bool {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+// Check if the file is in the specified json list
+func IsFileListed(filePath string, listPath string) bool {
+	logs, err := os.ReadFile(listPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if len(logs) == 0 {
+		return false
 	}
 	var payload []string
 	if err = json.Unmarshal(logs, &payload); err != nil {
 		log.Fatal(err)
 	}
-	return slices.Contains(payload, path)
+	return slices.Contains(payload, filePath)
+}
+
+// Get the id of the last commit, if there is one
+func GetLastCommit() (string, bool) {
+	dirs, err := os.ReadDir(".csync/commits")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(dirs) > 0 {
+		strArr := []string{}
+		for _, dir := range dirs {
+			if dir.IsDir() {
+				strArr = append(strArr, dir.Name())
+			}
+		}
+		sort.Sort(sort.Reverse(sort.StringSlice(strArr)))
+		return strArr[0], true
+	}
+	return "", false
+}
+
+// Check if the file exists in the commits/<id>/added directory
+// and is missing from the working directory.
+// This means that the file should be deleted.
+func IsFileDeleted(commit string, path string) bool {
+	existsInCommits := FileExists("./.csync/commits/" + commit + "/added/" + path)
+	existsInWorkdir := FileExists(path)
+	return existsInCommits && !existsInWorkdir
+}
+
+// Log changes to the staging/logs.json file
+func LogOperation(op string, path string) {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var payload []LogFile
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &payload); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		payload = append(payload, LogFile{
+			Operation: op,
+			Path:      path,
+		})
+		err = writeJson(".csync/staging/logs.json", payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+// Copies the file to the staging area respecting the operation
+func MoveToStaging(path string, op string) {
+	dirs, file := ParsePath(path)
+
+	fullPath := ".csync/staging/" + op + "/" + dirs
+
+	if err := os.MkdirAll(fullPath, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
+	_, err := CopyFile(path, fullPath+file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	color.Green("File added successfully")
 }
 
 // Init
@@ -103,7 +182,7 @@ func CreateBranchesMetadata() error {
 }
 
 // Common
-func CheckIfInitialized() bool {
+func IsInitialized() bool {
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		return true
 	}
@@ -136,7 +215,7 @@ func CopyFile(src, dst string) (int64, error) {
 	return nBytes, err
 }
 
-func CheckIfFileExists(path string) bool {
+func FileExists(path string) bool {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return true
 	}

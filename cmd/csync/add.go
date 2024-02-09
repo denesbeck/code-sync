@@ -26,34 +26,53 @@ var addCmd = &cobra.Command{
 }
 
 func runAddCommand(path string) error {
-	initialized := CheckIfInitialized()
+	// check if csync is initialized
+	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
 		return nil
 	}
-	exists := CheckIfFileExists(path)
-	if !exists {
-		color.Red("File does not exist")
-		return nil
-	}
-	fileInLogs := CheckIfFileInLogs(path)
+	fileInLogs := IsFileListed(path, ".csync/staging/logs.json")
 	if fileInLogs {
-		color.Red("File already added")
+		// TO BE IMPLEMENTED
 		return nil
+	} else {
+		lastCommit, commitExists := GetLastCommit()
+		// there is at least one commit
+		if commitExists {
+			// file should be deleted?
+			isDeleted := IsFileDeleted(lastCommit, path)
+			if isDeleted {
+				// TO BE IMPLEMENTED: move the file from the appr. commit
+				MoveToStaging(path, "removed")
+				LogOperation("REM", path)
+			} else {
+				// new file?
+				isNewFile := IsFileListed(path, ".csync/commits/"+lastCommit+"/fileList.json")
+				if isNewFile {
+					exists := FileExists(path)
+					if !exists {
+						color.Red("File does not exist")
+						return nil
+					}
+					// add file
+					MoveToStaging(path, "added")
+					LogOperation("ADD", path)
+				}
+			}
+		} else {
+			// check if file exists
+			exists := FileExists(path)
+			if !exists {
+				color.Red("File does not exist")
+				return nil
+			}
+			// add file
+			MoveToStaging(path, "added")
+			LogOperation("ADD", path)
+			// there is a commit
+		}
 	}
 
-	dirs, file := ParsePath(path)
-
-	fullPath := ".csync/staging/added/" + dirs
-
-	if err := os.MkdirAll(fullPath, os.ModePerm); err != nil {
-		log.Fatal(err)
-	}
-
-	_, err := CopyFile(path, fullPath+file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	color.Green("File added successfully")
 	return nil
 }
