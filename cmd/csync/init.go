@@ -15,12 +15,10 @@ const (
 	stagingRemoved  = ".csync/staging/removed"
 	// log files for any add command operations
 	// format: op: ADD | MOD | REM, path: path/to/file
-	stagingLogs           = ".csync/staging/logs.json"
-	stagingFileList       = ".csync/staging/filelist.json"
-	commits               = ".csync/commits"
-	defaultBranchOriginal = ".csync/branches/main/original"
-	defaultBranchCommits  = ".csync/branches/main/commits.json"
-	branchesMetadata      = ".csync/branches/metadata.json"
+	stagingLogs          = ".csync/staging/logs.json"
+	commits              = ".csync/commits"
+	defaultBranchCommits = ".csync/branches/main/commits.json"
+	branchesMetadata     = ".csync/branches/metadata.json"
 )
 
 func init() {
@@ -55,25 +53,14 @@ func runInitCommand() error {
 		log.Fatal(err)
 	}
 	f.Close()
-
-	err = CreateFileList()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	if err := os.MkdirAll(commits, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
-	if err := os.MkdirAll(defaultBranchOriginal, os.ModePerm); err != nil {
-		log.Fatal(err)
-	}
-
 	f, err = os.Create(defaultBranchCommits)
 	if err != nil {
 		log.Fatal(err)
 	}
 	f.Close()
-
 	err = CreateBranchesMetadata()
 	if err != nil {
 		log.Fatal(err)

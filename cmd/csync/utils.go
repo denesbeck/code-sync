@@ -18,11 +18,6 @@ type File struct {
 	Timestamp string
 	Path      string
 }
-type LogFile struct {
-	Operation string
-	Path      string
-}
-
 type Metadata struct {
 	Default string
 	Current string
@@ -86,38 +81,6 @@ func GetLastCommit() (string, bool) {
 		return strArr[0], true
 	}
 	return "", false
-}
-
-// Check if the file exists in the commits/<id>/added directory
-// and is missing from the working directory.
-// This means that the file should be deleted.
-func IsFileDeleted(commit string, path string) bool {
-	existsInCommits := FileExists("./.csync/commits/" + commit + "/added/" + path)
-	existsInWorkdir := FileExists(path)
-	return existsInCommits && !existsInWorkdir
-}
-
-// Log changes to the staging/logs.json file
-func LogOperation(op string, path string) {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	var payload []LogFile
-	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &payload); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		payload = append(payload, LogFile{
-			Operation: op,
-			Path:      path,
-		})
-		err = writeJson(".csync/staging/logs.json", payload)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
 }
 
 // Copies the file to the staging area respecting the operation

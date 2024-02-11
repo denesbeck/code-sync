@@ -1,12 +1,18 @@
 package csync
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
+
+type LogFile struct {
+	op   string
+	path string
+}
 
 func init() {
 	rootCmd.AddCommand(addCmd)
@@ -32,8 +38,9 @@ func runAddCommand(path string) error {
 		color.Red("CSync not initialized")
 		return nil
 	}
-	fileInLogs := IsFileListed(path, ".csync/staging/logs.json")
-	if fileInLogs {
+	// check if file is already in staging area
+	fileInStaging := IsFileListed(path, ".csync/staging/logs.json")
+	if fileInStaging {
 		// TO BE IMPLEMENTED
 		return nil
 	} else {
@@ -41,11 +48,11 @@ func runAddCommand(path string) error {
 		// there is at least one commit
 		if commitExists {
 			// file should be deleted?
-			isDeleted := IsFileDeleted(lastCommit, path)
+			isDeleted := isFileDeleted(lastCommit, path)
 			if isDeleted {
 				// TO BE IMPLEMENTED: move the file from the appr. commit
-				MoveToStaging(path, "removed")
-				LogOperation("REM", path)
+				MoveToStaging("./.csync/commits/"+lastCommit+"/added/"+path, "removed")
+				logOperation("REM", path)
 			} else {
 				// new file?
 				isNewFile := IsFileListed(path, ".csync/commits/"+lastCommit+"/fileList.json")
@@ -57,7 +64,7 @@ func runAddCommand(path string) error {
 					}
 					// add file
 					MoveToStaging(path, "added")
-					LogOperation("ADD", path)
+					logOperation("ADD", path)
 				}
 			}
 		} else {
@@ -69,10 +76,41 @@ func runAddCommand(path string) error {
 			}
 			// add file
 			MoveToStaging(path, "added")
-			LogOperation("ADD", path)
-			// there is a commit
+			logOperation("ADD", path)
 		}
 	}
 
 	return nil
+}
+
+// Log changes to the staging/logs.json file
+func logOperation(op string, path string) {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var payload []LogFile
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &payload); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		payload = append(payload, LogFile{
+			op:   op,
+			path: path,
+		})
+		err = writeJson(".csync/staging/logs.json", payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+// Check if the file exists in the commits/<commit_id>/added directory
+// and is missing from the working directory. This means that the file
+// should be deleted.
+func isFileDeleted(commit string, path string) bool {
+	existsInCommits := FileExists("./.csync/commits/" + commit + "/added/" + path)
+	existsInWorkdir := FileExists(path)
+	return existsInCommits && !existsInWorkdir
 }
