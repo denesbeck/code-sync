@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"slices"
 	"sort"
 	"strings"
 
@@ -17,10 +16,77 @@ type Metadata struct {
 	Default string
 	Current string
 }
+type LogFileEntry struct {
+	Op   string
+	Path string
+}
 type FileListEntry struct {
 	CommitId  string
 	Path      string
 	Timestamp string
+}
+
+// ### STAGING LOGS ###
+// Log changes to the staging/logs.json file
+func LogOperation(op string, path string) {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var payload []LogFileEntry
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &payload); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		payload = append(payload, LogFileEntry{
+			Op:   op,
+			Path: path,
+		})
+		err = writeJson(".csync/staging/logs.json", payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func LogEntryLookup(op string, path string) bool {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var payload []LogFileEntry
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &payload); err != nil {
+			log.Fatal(err)
+		}
+		for _, entry := range payload {
+			if entry.Op == op && entry.Path == path {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func TruncateLogs() {
+	err := os.WriteFile(".csync/staging/logs.json", []byte{}, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// ### STAGING LOGS ENDS ###
+
+/*
+Check if the file is listed in the commits/<commit_id>/fileList.json
+and is missing from the working directory.
+This would mean that the file should be deleted.
+*/
+func IsFileDeleted(filePath string, latestCommitId string) (isDeleted bool, srcCommitId string) {
+	existsInCommits, sourceCommitId := IsFileCommitted(filePath, latestCommitId)
+	existsInWorkdir := FileExists(filePath)
+	return existsInCommits && !existsInWorkdir, sourceCommitId
 }
 
 // read the .csyncignore.json file and return its content
@@ -57,11 +123,16 @@ func IsFileStaged(filePath string) bool {
 	if len(logs) == 0 {
 		return false
 	}
-	var payload []string
+	var payload []LogFileEntry
 	if err = json.Unmarshal(logs, &payload); err != nil {
 		log.Fatal(err)
 	}
-	return slices.Contains(payload, filePath)
+	for _, entry := range payload {
+		if entry.Path == filePath {
+			return true
+		}
+	}
+	return false
 }
 
 // Check if the file is already committed, return the commit id where the file was committed the last time
@@ -132,7 +203,7 @@ func CreateBranchesMetadata() error {
 	return nil
 }
 
-// Common
+// Misc
 func IsInitialized() bool {
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		return true
@@ -155,6 +226,11 @@ func CopyFile(src, dst string) (int64, error) {
 		return 0, err
 	}
 	defer source.Close()
+
+	// Check if the file already exists. If yes, remove it.
+	if FileExists(dst) {
+		os.Remove(dst)
+	}
 
 	destination, err := os.Create(dst)
 	if err != nil {
@@ -196,4 +272,16 @@ func writeJson(path string, data interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func IsModified(file1, file2 string) bool {
+	content1, err := os.ReadFile(file1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	content2, err := os.ReadFile(file2)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(content1) != string(content2)
 }

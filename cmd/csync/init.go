@@ -18,6 +18,7 @@ const (
 	stagingLogs = ".csync/staging/logs.json"
 	commits     = ".csync/commits"
 	// branches/<branch-name>/commits.json stores commit hashes for the branch
+	defaultBranch        = ".csync/branches/main"
 	defaultBranchCommits = ".csync/branches/main/commits.json"
 	// branches/metadata.json stores default branch and current branch names
 	branchesMetadata = ".csync/branches/metadata.json"
@@ -77,6 +78,9 @@ func runInitCommand() error {
 	}
 
 	// create default branch directory and commits file that lists commit hashes
+	if err := os.MkdirAll(defaultBranch, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
 	f, err = os.Create(defaultBranchCommits)
 	if err != nil {
 		log.Fatal(err)

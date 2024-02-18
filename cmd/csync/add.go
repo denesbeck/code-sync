@@ -1,18 +1,9 @@
 package csync
 
 import (
-	"encoding/json"
-	"log"
-	"os"
-
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
-
-type LogFileEntry struct {
-	Op   string
-	Path string
-}
 
 func init() {
 	rootCmd.AddCommand(addCmd)
@@ -41,18 +32,38 @@ func runAddCommand(filePath string) error {
 	// Check if file is already in staging area
 	fileStaged := IsFileStaged(filePath)
 	if fileStaged {
-		// TO BE IMPLEMENTED
-		return nil
+		added := LogEntryLookup("ADD", filePath)
+		if added {
+			modified := IsModified(filePath, "./.csync/staging/added/"+filePath)
+			if modified {
+				AddToStaging(filePath, "added")
+				return nil
+			}
+			return nil
+		}
+		modified := LogEntryLookup("MOD", filePath)
+		if modified {
+			modified := IsModified(filePath, "./.csync/staging/modified/"+filePath)
+			if modified {
+				AddToStaging(filePath, "modified")
+				return nil
+			}
+		}
+		removed := LogEntryLookup("REM", filePath)
+		if removed {
+			// TO BE IMPLEMENTED
+			return nil
+		}
 	} else {
 		// Check if there is at least one commit registered
 		latestCommitId, commitExists := GetLastCommit()
 
 		if commitExists {
 			// File should be deleted? Check if it is listed in the latest commit and missing from the working directory
-			shouldBeDeleted, srcCommitId := isFileDeleted(filePath, latestCommitId)
+			shouldBeDeleted, srcCommitId := IsFileDeleted(filePath, latestCommitId)
 			if shouldBeDeleted {
 				AddToStaging("./.csync/commits/"+srcCommitId+"/files/"+filePath, "removed")
-				logOperation("REM", filePath)
+				LogOperation("REM", filePath)
 			} else {
 				fileCommitted, _ := IsFileCommitted(filePath, latestCommitId)
 				// Is it a new file? Check if it was listed in the latest commit
@@ -64,7 +75,7 @@ func runAddCommand(filePath string) error {
 					}
 					// Add file to staging if it was not listed in the latest commit
 					AddToStaging(filePath, "added")
-					logOperation("ADD", filePath)
+					LogOperation("ADD", filePath)
 				}
 			}
 		} else {
@@ -76,42 +87,8 @@ func runAddCommand(filePath string) error {
 			}
 			// Add file to staging
 			AddToStaging(filePath, "added")
-			logOperation("ADD", filePath)
+			LogOperation("ADD", filePath)
 		}
 	}
 	return nil
-}
-
-// Log changes to the staging/logs.json file
-func logOperation(op string, path string) {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	var payload []LogFileEntry
-	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &payload); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		payload = append(payload, LogFileEntry{
-			Op:   op,
-			Path: path,
-		})
-		err = writeJson(".csync/staging/logs.json", payload)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-}
-
-/*
-Check if the file is listed in the commits/<commit_id>/fileList.json
-and is missing from the working directory.
-This would mean that the file should be deleted.
-*/
-func isFileDeleted(filePath string, latestCommitId string) (isDeleted bool, srcCommitId string) {
-	existsInCommits, sourceCommitId := IsFileCommitted(filePath, latestCommitId)
-	existsInWorkdir := FileExists(filePath)
-	return existsInCommits && !existsInWorkdir, sourceCommitId
 }
