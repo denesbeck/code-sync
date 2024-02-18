@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type LogFile struct {
-	op   string
-	path string
+type LogFileEntry struct {
+	Op   string
+	Path string
 }
 
 func init() {
@@ -20,7 +20,7 @@ func init() {
 
 var addCmd = &cobra.Command{
 	Use:     "add",
-	Short:   "This command adds the selected files to the staging area.",
+	Short:   "This command adds the selected files to the staging area",
 	Example: "csync add",
 	RunE: func(_ *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -31,55 +31,54 @@ var addCmd = &cobra.Command{
 	},
 }
 
-func runAddCommand(path string) error {
-	// check if csync is initialized
+func runAddCommand(filePath string) error {
+	// Check if csync is initialized
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
 		return nil
 	}
-	// check if file is already in staging area
-	fileInStaging := IsFileListed(path, ".csync/staging/logs.json")
-	if fileInStaging {
+	// Check if file is already in staging area
+	fileStaged := IsFileStaged(filePath)
+	if fileStaged {
 		// TO BE IMPLEMENTED
 		return nil
 	} else {
-		lastCommit, commitExists := GetLastCommit()
-		// there is at least one commit
+		// Check if there is at least one commit registered
+		latestCommitId, commitExists := GetLastCommit()
+
 		if commitExists {
-			// file should be deleted?
-			isDeleted := isFileDeleted(lastCommit, path)
-			if isDeleted {
-				// TO BE IMPLEMENTED: move the file from the appr. commit
-				MoveToStaging("./.csync/commits/"+lastCommit+"/added/"+path, "removed")
-				logOperation("REM", path)
+			// File should be deleted? Check if it is listed in the latest commit and missing from the working directory
+			shouldBeDeleted, srcCommitId := isFileDeleted(filePath, latestCommitId)
+			if shouldBeDeleted {
+				AddToStaging("./.csync/commits/"+srcCommitId+"/files/"+filePath, "removed")
+				logOperation("REM", filePath)
 			} else {
-				// new file?
-				isNewFile := IsFileListed(path, ".csync/commits/"+lastCommit+"/fileList.json")
-				if isNewFile {
-					exists := FileExists(path)
+				fileCommitted, _ := IsFileCommitted(filePath, latestCommitId)
+				// Is it a new file? Check if it was listed in the latest commit
+				if !fileCommitted {
+					exists := FileExists(filePath)
 					if !exists {
 						color.Red("File does not exist")
 						return nil
 					}
-					// add file
-					MoveToStaging(path, "added")
-					logOperation("ADD", path)
+					// Add file to staging if it was not listed in the latest commit
+					AddToStaging(filePath, "added")
+					logOperation("ADD", filePath)
 				}
 			}
 		} else {
-			// check if file exists
-			exists := FileExists(path)
+			// Check if file exists
+			exists := FileExists(filePath)
 			if !exists {
 				color.Red("File does not exist")
 				return nil
 			}
-			// add file
-			MoveToStaging(path, "added")
-			logOperation("ADD", path)
+			// Add file to staging
+			AddToStaging(filePath, "added")
+			logOperation("ADD", filePath)
 		}
 	}
-
 	return nil
 }
 
@@ -89,15 +88,15 @@ func logOperation(op string, path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var payload []LogFile
+	var payload []LogFileEntry
 	if len(logs) > 0 {
 		if err = json.Unmarshal(logs, &payload); err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		payload = append(payload, LogFile{
-			op:   op,
-			path: path,
+		payload = append(payload, LogFileEntry{
+			Op:   op,
+			Path: path,
 		})
 		err = writeJson(".csync/staging/logs.json", payload)
 		if err != nil {
@@ -106,11 +105,13 @@ func logOperation(op string, path string) {
 	}
 }
 
-// Check if the file exists in the commits/<commit_id>/added directory
-// and is missing from the working directory. This means that the file
-// should be deleted.
-func isFileDeleted(commit string, path string) bool {
-	existsInCommits := FileExists("./.csync/commits/" + commit + "/added/" + path)
-	existsInWorkdir := FileExists(path)
-	return existsInCommits && !existsInWorkdir
+/*
+Check if the file is listed in the commits/<commit_id>/fileList.json
+and is missing from the working directory.
+This would mean that the file should be deleted.
+*/
+func isFileDeleted(filePath string, latestCommitId string) (isDeleted bool, srcCommitId string) {
+	existsInCommits, sourceCommitId := IsFileCommitted(filePath, latestCommitId)
+	existsInWorkdir := FileExists(filePath)
+	return existsInCommits && !existsInWorkdir, sourceCommitId
 }

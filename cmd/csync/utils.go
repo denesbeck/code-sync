@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
@@ -14,13 +13,14 @@ import (
 	"github.com/fatih/color"
 )
 
-type File struct {
-	Timestamp string
-	Path      string
-}
 type Metadata struct {
 	Default string
 	Current string
+}
+type FileListEntry struct {
+	CommitId  string
+	Path      string
+	Timestamp string
 }
 
 // read the .csyncignore.json file and return its content
@@ -47,9 +47,9 @@ func readCsyncIgnore() []string {
 }
 
 // Add
-// Check if the file is in the specified json list
-func IsFileListed(filePath string, listPath string) bool {
-	logs, err := os.ReadFile(listPath)
+// Check if the file is already staged
+func IsFileStaged(filePath string) bool {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,6 +62,24 @@ func IsFileListed(filePath string, listPath string) bool {
 		log.Fatal(err)
 	}
 	return slices.Contains(payload, filePath)
+}
+
+// Check if the file is already committed, return the commit id where the file was committed the last time
+func IsFileCommitted(filePath string, latestCommitId string) (isCommitted bool, srcCommitId string) {
+	fileList, err := os.ReadFile(".csync/commits/" + latestCommitId + "/fileList.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var payload []FileListEntry
+	if err = json.Unmarshal(fileList, &payload); err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range payload {
+		if file.Path == filePath {
+			return true, file.CommitId
+		}
+	}
+	return false, ""
 }
 
 // Get the id of the last commit, if there is one
@@ -84,7 +102,7 @@ func GetLastCommit() (string, bool) {
 }
 
 // Copies the file to the staging area respecting the operation
-func MoveToStaging(path string, op string) {
+func AddToStaging(path string, op string) {
 	dirs, file := ParsePath(path)
 
 	fullPath := ".csync/staging/" + op + "/" + dirs
@@ -101,36 +119,6 @@ func MoveToStaging(path string, op string) {
 }
 
 // Init
-func CreateFileList() error {
-	var fileList []File
-	content := readCsyncIgnore()
-
-	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		// TO BE IMPLEMENTED: wildcards
-		isTarget := !info.IsDir() && !strings.HasPrefix(path, ".csync/") && info.Name() != ".csyncignore.json" && !slices.Contains(content, path)
-
-		if isTarget {
-			fileList = append(fileList, File{
-				Timestamp: info.ModTime().UTC().String(),
-				Path:      path,
-			})
-		}
-		err = writeJson(".csync/staging/fileList.json", fileList)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func CreateBranchesMetadata() error {
 	branchesMetadata := Metadata{
 		Default: "main",

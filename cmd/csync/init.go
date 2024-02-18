@@ -15,10 +15,12 @@ const (
 	stagingRemoved  = ".csync/staging/removed"
 	// log files for any add command operations
 	// format: op: ADD | MOD | REM, path: path/to/file
-	stagingLogs          = ".csync/staging/logs.json"
-	commits              = ".csync/commits"
+	stagingLogs = ".csync/staging/logs.json"
+	commits     = ".csync/commits"
+	// branches/<branch-name>/commits.json stores commit hashes for the branch
 	defaultBranchCommits = ".csync/branches/main/commits.json"
-	branchesMetadata     = ".csync/branches/metadata.json"
+	// branches/metadata.json stores default branch and current branch names
+	branchesMetadata = ".csync/branches/metadata.json"
 )
 
 func init() {
@@ -27,7 +29,7 @@ func init() {
 
 var initCmd = &cobra.Command{
 	Use:     "init",
-	Short:   "This command creates an empty CSync repository.",
+	Short:   "This command creates an empty CSync repository",
 	Example: "csync init",
 	RunE: func(_ *cobra.Command, _ []string) error {
 		return runInitCommand()
@@ -35,10 +37,13 @@ var initCmd = &cobra.Command{
 }
 
 func runInitCommand() error {
+	// check if .csync directory already exists
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		color.Red("CSync already initialized")
 		return nil
 	}
+
+	// create staging directories: added, modified, removed
 	if err := os.MkdirAll(stagingAdded, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
@@ -48,19 +53,37 @@ func runInitCommand() error {
 	if err := os.MkdirAll(stagingRemoved, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
+
+	// create staging logs file
 	f, err := os.Create(stagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
 	f.Close()
+
+	// create commits directory
+	/*
+		Structure of commits directory:
+		  commits/
+		    |
+		    - <commit-hash>/
+		      |
+		      - added/
+		      - modified/
+		      - fileList.json
+	*/
 	if err := os.MkdirAll(commits, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
+
+	// create default branch directory and commits file that lists commit hashes
 	f, err = os.Create(defaultBranchCommits)
 	if err != nil {
 		log.Fatal(err)
 	}
 	f.Close()
+
+	// create branches metadata file which contains default branch and current branch names
 	err = CreateBranchesMetadata()
 	if err != nil {
 		log.Fatal(err)
