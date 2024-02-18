@@ -29,27 +29,33 @@ func runAddCommand(filePath string) error {
 		color.Red("CSync not initialized")
 		return nil
 	}
+
+	// Get file name from file path
+	_, file := ParsePath(filePath)
+	// Generate a random 32 byte long hex string
+	generatedId := GenRandHex(32)
+
 	// Check if file is already in staging area
 	fileStaged := IsFileStaged(filePath)
 	if fileStaged {
-		added := LogEntryLookup("ADD", filePath)
+		added, id := LogEntryLookup("ADD", filePath)
 		if added {
-			modified := IsModified(filePath, "./.csync/staging/added/"+filePath)
+			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+file)
 			if modified {
-				AddToStaging(filePath, "added")
+				AddToStaging(id, filePath, "added")
 				return nil
 			}
 			return nil
 		}
-		modified := LogEntryLookup("MOD", filePath)
+		modified, id := LogEntryLookup("MOD", filePath)
 		if modified {
-			modified := IsModified(filePath, "./.csync/staging/modified/"+filePath)
+			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+filePath)
 			if modified {
-				AddToStaging(filePath, "modified")
+				AddToStaging(id, filePath, "modified")
 				return nil
 			}
 		}
-		removed := LogEntryLookup("REM", filePath)
+		removed, id := LogEntryLookup("REM", filePath)
 		if removed {
 			// TO BE IMPLEMENTED
 			return nil
@@ -62,8 +68,8 @@ func runAddCommand(filePath string) error {
 			// File should be deleted? Check if it is listed in the latest commit and missing from the working directory
 			shouldBeDeleted, srcCommitId := IsFileDeleted(filePath, latestCommitId)
 			if shouldBeDeleted {
-				AddToStaging("./.csync/commits/"+srcCommitId+"/files/"+filePath, "removed")
-				LogOperation("REM", filePath)
+				AddToStaging(generatedId, "./.csync/commits/"+srcCommitId+"/files/"+filePath, "removed")
+				LogOperation(generatedId, "REM", filePath)
 			} else {
 				fileCommitted, _ := IsFileCommitted(filePath, latestCommitId)
 				// Is it a new file? Check if it was listed in the latest commit
@@ -74,8 +80,8 @@ func runAddCommand(filePath string) error {
 						return nil
 					}
 					// Add file to staging if it was not listed in the latest commit
-					AddToStaging(filePath, "added")
-					LogOperation("ADD", filePath)
+					AddToStaging(generatedId, filePath, "added")
+					LogOperation(generatedId, "ADD", filePath)
 				}
 			}
 		} else {
@@ -86,8 +92,8 @@ func runAddCommand(filePath string) error {
 				return nil
 			}
 			// Add file to staging
-			AddToStaging(filePath, "added")
-			LogOperation("ADD", filePath)
+			AddToStaging(generatedId, filePath, "added")
+			LogOperation(generatedId, "ADD", filePath)
 		}
 	}
 	return nil

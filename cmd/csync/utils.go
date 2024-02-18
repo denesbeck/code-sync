@@ -1,6 +1,8 @@
 package csync
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"io"
@@ -17,18 +19,19 @@ type Metadata struct {
 	Current string
 }
 type LogFileEntry struct {
+	Id   string
 	Op   string
 	Path string
 }
 type FileListEntry struct {
-	CommitId  string
-	Path      string
-	Timestamp string
+	Id       string
+	CommitId string
+	Path     string
 }
 
 // ### STAGING LOGS ###
 // Log changes to the staging/logs.json file
-func LogOperation(op string, path string) {
+func LogOperation(id string, op string, path string) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
@@ -38,19 +41,19 @@ func LogOperation(op string, path string) {
 		if err = json.Unmarshal(logs, &payload); err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		payload = append(payload, LogFileEntry{
-			Op:   op,
-			Path: path,
-		})
-		err = writeJson(".csync/staging/logs.json", payload)
-		if err != nil {
-			log.Fatal(err)
-		}
+	}
+	payload = append(payload, LogFileEntry{
+		Id:   id,
+		Op:   op,
+		Path: path,
+	})
+	err = writeJson(".csync/staging/logs.json", payload)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
-func LogEntryLookup(op string, path string) bool {
+func LogEntryLookup(op string, path string) (bool, string) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
@@ -62,11 +65,11 @@ func LogEntryLookup(op string, path string) bool {
 		}
 		for _, entry := range payload {
 			if entry.Op == op && entry.Path == path {
-				return true
+				return true, entry.Id
 			}
 		}
 	}
-	return false
+	return false, ""
 }
 
 func TruncateLogs() {
@@ -173,16 +176,13 @@ func GetLastCommit() (string, bool) {
 }
 
 // Copies the file to the staging area respecting the operation
-func AddToStaging(path string, op string) {
-	dirs, file := ParsePath(path)
+func AddToStaging(id string, path string, op string) {
+	_, file := ParsePath(path)
 
-	fullPath := ".csync/staging/" + op + "/" + dirs
-
-	if err := os.MkdirAll(fullPath, os.ModePerm); err != nil {
+	if err := os.MkdirAll(".csync/staging/"+op+"/"+id, 0755); err != nil {
 		log.Fatal(err)
 	}
-
-	_, err := CopyFile(path, fullPath+file)
+	_, err := CopyFile(path, ".csync/staging/"+op+"/"+id+"/"+file)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -284,4 +284,11 @@ func IsModified(file1, file2 string) bool {
 		log.Fatal(err)
 	}
 	return string(content1) != string(content2)
+}
+
+func GenRandHex(length int) string {
+	Rando := rand.Reader
+	b := make([]byte, length)
+	_, _ = Rando.Read(b)
+	return hex.EncodeToString(b)
 }
