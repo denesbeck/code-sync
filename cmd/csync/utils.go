@@ -212,11 +212,13 @@ func IsInitialized() bool {
 }
 
 func CopyFile(src, dst string) (int64, error) {
+	// File exists?
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return 0, err
 	}
 
+	// Is it a regular file?
 	if !sourceFileStat.Mode().IsRegular() {
 		return 0, errors.New("Not a regular file")
 	}
@@ -232,6 +234,7 @@ func CopyFile(src, dst string) (int64, error) {
 		os.Remove(dst)
 	}
 
+	// Create the file
 	destination, err := os.Create(dst)
 	if err != nil {
 		return 0, err
