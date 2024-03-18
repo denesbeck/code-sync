@@ -49,7 +49,7 @@ func runAddCommand(filePath string) error {
 		}
 		modified, id := LogEntryLookup("MOD", filePath)
 		if modified {
-			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+filePath)
+			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+file)
 			if modified {
 				AddToStaging(id, filePath, "modified")
 				return nil
@@ -57,7 +57,13 @@ func runAddCommand(filePath string) error {
 		}
 		removed, id := LogEntryLookup("REM", filePath)
 		if removed {
-			// TO BE IMPLEMENTED
+			exists := FileExists("./.csync/staging/removed/" + id + "/" + file)
+			if !exists {
+				modified := IsModified(filePath, "./.csync/staging/removed/"+id+"/"+file)
+				if modified {
+					// TODO: Add to staging
+				}
+			}
 			return nil
 		}
 	} else {
