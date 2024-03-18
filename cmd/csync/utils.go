@@ -53,6 +53,7 @@ func LogOperation(id string, op string, path string) {
 	}
 }
 
+// Look up the logs.json file for a specific operation and path. It returns a boolean value and the id of the log entry.
 func LogEntryLookup(op string, path string) (bool, string) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
@@ -70,6 +71,33 @@ func LogEntryLookup(op string, path string) (bool, string) {
 		}
 	}
 	return false, ""
+}
+
+func RemoveLogEntry(id string) bool {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	var payload []LogFileEntry
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &payload); err != nil {
+			log.Fatal(err)
+			return false
+		}
+	}
+	for i, entry := range payload {
+		if entry.Id == id {
+			payload = append(payload[:i], payload[i+1:]...)
+			break
+		}
+	}
+	err = writeJson(".csync/staging/logs.json", payload)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
 }
 
 func TruncateLogs() {
@@ -92,7 +120,7 @@ func IsFileDeleted(filePath string, latestCommitId string) (isDeleted bool, srcC
 	return existsInCommits && !existsInWorkdir, sourceCommitId
 }
 
-// read the .csyncignore.json file and return its content
+// Read the .csyncignore.json file and return its content
 func readCsyncIgnore() []string {
 	_, err := os.Stat(".csyncignore.json")
 	if os.IsNotExist(err) {
@@ -156,7 +184,7 @@ func IsFileCommitted(filePath string, latestCommitId string) (isCommitted bool, 
 	return false, ""
 }
 
-// Get the id of the last commit, if there is one
+// Get the id of the last commit, if there is one. Otherwise return false.
 func GetLastCommit() (string, bool) {
 	dirs, err := os.ReadDir(".csync/commits")
 	if err != nil {
@@ -189,6 +217,14 @@ func AddToStaging(id string, path string, op string) {
 	color.Green("File added successfully")
 }
 
+// ### Csync Misc ###
+func IsInitialized() bool {
+	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
+		return true
+	}
+	return false
+}
+
 // Init
 func CreateBranchesMetadata() error {
 	branchesMetadata := Metadata{
@@ -203,14 +239,9 @@ func CreateBranchesMetadata() error {
 	return nil
 }
 
-// Misc
-func IsInitialized() bool {
-	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
-		return true
-	}
-	return false
-}
+// ### Csync Misc ENDS ###
 
+// ### FILE OPERATIONS ###
 func CopyFile(src, dst string) (int64, error) {
 	// File exists?
 	sourceFileStat, err := os.Stat(src)
@@ -245,6 +276,13 @@ func CopyFile(src, dst string) (int64, error) {
 	return nBytes, err
 }
 
+func RemoveFile(path string) {
+	err := os.Remove(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return true
@@ -265,18 +303,6 @@ func ParsePath(path string) (string, string) {
 	return dirs, file
 }
 
-func writeJson(path string, data interface{}) error {
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(path, jsonData, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func IsModified(file1, file2 string) bool {
 	content1, err := os.ReadFile(file1)
 	if err != nil {
@@ -287,6 +313,20 @@ func IsModified(file1, file2 string) bool {
 		log.Fatal(err)
 	}
 	return string(content1) != string(content2)
+}
+
+// ### FILE OPERATIONS ENDS ###
+
+func writeJson(path string, data interface{}) error {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(path, jsonData, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GenRandHex(length int) string {

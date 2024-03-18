@@ -29,11 +29,18 @@ func runAddCommand(filePath string) error {
 		color.Red("CSync not initialized")
 		return nil
 	}
-
+	// Check if file exists
+	exists := FileExists(filePath)
+	if !exists {
+		color.Red("File does not exist")
+		return nil
+	}
 	// Get file name from file path
 	_, file := ParsePath(filePath)
 	// Generate a random 32 byte long hex string
 	generatedId := GenRandHex(32)
+	// Check if there is at least one commit registered
+	latestCommitId, commitExists := GetLastCommit()
 
 	// Check if file is already in staging area
 	fileStaged := IsFileStaged(filePath)
@@ -57,19 +64,29 @@ func runAddCommand(filePath string) error {
 		}
 		removed, id := LogEntryLookup("REM", filePath)
 		if removed {
-			exists := FileExists("./.csync/staging/removed/" + id + "/" + file)
-			if !exists {
-				modified := IsModified(filePath, "./.csync/staging/removed/"+id+"/"+file)
-				if modified {
-					// TODO: Add to staging
+			fileExists := FileExists("./.csync/staging/removed/" + id + "/" + file)
+			if fileExists {
+				if !commitExists {
+					RemoveFile("./.csync/staging/removed/" + id + "/" + file)
+					RemoveLogEntry(id)
+					AddToStaging(id, filePath, "added")
+					LogOperation(generatedId, "ADD", filePath)
+				} else {
+					modified := IsModified(filePath, "./.csync/commits/"+latestCommitId+"/"+file)
+					if modified {
+						RemoveFile("./.csync/staging/removed/" + id + "/" + file)
+						RemoveLogEntry(id)
+						AddToStaging(id, filePath, "modified")
+						LogOperation(generatedId, "MOD", filePath)
+					} else {
+						RemoveFile("./.csync/staging/removed/" + id + "/" + file)
+						RemoveLogEntry(id)
+					}
 				}
 			}
 			return nil
 		}
 	} else {
-		// Check if there is at least one commit registered
-		latestCommitId, commitExists := GetLastCommit()
-
 		if commitExists {
 			// File should be deleted? Check if it is listed in the latest commit and missing from the working directory
 			shouldBeDeleted, srcCommitId := IsFileDeleted(filePath, latestCommitId)
@@ -80,23 +97,12 @@ func runAddCommand(filePath string) error {
 				fileCommitted, _ := IsFileCommitted(filePath, latestCommitId)
 				// Is it a new file? Check if it was listed in the latest commit
 				if !fileCommitted {
-					exists := FileExists(filePath)
-					if !exists {
-						color.Red("File does not exist")
-						return nil
-					}
 					// Add file to staging if it was not listed in the latest commit
 					AddToStaging(generatedId, filePath, "added")
 					LogOperation(generatedId, "ADD", filePath)
 				}
 			}
 		} else {
-			// Check if file exists
-			exists := FileExists(filePath)
-			if !exists {
-				color.Red("File does not exist")
-				return nil
-			}
 			// Add file to staging
 			AddToStaging(generatedId, filePath, "added")
 			LogOperation(generatedId, "ADD", filePath)
