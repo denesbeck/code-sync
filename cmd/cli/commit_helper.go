@@ -27,7 +27,7 @@ func GetLastCommit() string {
 }
 
 func GetLastCommitByBranch(branch string) string {
-	commits, err := os.ReadFile(".csync/branches/" + branch + "/commits.json")
+	commits, err := os.ReadFile(dirs.Branches + branch + "/commits.json")
 	if err != nil {
 		log.Fatal(err)
 	}
