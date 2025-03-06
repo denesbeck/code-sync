@@ -20,6 +20,7 @@ var commitCmd = &cobra.Command{
 	Example: "csync commit -m <your commit message>",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting commit command with message: %s", Message)
 		runCommitCommand(Message)
 	},
 }
@@ -27,31 +28,39 @@ var commitCmd = &cobra.Command{
 func runCommitCommand(message string) {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	empty := IsStagingLogsEmpty()
 	if empty {
+		Debug("No changes staged for commit")
 		color.Red("Nothing to commit")
 		return
 	}
 
 	newCommitId := GenRandHex(20)
 	latestCommitId := GetLastCommit()
+	Debug("Creating new commit: id=%s, parent=%s", newCommitId, latestCommitId)
 
 	ProcessFileList(latestCommitId, newCommitId)
+	Debug("Processed file list for commit")
 
 	WriteCommitMetadata(newCommitId, message)
+	Debug("Wrote commit metadata")
 
 	CopyFile(dirs.StagingLogs, dirs.Commits+newCommitId+"/logs.json")
+	Debug("Copied staging logs to commit")
 
 	TruncateLogs()
 	EmptyDir(dirs.StagingAdded)
 	EmptyDir(dirs.StagingModified)
 	EmptyDir(dirs.StagingRemoved)
+	Debug("Cleaned up staging area")
 
 	RegisterCommitForBranch(newCommitId)
+	Debug("Registered commit for current branch")
 
 	color.Green("Changes committed successfully")
 }
