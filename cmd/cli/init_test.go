@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestInit(t *testing.T) {
+func Test_Init(t *testing.T) {
 	os.RemoveAll(namespace)
 
 	runInitCommand()
@@ -17,7 +17,7 @@ func TestInit(t *testing.T) {
 	os.RemoveAll(namespace)
 }
 
-func TestIsInitialized(t *testing.T) {
+func Test_IsInitialized(t *testing.T) {
 	os.RemoveAll(namespace)
 
 	if IsInitialized() {

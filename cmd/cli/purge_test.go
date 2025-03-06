@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestPurge(t *testing.T) {
+func Test_Purge(t *testing.T) {
 	// Clean __test__ namespace
 	os.RemoveAll(namespace)
 
@@ -28,4 +28,10 @@ func TestPurge(t *testing.T) {
 			t.Errorf("Directory %s not purged", dir)
 		}
 	}
+
+	if IsInitialized() {
+		t.Errorf("CSync not purged")
+	}
+
+	os.RemoveAll(namespace)
 }
