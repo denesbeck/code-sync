@@ -24,7 +24,7 @@ var initCmd = &cobra.Command{
 }
 
 func runInitCommand() {
-	if _, err := os.Stat(namespace + ".csync"); !os.IsNotExist(err) {
+	if _, err := os.Stat(dirs.Root); !os.IsNotExist(err) {
 		color.Red("CSync already initialized")
 		return
 	}

@@ -44,12 +44,12 @@ func runCommitCommand(message string) {
 
 	WriteCommitMetadata(newCommitId, message)
 
-	CopyFile("./.csync/staging/logs.json", "./.csync/commits/"+newCommitId+"/logs.json")
+	CopyFile(dirs.StagingLogs, dirs.Commits+newCommitId+"/logs.json")
 
 	TruncateLogs()
-	EmptyDir("./.csync/staging/added/")
-	EmptyDir("./.csync/staging/modified/")
-	EmptyDir("./.csync/staging/removed/")
+	EmptyDir(dirs.StagingAdded)
+	EmptyDir(dirs.StagingModified)
+	EmptyDir(dirs.StagingRemoved)
 
 	RegisterCommitForBranch(newCommitId)
 

@@ -126,8 +126,7 @@ func setConfig(key string, value string) {
 	if initialized := IsInitialized(); !initialized {
 		color.Red("CSync not initialized")
 	}
-	const PATH = "./.csync/config.json"
-	config, err := os.ReadFile(PATH)
+	config, err := os.ReadFile(dirs.Config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -149,7 +148,7 @@ func setConfig(key string, value string) {
 		log.Fatal(err)
 	}
 
-	if err = os.WriteFile(PATH, jsonData, 0644); err != nil {
+	if err = os.WriteFile(dirs.Config, jsonData, 0644); err != nil {
 		log.Fatal(err)
 	}
 }
