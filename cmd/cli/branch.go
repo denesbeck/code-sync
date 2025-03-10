@@ -103,7 +103,7 @@ func runBranchCommand() {
 		return
 	}
 
-	branches, err := os.ReadDir("./.csync/branches")
+	branches, err := os.ReadDir(dirs.Branches)
 	if err != nil {
 		Debug("No branches found")
 		color.Red("No branches found")
@@ -159,18 +159,24 @@ func runDefaultCommand() {
 	fmt.Println(defaultBranchName)
 }
 
-func runNewCommand(branchName string, fromCommit string, fromBranch string) {
+func runNewCommand(branchName string, fromCommit string, fromBranch string) int {
 	initialized := IsInitialized()
 	if !initialized {
 		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
-		return
+		color.Red(COMMON_RETURN_CODES[001])
+		return 001
+	}
+
+	if !IsValidBranchName(branchName) {
+		Debug("Invalid branch name: %s", branchName)
+		color.Red(BRANCH_RETURN_CODES[201])
+		return 201
 	}
 
 	if fromCommit != "" && fromBranch != "" {
 		Debug("Cannot create branch from both commit and branch")
-		color.Red("Cannot create branch from both commit and branch")
-		return
+		color.Red(BRANCH_RETURN_CODES[202])
+		return 202
 	}
 
 	var srcBranch string
@@ -179,8 +185,8 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 		branches := ListBranches()
 		if !slices.Contains(branches, srcBranch) {
 			Debug("Source branch does not exist: %s", srcBranch)
-			color.Red("Source branch does not exist")
-			return
+			color.Red(BRANCH_RETURN_CODES[203])
+			return 203
 		}
 	} else {
 		srcBranch = GetCurrentBranchName()
@@ -191,22 +197,23 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 		err := CopyCommitsToBranch(fromCommit, branchName)
 		if err != nil {
 			Debug("Failed to create branch from commit: %v", err)
-			color.Red(err.Error())
-			return
+			color.Red(BRANCH_RETURN_CODES[204])
+			return 204
 		}
 	} else {
 		Debug("Creating branch from branch: %s", srcBranch)
 		if err := os.Mkdir(dirs.Branches+branchName, 0755); err != nil {
 			Debug("Branch already exists: %s", branchName)
-			color.Red("Branch already exists")
-			return
+			color.Red(BRANCH_RETURN_CODES[205])
+			return 205
 		}
 
 		CopyFile(dirs.Branches+srcBranch+"/commits.json", dirs.Branches+branchName+"/commits.json")
 	}
 	Debug("Branch created successfully: %s", branchName)
-	color.Green("Branch created successfully")
+	color.Green(BRANCH_RETURN_CODES[206])
 	runSwitchCommand(branchName)
+	return 206
 }
 
 func runDropCommand(branchName string) {
