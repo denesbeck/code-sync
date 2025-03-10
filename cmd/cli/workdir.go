@@ -24,7 +24,7 @@ var workdirCmd = &cobra.Command{
 
 func runWorkdirCommand() {
 	if initialized := IsInitialized(); !initialized {
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 	commitId := GetLastCommit()

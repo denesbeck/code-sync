@@ -28,8 +28,7 @@ var commitCmd = &cobra.Command{
 func runCommitCommand(message string) {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 

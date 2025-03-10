@@ -98,8 +98,7 @@ var switchCmd = &cobra.Command{
 func runBranchCommand() {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 
@@ -136,8 +135,7 @@ func runBranchCommand() {
 func runCurrentCommand() {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 
@@ -149,8 +147,7 @@ func runCurrentCommand() {
 func runDefaultCommand() {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 
@@ -162,7 +159,6 @@ func runDefaultCommand() {
 func runNewCommand(branchName string, fromCommit string, fromBranch string) int {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
 		color.Red(COMMON_RETURN_CODES[001])
 		return 001
 	}
@@ -219,8 +215,7 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) int 
 func runDropCommand(branchName string) {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 
@@ -255,8 +250,7 @@ func runDropCommand(branchName string) {
 func runSwitchCommand(branchName string) {
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 

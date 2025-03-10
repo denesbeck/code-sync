@@ -26,7 +26,6 @@ func runAddCommand(filePath string) int {
 	Debug("Processing file: %s", filePath)
 	initialized := IsInitialized()
 	if !initialized {
-		Debug("CSync not initialized")
 		color.Red(COMMON_RETURN_CODES[001])
 		return 001
 	}
