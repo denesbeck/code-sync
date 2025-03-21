@@ -51,8 +51,40 @@ func Test_DropCurrentBranch(t *testing.T) {
 	// TODO: Implement
 }
 
+func Test_NewBranchAlreadyExists(t *testing.T) {
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+
+	statusCode := runNewCommand("test-branch", "", "")
+	if statusCode != 206 {
+		t.Errorf("Expected 206, got %d", statusCode)
+	}
+
+	statusCode = runNewCommand("test-branch", "", "")
+	if statusCode != 205 {
+		t.Errorf("Expected 205, got %d", statusCode)
+	}
+
+	os.RemoveAll(namespace)
+}
+
 func Test_NewBranchInvalidName(t *testing.T) {
-	// TODO: Implement
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+
+	statusCode := runNewCommand("test-branch", "", "")
+	if statusCode != 206 {
+		t.Errorf("Expected 206, got %d", statusCode)
+	}
+
+	statusCode = runNewCommand("test branch %#^@#&", "", "")
+	if statusCode != 201 {
+		t.Errorf("Expected 201, got %d", statusCode)
+	}
+
+	os.RemoveAll(namespace)
 }
 
 // Test: new, switch, drop, current, default
