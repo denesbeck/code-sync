@@ -26,4 +26,9 @@ var BRANCH_RETURN_CODES = map[int]string{
 	204: "Failed to create branch from commit",
 	205: "Branch already exists",
 	206: "Branch created successfully",
+	207: "Branch does not exist",
+	208: "Cannot delete current branch",
+	209: "Cannot delete default branch",
+	210: "Branch does not exist",
+	211: "Branch deleted successfully",
 }
