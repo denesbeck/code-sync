@@ -269,7 +269,7 @@ func runSwitchCommand(branchName string) {
 		return
 	}
 
-	commitId := GetLastCommitByBranch(branchName)
+	commitId := GetLastCommitByBranch(branchName).Id
 	if commitId != "" {
 		Debug("Switching to commit: %s", commitId)
 		fileList := GetFileListContent(commitId)

@@ -10,9 +10,9 @@ import (
 )
 
 type Commit struct {
-	Id           string
-	Timestamp    string
-	PrevCommitId string
+	Id        string
+	Timestamp string
+	Next      string
 }
 
 type CommitMetadata struct {
@@ -20,7 +20,7 @@ type CommitMetadata struct {
 	Message string
 }
 
-func GetLastCommit() string {
+func GetLastCommit() Commit {
 	Debug("Getting last commit")
 	currentBranchName := GetCurrentBranchName()
 	commit := GetLastCommitByBranch(currentBranchName)
@@ -28,7 +28,7 @@ func GetLastCommit() string {
 	return commit
 }
 
-func GetLastCommitByBranch(branch string) string {
+func GetLastCommitByBranch(branch string) Commit {
 	Debug("Getting last commit for branch: %s", branch)
 	commits, err := os.ReadFile(dirs.Branches + branch + "/commits.json")
 	if err != nil {
@@ -42,13 +42,13 @@ func GetLastCommitByBranch(branch string) string {
 	}
 	if len(content) == 0 {
 		Debug("No commits found for branch")
-		return ""
+		return Commit{}
 	}
 	sort.Slice(content, func(i, j int) bool {
 		return content[i].Timestamp > content[j].Timestamp
 	})
 	Debug("Last commit for branch: %s", content[0].Id)
-	return content[0].Id
+	return content[0]
 }
 
 func GetCommits() *[]Commit {
@@ -169,8 +169,10 @@ func RegisterCommitForBranch(commitId string) {
 		Debug("Failed to unmarshal commits")
 		log.Fatal(err)
 	}
-	lastCommit := GetLastCommit()
-	content = append(content, Commit{Id: commitId, Timestamp: GetTimestamp(), PrevCommitId: lastCommit})
+	content = append(content, Commit{Id: commitId, Timestamp: GetTimestamp(), Next: ""})
+	if len(content) > 1 {
+		content[len(content)-2].Next = commitId
+	}
 	WriteJson(dirs.Branches+currentBranchName+"/commits.json", content)
 	Debug("Commit registered successfully")
 }

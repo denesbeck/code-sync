@@ -41,7 +41,7 @@ func IsFileStaged(filePath string) bool {
 
 func GetFileMetadata(filePath string) (isCommitted bool, commitId string, fileId string) {
 	Debug("Getting file metadata: %s", filePath)
-	latestCommitId := GetLastCommit()
+	latestCommitId := GetLastCommit().Id
 	if latestCommitId == "" {
 		Debug("No commits found")
 		return false, "", ""
