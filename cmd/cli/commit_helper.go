@@ -45,7 +45,7 @@ func GetLastCommitByBranch(branch string) Commit {
 		return Commit{}
 	}
 	sort.Slice(content, func(i, j int) bool {
-		return content[i].Timestamp > content[j].Timestamp
+		return content[i].Next != content[j].Id
 	})
 	Debug("Last commit for branch: %s", content[0].Id)
 	return content[0]
@@ -120,7 +120,7 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 			for i, entry := range *fileList {
 				if entry.Path == logEntry.Path {
 					Debug("Removing file from list: %s", entry.Path)
-					*fileList = append((*fileList)[:i], (*fileList)[i+1:]...)
+					*fileList = slices.Delete((*fileList), i, i+1)
 					break
 				}
 			}
