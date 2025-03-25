@@ -3,8 +3,6 @@ package cli
 import (
 	"log"
 	"os"
-
-	"github.com/fatih/color"
 )
 
 func AddToStaging(id string, path string, op string) {
@@ -17,5 +15,4 @@ func AddToStaging(id string, path string, op string) {
 	}
 	CopyFile(path, dirs.Staging+op+"/"+id+"/"+file)
 	Debug("File added to staging successfully")
-	color.Green("File added to staging")
 }
