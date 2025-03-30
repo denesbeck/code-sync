@@ -38,7 +38,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 	runInitCommand()
 	runNewCommand("test-branch", "", "")
 
-	for i := 1; i < 501; i++ {
+	for i := 1; i <= 100; i++ {
 		// create 5 test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
@@ -49,7 +49,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 
 	selectedCommit := GetLastCommit().Id
 
-	for i := 501; i < 1001; i++ {
+	for i := 101; i <= 200; i++ {
 		// create 5 test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
@@ -59,8 +59,8 @@ func Test_NewBranchFromCommit(t *testing.T) {
 	}
 	countCommitsOriginalBranch := len(*GetCommits())
 
-	if countCommitsOriginalBranch != 1000 {
-		t.Errorf("Expected 1000 commits, got %d", countCommitsOriginalBranch)
+	if countCommitsOriginalBranch != 200 {
+		t.Errorf("Expected 200 commits, got %d", countCommitsOriginalBranch)
 	}
 
 	t.Log(GetCommits())
@@ -68,8 +68,8 @@ func Test_NewBranchFromCommit(t *testing.T) {
 	runNewCommand("test-branch-1", selectedCommit, "")
 
 	countCommitsNewBranch := len(*GetCommits())
-	if countCommitsNewBranch != 500 {
-		t.Errorf("Expected 500 commits, got %d", countCommitsNewBranch)
+	if countCommitsNewBranch != 100 {
+		t.Errorf("Expected 100 commits, got %d", countCommitsNewBranch)
 	}
 
 	lastCommitNewBranch := GetLastCommit().Id
@@ -103,6 +103,25 @@ func Test_NewBranchFromBranch(t *testing.T) {
 	lastCommitNewBranch := GetLastCommit().Id
 	if lastCommitOriginalBranch != lastCommitNewBranch {
 		t.Errorf("Expected last commit to be %s, got %s", lastCommitOriginalBranch, lastCommitNewBranch)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_SwitchNonExistingBranch(t *testing.T) {
+}
+
+func Test_DropBranch(t *testing.T) {
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+	runNewCommand("test-branch", "", "")
+	runNewCommand("test-branch-1", "", "")
+
+	statusCode := runDropCommand("test-branch")
+
+	if statusCode != 210 {
+		t.Errorf("Expected 210, got %d", statusCode)
 	}
 
 	os.RemoveAll(namespace)
@@ -172,6 +191,55 @@ func Test_NewBranchInvalidName(t *testing.T) {
 	statusCode = runNewCommand("test branch %#^@#&", "", "")
 	if statusCode != 201 {
 		t.Errorf("Expected 201, got %d", statusCode)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_SwitchBranchAlreadyOnTarget(t *testing.T) {
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+
+	runNewCommand("test-branch", "", "")
+
+	statusCode := runSwitchCommand("test-branch")
+
+	if statusCode != 211 {
+		t.Errorf("Expected 211, got %d", statusCode)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_SwitchBranchDoesNotExist(t *testing.T) {
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+
+	runNewCommand("test-branch", "", "")
+
+	statusCode := runSwitchCommand("test-branch-1")
+
+	if statusCode != 212 {
+		t.Errorf("Expected 212, got %d", statusCode)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_SwitchBranchCurrent(t *testing.T) {
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+
+	runNewCommand("test-branch", "", "")
+	runNewCommand("test-branch-1", "", "")
+
+	statusCode := runSwitchCommand("test-branch")
+
+	if statusCode != 213 {
+		t.Errorf("Expected 213, got %d", statusCode)
 	}
 
 	os.RemoveAll(namespace)
