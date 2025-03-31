@@ -22,10 +22,10 @@ var workdirCmd = &cobra.Command{
 	},
 }
 
-func runWorkdirCommand() {
+func runWorkdirCommand() (returnCode int, workdirContent []FileListEntry) {
 	if initialized := IsInitialized(); !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001, nil
 	}
 	commitId := GetLastCommit().Id
 	if commitId == "" {
@@ -46,4 +46,5 @@ func runWorkdirCommand() {
 			fmt.Println("  - " + record.Path)
 		}
 	}
+	return 301, *content
 }
