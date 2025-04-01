@@ -38,3 +38,7 @@ var BRANCH_RETURN_CODES = map[int]string{
 var WORKDIR_RETURN_CODES = map[int]string{
 	301: "Success",
 }
+
+var HISTORY_RETURN_CODES = map[int]string{
+	401: "Success",
+}
