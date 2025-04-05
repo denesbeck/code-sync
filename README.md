@@ -6,7 +6,7 @@ CodeSync (CSync) is a version control system inspired by Git written in Golang.
 
 | **Category**        | **Technology**                                 |
 | ------------------- | ---------------------------------------------- |
-| **Core**            | Golang v1.23                                   |
+| **Core**            | Golang v1.24                                   |
 | **Version Control** | Custom version control logic (inspired by Git) |
 | **Utilities**       | Cobra (CLI framework)                          |
 
@@ -22,7 +22,7 @@ CodeSync (CSync) is a version control system inspired by Git written in Golang.
 | `init`       | Initialize the CSync version control system                       | ✅         |
 | `purge`      | Purge CSync and all its data. THIS COMMAND IS IRREVERSIBLE!       | ✅         |
 | `rm`         | Remove the selected files from the staging area                   | ✅         |
-| `status`     | List the files that are staged for commit                         | ✖️         |
+| `status`     | List the files that are staged for commit                         | ✅         |
 | `workdir`    | List the files that are committed                                 | ✅         |
 
 ## License 📜
