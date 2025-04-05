@@ -130,11 +130,11 @@ var configCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 }
 
-func setConfig(key string, value string) {
+func setConfig(key string, value string) int {
 	Debug("Setting config: key=%s, value=%s", key, value)
 	if initialized := IsInitialized(); !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001
 	}
 	config, err := os.ReadFile(dirs.Config)
 	if err != nil {
@@ -166,13 +166,14 @@ func setConfig(key string, value string) {
 		log.Fatal(err)
 	}
 	Debug("Config updated successfully")
+	return 603
 }
 
-func getConfig(key string) {
+func getConfig(key string) (returnCode int, conf Config) {
 	Debug("Getting config: key=%s", key)
 	if initialized := IsInitialized(); !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001, Config{}
 	}
 	config := GetConfig()
 	switch key {
@@ -186,26 +187,29 @@ func getConfig(key string) {
 		Debug("User: %s <%s>", config.Username, config.Email)
 		color.Cyan(config.Username + " <" + config.Email + ">")
 	}
+	return 604, *config
 }
 
-func setDefaultBranch(branch string) {
+func setDefaultBranch(branch string) int {
 	Debug("Setting default branch: %s", branch)
 	if initialized := IsInitialized(); !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001
 	}
 	SetBranch(branch, "default")
 	Debug("Default branch set successfully")
 	color.Green("Default branch set to " + branch)
+	return 602
 }
 
-func getDefaultBranch() {
+func getDefaultBranch() (returnCode int, defaultBranch string) {
 	Debug("Getting default branch")
 	if initialized := IsInitialized(); !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001, ""
 	}
 	branch := GetDefaultBranchName()
 	Debug("Default branch: %s", branch)
 	color.Cyan(branch)
+	return 601, branch
 }
