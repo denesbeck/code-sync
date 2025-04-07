@@ -54,3 +54,8 @@ var CONFIG_RETURN_CODES = map[int]string{
 	603: "Set config success",
 	604: "Get config success",
 }
+
+var COMMIT_RETURN_CODES = map[int]string{
+	701: "Nothing to commit",
+	702: "Commit success",
+}
