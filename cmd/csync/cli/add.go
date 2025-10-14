@@ -12,7 +12,7 @@ func init() {
 var addCmd = &cobra.Command{
 	Use:     "add",
 	Short:   "This command adds the selected files to the staging area",
-	Example: "csync add",
+	Example: "csync add <path/to/your/file>",
 	RunE: func(_ *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			color.Red("Please specify a file to add")
@@ -40,7 +40,7 @@ func runAddCommand(filePath string) error {
 	// If it is, we check the log entries to see if the file was added, modified or removed.
 	if fileStaged {
 		// ADD entry exists? (means the file addition was already staged).
-		added, id := LogEntryLookup("ADD", filePath)
+		added, id, _ := LogEntryLookup("ADD", filePath)
 		if added {
 			// Check if the file exists in the workdir.
 			exists := FileExists(filePath)
@@ -63,7 +63,7 @@ func runAddCommand(filePath string) error {
 			return nil
 		}
 		// MOD entry exists? (means that the change of the file was already staged).
-		modified, id := LogEntryLookup("MOD", filePath)
+		modified, id, _ := LogEntryLookup("MOD", filePath)
 		if modified {
 			// Check if the file exists in the workdir.
 			exists := FileExists(filePath)
@@ -88,7 +88,7 @@ func runAddCommand(filePath string) error {
 			return nil
 		}
 		// REM entry exists? (means that the removal of the file was already staged).
-		removed, id := LogEntryLookup("REM", filePath)
+		removed, id, _ := LogEntryLookup("REM", filePath)
 		if removed {
 			// If file is removed, check if it was added back.
 			exists := FileExists(filePath)
