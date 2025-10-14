@@ -30,8 +30,8 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         with:
           args: >
-            -Dsonar.organization=denes-beck
-            -Dsonar.projectKey=code-sync
+            -Dsonar.organization=denesbeck1
+            -Dsonar.projectKey=denesbeck_code-sync
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         continue-on-error: true
