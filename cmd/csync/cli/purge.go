@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"os"
+
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +21,12 @@ var purgeCmd = &cobra.Command{
 }
 
 func runPurgeCommand() error {
-	PurgeCSync()
+	initialized := IsInitialized()
+	if !initialized {
+		color.Red("CSync not initialized")
+		return nil
+	}
+	os.RemoveAll(".csync")
+	color.Green("CSync purged successfully")
 	return nil
 }
