@@ -40,7 +40,7 @@ func runCommitCommand(message string) {
 	}
 
 	newCommitId := GenRandHex(20)
-	latestCommitId := GetLastCommit()
+	latestCommitId := GetLastCommit().Id
 	Debug("Creating new commit: id=%s, parent=%s", newCommitId, latestCommitId)
 
 	ProcessFileList(latestCommitId, newCommitId)

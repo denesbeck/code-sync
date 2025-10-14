@@ -53,7 +53,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 		runCommitCommand("test commit " + strconv.Itoa(i))
 	}
 
-	selectedCommit := GetLastCommit()
+	selectedCommit := GetLastCommit().Id
 
 	for i := 6; i < 11; i++ {
 		time.Sleep(1 * time.Second)
@@ -79,7 +79,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 		t.Errorf("Expected 5 commits, got %d", countCommitsNewBranch)
 	}
 
-	lastCommitNewBranch := GetLastCommit()
+	lastCommitNewBranch := GetLastCommit().Id
 	if selectedCommit != lastCommitNewBranch {
 		t.Errorf("Expected last commit to be %s, got %s", selectedCommit, lastCommitNewBranch)
 	}
@@ -100,14 +100,14 @@ func Test_NewBranchFromBranch(t *testing.T) {
 		// commit files
 		runCommitCommand("test commit " + strconv.Itoa(i))
 	}
-	lastCommitOriginalBranch := GetLastCommit()
+	lastCommitOriginalBranch := GetLastCommit().Id
 
 	runNewCommand("test-branch-1", "", "test-branch")
 	commits := GetCommits()
 	if len(*commits) != 3 {
 		t.Errorf("Expected 3 commits, got %d", len(*commits))
 	}
-	lastCommitNewBranch := GetLastCommit()
+	lastCommitNewBranch := GetLastCommit().Id
 	if lastCommitOriginalBranch != lastCommitNewBranch {
 		t.Errorf("Expected last commit to be %s, got %s", lastCommitOriginalBranch, lastCommitNewBranch)
 	}

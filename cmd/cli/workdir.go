@@ -27,7 +27,7 @@ func runWorkdirCommand() {
 		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
-	commitId := GetLastCommit()
+	commitId := GetLastCommit().Id
 	if commitId == "" {
 		color.Cyan("No commits yet")
 		return
