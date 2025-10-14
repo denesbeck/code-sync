@@ -104,6 +104,10 @@ func runInitCommand() error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	_, err = f.WriteString("[]")
+	if err != nil {
+		log.Fatal(err)
+	}
 	f.Close()
 
 	// create branches metadata file which contains default branch and current branch names
