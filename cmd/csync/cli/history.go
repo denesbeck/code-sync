@@ -35,22 +35,34 @@ func runHistoryCommand() error {
 		color.Cyan("No commits found")
 		return nil
 	}
-	if len(commits) > 10 {
-		commits = commits[:10]
+	if len(commits) > 20 {
+		commits = commits[:20]
 	}
 
-	color.Cyan("Commits registered:")
-	for i, commit := range commits {
-		color.Blue("(" + fmt.Sprint(i+1) + ") " + commit[:8] + "..." + commit[len(commit)-8:])
-		logs, err := os.ReadFile("./.csync/commits/" + commit + "/logs.json")
+	for _, commit := range commits {
+		color.Yellow(commit)
+		data, err := os.ReadFile("./.csync/commits/" + commit + "/metadata.json")
 		if err != nil {
 			log.Fatal(err)
 		}
-		var content []LogFileEntry
-		if err = json.Unmarshal(logs, &content); err != nil {
+		var metadata CommitMetadata
+		if err = json.Unmarshal(data, &metadata); err != nil {
 			log.Fatal(err)
 		}
-		PrintLogs(content)
+		color.Cyan("Date: " + metadata.Timestamp)
+		color.Cyan("Message: " + metadata.Message)
+		fmt.Println()
+
+		data, err = os.ReadFile("./.csync/commits/" + commit + "/logs.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+		var logs []LogFileEntry
+		if err = json.Unmarshal(data, &logs); err != nil {
+			log.Fatal(err)
+		}
+		PrintLogs(logs)
+		fmt.Println()
 	}
 	return nil
 }

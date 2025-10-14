@@ -46,9 +46,6 @@ func GetCommits() []string {
 	if err = json.Unmarshal(commits, &content); err != nil {
 		log.Fatal(err)
 	}
-	sort.Slice(content, func(i, j int) bool {
-		return content[i].Timestamp > content[j].Timestamp
-	})
 	var result []string
 	for _, commit := range content {
 		result = append(result, commit.Id)
