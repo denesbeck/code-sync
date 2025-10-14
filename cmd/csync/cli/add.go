@@ -13,9 +13,11 @@ var addCmd = &cobra.Command{
 	Use:     "add",
 	Short:   "Add the selected files to the staging area",
 	Example: "csync add <path/to/your/file>",
-	Args:    cobra.ExactArgs(1),
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
-		runAddCommand(args[0])
+		for _, arg := range args {
+			runAddCommand(arg)
+		}
 	},
 }
 

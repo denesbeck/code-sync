@@ -13,9 +13,11 @@ var removeCmd = &cobra.Command{
 	Use:     "rm",
 	Short:   "Remove the selected files from the staging area",
 	Example: "csync rm <path/to/your/file>",
-	Args:    cobra.ExactArgs(1),
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
-		runRemoveCommand(args[0])
+		for _, arg := range args {
+			runRemoveCommand(arg)
+		}
 	},
 }
 
