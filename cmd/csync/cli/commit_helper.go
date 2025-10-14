@@ -19,7 +19,12 @@ type CommitMetadata struct {
 
 func GetLastCommit() (latestCommitId string) {
 	currentBranchName := GetCurrentBranchName()
-	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
+	commit := GetLastCommitByBranch(currentBranchName)
+	return commit
+}
+
+func GetLastCommitByBranch(branch string) (commitId string) {
+	commits, err := os.ReadFile(".csync/branches/" + branch + "/commits.json")
 	if err != nil {
 		log.Fatal(err)
 	}
