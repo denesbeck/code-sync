@@ -35,7 +35,7 @@ func runCommitCommand(message string) error {
 		return nil
 	}
 
-	newCommitId := GenRandHex(32)
+	newCommitId := GenRandHex(20)
 	latestCommitId := GetLastCommit()
 
 	ProcessFileList(latestCommitId, newCommitId)

@@ -33,7 +33,7 @@ func runAddCommand(filePath string) error {
 	// Get fileName name from fileName path.
 	_, fileName := ParsePath(filePath)
 	// Generate a random 32 byte long hex string. This will be used as the id for the file in the staging area.
-	generatedId := GenRandHex(32)
+	generatedId := GenRandHex(20)
 
 	// Check if file is already in staging area.
 	fileStaged := IsFileStaged(filePath)
