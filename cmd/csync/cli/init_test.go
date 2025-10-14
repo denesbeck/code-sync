@@ -16,3 +16,18 @@ func TestInit(t *testing.T) {
 	}
 	os.RemoveAll(namespace)
 }
+
+func TestIsInitialized(t *testing.T) {
+	os.RemoveAll(namespace)
+
+	if IsInitialized() {
+		t.Errorf("CSync initialized")
+	}
+
+	runInitCommand()
+	if !IsInitialized() {
+		t.Errorf("CSync not initialized")
+	}
+
+	os.RemoveAll(namespace)
+}
