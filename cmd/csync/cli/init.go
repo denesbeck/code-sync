@@ -24,7 +24,7 @@ const (
 	// `commits/<commit-hash>/logs.json`: copy of the staging logs file at the time of the commit.
 	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
 	// `commits/<commit-hash>/metadata.json` stores metadata for the commit, e.g. commit message, timestamp.
-	// Format: { Author: <username <user-email>>, Message: <commit-message>, Timestamp: <time when committed> }
+	// Format: { Author: <username <user-email>>, Message: <commit-message> }
 	// For each commit hash a file called `commits/<commit-hash>/fileList.json` will be created. It represents the project state at the time of the commit listing all the files with commit hashes.
 	// Format: { Id: <hash>, CommitId: <hash>, Path: path/to/file }
 	// Before each commit, the `fileList.json` will be copied from the previous commit. This file will be updated according to the changes made in the commit.

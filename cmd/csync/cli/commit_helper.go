@@ -109,7 +109,8 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 }
 
 func WriteCommitMetadata(commitId string, message string) {
-	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Author: "", Message: message})
+	config := GetConfig()
+	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Author: config.Username + " <" + config.Email + ">", Message: message})
 }
 
 func RegisterCommitForBranch(commitId string) {
