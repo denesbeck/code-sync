@@ -69,7 +69,7 @@ func runAddCommand(filePath string) int {
 			if modified {
 				Debug("File was modified and changed, updating staging")
 				AddToStaging(id, filePath, "modified")
-				color.Cyan(ADD_RETURN_CODES[105])
+				color.Green(ADD_RETURN_CODES[105])
 				return 105
 			}
 			Debug("File was modified but not changed")
@@ -103,7 +103,7 @@ func runAddCommand(filePath string) int {
 			Debug("File was committed but deleted, staging for removal")
 			AddToStaging(generatedId, dirs.Commits+commitId+"/"+fileId+"/"+fileName, "removed")
 			LogOperation(generatedId, "REM", filePath)
-			color.Cyan(ADD_RETURN_CODES[109])
+			color.Green(ADD_RETURN_CODES[109])
 			return 109
 		}
 
@@ -112,6 +112,7 @@ func runAddCommand(filePath string) int {
 			if modified {
 				Debug("File was committed and modified, staging as modified")
 				stageAndLog(generatedId, filePath, "modified")
+				color.Green(ADD_RETURN_CODES[110])
 				return 110
 			} else {
 				Debug("File was committed but not modified")
@@ -121,7 +122,7 @@ func runAddCommand(filePath string) int {
 		} else {
 			Debug("File is new, staging as added")
 			stageAndLog(generatedId, filePath, "added")
-			color.Cyan(ADD_RETURN_CODES[112])
+			color.Green(ADD_RETURN_CODES[112])
 			return 112
 		}
 	}
