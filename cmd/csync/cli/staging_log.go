@@ -2,9 +2,12 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"sort"
+
+	"github.com/fatih/color"
 )
 
 type LogFileEntry struct {
@@ -12,6 +15,12 @@ type LogFileEntry struct {
 	Op   string
 	Path string
 }
+
+var (
+	add = color.New(color.FgGreen).SprintFunc()
+	mod = color.New(color.FgBlue).SprintFunc()
+	rem = color.New(color.FgRed).SprintFunc()
+)
 
 func LogOperation(id string, op string, path string) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
@@ -131,4 +140,20 @@ func SortByOperationAndPath(content []LogFileEntry) (result []LogFileEntry) {
 		return false
 	})
 	return content
+}
+
+func PrintLogs(content []LogFileEntry) {
+	sortedContent := SortByOperationAndPath(content)
+	for _, logEntry := range sortedContent {
+		switch logEntry.Op {
+		case "ADD":
+			fmt.Println("  " + add(logEntry.Op) + "    " + logEntry.Path)
+		case "MOD":
+			fmt.Println("  " + mod(logEntry.Op) + "    " + logEntry.Path)
+		case "REM":
+			fmt.Println("  " + rem(logEntry.Op) + "    " + logEntry.Path)
+		default:
+			fmt.Println("  " + logEntry.Op + "    " + logEntry.Path)
+		}
+	}
 }

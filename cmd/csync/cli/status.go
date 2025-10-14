@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
@@ -20,12 +18,6 @@ var statusCmd = &cobra.Command{
 	},
 }
 
-var (
-	add = color.New(color.FgGreen).SprintFunc()
-	mod = color.New(color.FgBlue).SprintFunc()
-	rem = color.New(color.FgRed).SprintFunc()
-)
-
 func runStatusCommand() error {
 	if initialized := IsInitialized(); !initialized {
 		color.Red("CSync not initialized")
@@ -35,22 +27,8 @@ func runStatusCommand() error {
 	if len(content) == 0 {
 		color.Cyan("No files staged for commit")
 	} else {
-
-		content = SortByOperationAndPath(content)
-
 		color.Cyan("Files staged for commit:")
-		for _, record := range content {
-			switch record.Op {
-			case "ADD":
-				fmt.Println("  " + add(record.Op) + "    " + record.Path)
-			case "MOD":
-				fmt.Println("  " + mod(record.Op) + "    " + record.Path)
-			case "REM":
-				fmt.Println("  " + rem(record.Op) + "    " + record.Path)
-			default:
-				fmt.Println("  " + record.Op + "    " + record.Path)
-			}
-		}
+		PrintLogs(content)
 	}
 	return nil
 }
