@@ -10,16 +10,16 @@ import (
 	"time"
 )
 
-func WriteJson(path string, data interface{}) {
+func WriteJson(fullPath string, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if _, err = os.Stat(path); os.IsNotExist(err) {
-		path, _ := ParsePath(path)
+	if _, err = os.Stat(fullPath); os.IsNotExist(err) {
+		path, _ := ParsePath(fullPath)
 		os.MkdirAll(path, 0700)
 	}
-	err = os.WriteFile(path, jsonData, 0644)
+	err = os.WriteFile(fullPath, jsonData, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
