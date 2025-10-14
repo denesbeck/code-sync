@@ -42,7 +42,7 @@ func CopyFile(src, dst string) (int64, error) {
 }
 
 func RemoveFile(path string) {
-	err := os.Remove(path)
+	err := os.RemoveAll(path)
 	if err != nil {
 		log.Fatal(err)
 	}
