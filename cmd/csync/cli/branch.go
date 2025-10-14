@@ -218,6 +218,6 @@ func runSwitchCommand(branchName string) {
 		_, fileName := ParsePath(file.Path)
 		CopyFile("./.csync/commits/"+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
 	}
-	SetCurrentBranch(branchName)
+	SetBranch(branchName, "current")
 	color.Green("Switched to " + branchName + " branch")
 }

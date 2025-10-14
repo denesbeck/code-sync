@@ -173,7 +173,7 @@ func setDefaultBranch(branch string) {
 	if initialized := IsInitialized(); !initialized {
 		color.Red("CSync not initialized")
 	}
-	SetDefaultBranch(branch)
+	SetBranch(branch, "default")
 	color.Green("Default branch set to " + branch)
 }
 
