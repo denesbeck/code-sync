@@ -1,4 +1,4 @@
-package csync
+package cli
 
 import (
 	"log"

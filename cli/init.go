@@ -1,4 +1,4 @@
-package csync
+package cli
 
 import (
 	"log"
@@ -16,14 +16,17 @@ const (
 	// Log file for tracking staging operations.
 	// Format: { id: <hash>, op: add | mod | rem, path: path/to/file }
 	stagingLogs = ".csync/staging/logs.json"
+
 	// Commits directory stores directories for each commit hash.
 	// "commits/<commit-hash>/file-name" refers to the file in the commit.
+	// "commits/<commit-hash>/metadata.json" stores metadata for the commit, e.g. commit message, timestamp.
 	commits = ".csync/commits"
+
 	// Initial branch is named "main".
 	// "branches/<branch-name>/commits.json" stores commit hashes for the branch.
 	defaultBranch = ".csync/branches/main"
 	// Whenever a file is added to the project, it is added to the commits.json file.
-	// Format: { Path: <path>, Commit: <hash> }
+	// Format: { Commit: <hash>, Path: <path>, Name: <file-name> }
 	// Whenever a file is removed from the project, it is removed from the commits.json file.
 	// Whenever a file is modified, its commit hash is updated in the commits.json file.
 	defaultBranchCommits = ".csync/branches/main/commits.json"

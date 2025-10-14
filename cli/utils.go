@@ -1,4 +1,4 @@
-package csync
+package cli
 
 import (
 	"crypto/rand"
@@ -168,6 +168,7 @@ func IsFileStaged(filePath string) bool {
 
 // Check if the file is already committed, return the commit id where the file was committed the last time
 func IsFileCommitted(filePath string, latestCommitId string) (isCommitted bool, srcCommitId string) {
+	// TODO: fileList.json should be in the branch directory
 	fileList, err := os.ReadFile(".csync/commits/" + latestCommitId + "/fileList.json")
 	if err != nil {
 		log.Fatal(err)

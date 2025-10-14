@@ -1,8 +1,8 @@
-module main
+module csync
 
 go 1.21.3
 
-require csync v0.0.0-20181127163353-2b7f8f0b9c9b
+require cli v0.0.0-20181127163353-2b7f8f0b9c9b
 
 require (
 	github.com/fatih/color v1.17.0 // indirect
@@ -14,4 +14,4 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 )
 
-replace csync => ./csync
+replace cli => ./cli

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"csync"
+	"cli"
 )
 
 func main() {
-	csync.Execute()
+	cli.Execute()
 }
