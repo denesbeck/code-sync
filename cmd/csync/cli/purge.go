@@ -13,7 +13,7 @@ func init() {
 
 var purgeCmd = &cobra.Command{
 	Use:     "purge",
-	Short:   "Purge CSync and all its data. This command is irreversible!",
+	Short:   "Purge CSync and all its data. THIS COMMAND IS IRREVERSIBLE!",
 	Example: "csync purge",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
