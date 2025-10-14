@@ -42,6 +42,15 @@ func runAddCommand(filePath string) error {
 		// ADD entry exists? (means the file addition was already staged).
 		added, id := LogEntryLookup("ADD", filePath)
 		if added {
+			// Check if the file exists in the workdir.
+			exists := FileExists(filePath)
+			// If it doesn't, remove the file from staging/added and remove the log entry.
+			if !exists {
+				RemoveFile("./.csync/staging/added/" + id)
+				RemoveLogEntry(id)
+				color.Cyan("File removed from staging")
+				return nil
+			}
 			// Check if file is modified since ADD entry was created.
 			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+file)
 			if modified {
@@ -56,6 +65,16 @@ func runAddCommand(filePath string) error {
 		// MOD entry exists? (means that the change of the file was already staged).
 		modified, id := LogEntryLookup("MOD", filePath)
 		if modified {
+			// Check if the file exists in the workdir.
+			exists := FileExists(filePath)
+			// If it doesn't, remove the file from staging/modified and remove the log entry.
+			// Add the file to staging/removed and log this operation.
+			if !exists {
+				RemoveFile("./.csync/staging/modified/" + id)
+				RemoveLogEntry(id)
+				AddToStaging(generatedId, filePath, "removed")
+				LogOperation(generatedId, "REM", filePath)
+			}
 			// Check if file is modified since MOD entry was created.
 			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+file)
 			if modified {
@@ -79,7 +98,7 @@ func runAddCommand(filePath string) error {
 				isCommitted, commitId, fileId := IsFileCommitted(filePath)
 				// If it wasn't committed (THIS SCENARIO SHOULDN'T BE POSSIBLE!), remove the file from staging/removed and add it to staging/added. Log this operation.
 				if !isCommitted {
-					RemoveFile("./.csync/staging/removed/" + id + file)
+					RemoveFile("./.csync/staging/removed/" + id)
 					RemoveLogEntry(id)
 					AddToStaging(generatedId, filePath, "added")
 					LogOperation(generatedId, "ADD", filePath)
@@ -90,14 +109,14 @@ func runAddCommand(filePath string) error {
 					// If it was modified...
 					if modified {
 						// Remove the file from staging/removed and add it to staging/modified. Log this operation.
-						RemoveFile("./.csync/staging/removed/" + id + file)
+						RemoveFile("./.csync/staging/removed/" + id)
 						RemoveLogEntry(id)
 						AddToStaging(generatedId, filePath, "modified")
 						LogOperation(generatedId, "MOD", filePath)
 						return nil
 					}
 					// If it wasn't modified, remove the file from staging/removed and remove the log entry.
-					RemoveFile("./.csync/staging/removed/" + id + file)
+					RemoveFile("./.csync/staging/removed/" + id)
 					RemoveLogEntry(id)
 					return nil
 				}
