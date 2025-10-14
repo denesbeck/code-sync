@@ -44,7 +44,7 @@ func runRemoveCommand(filePath string) error {
 		color.Green("File removed from staging")
 		return nil
 	} else {
-		color.Red("File not found in staging")
+		color.Red("File not staged")
 		return nil
 	}
 }
