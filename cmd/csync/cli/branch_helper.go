@@ -14,7 +14,12 @@ type BranchMetadata struct {
 	Current string
 }
 
-const BranchMetadataPath = "./.csync/branches/metadata.json"
+const (
+	BranchMetadataPath = "./.csync/branches/metadata.json"
+	DefaultBranch      = "default"
+	CurrentBranch      = "current"
+	InitBranch         = "main"
+)
 
 func GetCurrentBranchName() string {
 	metadata := GetBranchesMetadata()
@@ -28,13 +33,13 @@ func GetDefaultBranchName() string {
 
 func CreateBranchesMetadata() {
 	branchesMetadata := BranchMetadata{
-		Default: "main",
-		Current: "main",
+		Default: InitBranch,
+		Current: InitBranch,
 	}
 	WriteJson(BranchMetadataPath, branchesMetadata)
 }
 
-func GetBranchesMetadata() BranchMetadata {
+func GetBranchesMetadata() (m *BranchMetadata) {
 	branchesMetadata, err := os.ReadFile(BranchMetadataPath)
 	if err != nil {
 		log.Fatal(err)
@@ -43,20 +48,20 @@ func GetBranchesMetadata() BranchMetadata {
 	if err = json.Unmarshal(branchesMetadata, &metadata); err != nil {
 		log.Fatal(err)
 	}
-	return metadata
+	return &metadata
 }
 
 func SetBranch(branch string, configParam string) {
 	branchesMetadata := GetBranchesMetadata()
 
-	if (configParam == "default" && branchesMetadata.Default == branch) || (configParam == "current" && branchesMetadata.Current == branch) {
+	if (configParam == DefaultBranch && branchesMetadata.Default == branch) || (configParam == CurrentBranch && branchesMetadata.Current == branch) {
 		color.Red("Branch already set as " + configParam)
 		return
 	}
 
 	branches := ListBranches()
 	if slices.Contains(branches, branch) {
-		if configParam == "default" {
+		if configParam == DefaultBranch {
 			branchesMetadata.Default = branch
 		} else {
 			branchesMetadata.Current = branch

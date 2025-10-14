@@ -17,13 +17,13 @@ type CommitMetadata struct {
 	Message string
 }
 
-func GetLastCommit() (latestCommitId string) {
+func GetLastCommit() string {
 	currentBranchName := GetCurrentBranchName()
 	commit := GetLastCommitByBranch(currentBranchName)
 	return commit
 }
 
-func GetLastCommitByBranch(branch string) (commitId string) {
+func GetLastCommitByBranch(branch string) string {
 	commits, err := os.ReadFile(".csync/branches/" + branch + "/commits.json")
 	if err != nil {
 		log.Fatal(err)
@@ -41,7 +41,7 @@ func GetLastCommitByBranch(branch string) (commitId string) {
 	return content[0].Id
 }
 
-func GetCommits() []Commit {
+func GetCommits() *[]Commit {
 	currentBranchName := GetCurrentBranchName()
 	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
 	if err != nil {
@@ -51,10 +51,10 @@ func GetCommits() []Commit {
 	if err = json.Unmarshal(commits, &content); err != nil {
 		log.Fatal(err)
 	}
-	return content
+	return &content
 }
 
-func GetFileListContent(commitId string) (result []FileListEntry) {
+func GetFileListContent(commitId string) (result *[]FileListEntry) {
 	fileList, err := os.ReadFile(".csync/commits/" + commitId + "/fileList.json")
 	if err != nil {
 		log.Fatal(err)
@@ -65,45 +65,51 @@ func GetFileListContent(commitId string) (result []FileListEntry) {
 			log.Fatal(err)
 		}
 	} else {
-		return []FileListEntry{}
+		content = []FileListEntry{}
+		return &content
 	}
-	return content
+	return &content
 }
 
 func ProcessFileList(latestCommitId string, newCommitId string) {
-	var fileList []FileListEntry
+	var fileList *[]FileListEntry
+	emptyFileList := []FileListEntry{}
 	if latestCommitId == "" {
-		fileList = []FileListEntry{}
+		fileList = &emptyFileList
 	} else {
 		c := GetFileListContent(latestCommitId)
-		fileList = c
+		if c != nil {
+			fileList = c
+		} else {
+			fileList = &emptyFileList
+		}
 	}
 	stagingLogs := GetStagingLogsContent()
 
-	for _, logEntry := range stagingLogs {
+	for _, logEntry := range *stagingLogs {
 		switch logEntry.Op {
 		case "REM":
-			if len(fileList) == 0 {
+			if len(*fileList) == 0 {
 				continue
 			}
-			for i, entry := range fileList {
+			for i, entry := range *fileList {
 				if entry.Path == logEntry.Path {
-					fileList = append(fileList[:i], fileList[i+1:]...)
+					*fileList = append((*fileList)[:i], (*fileList)[i+1:]...)
 					break
 				}
 			}
 		case "ADD":
-			fileList = append(fileList, FileListEntry{Id: logEntry.Id, CommitId: newCommitId, Path: logEntry.Path})
+			*fileList = append(*fileList, FileListEntry{Id: logEntry.Id, CommitId: newCommitId, Path: logEntry.Path})
 			_, fileName := ParsePath(logEntry.Path)
 			CopyFile(logEntry.Path, ".csync/commits/"+newCommitId+"/"+logEntry.Id+"/"+fileName)
 		case "MOD":
-			if len(fileList) == 0 {
+			if len(*fileList) == 0 {
 				continue
 			}
-			for i, entry := range fileList {
+			for i, entry := range *fileList {
 				if logEntry.Path == entry.Path {
-					fileList[i].Id = logEntry.Id
-					fileList[i].CommitId = newCommitId
+					(*fileList)[i].Id = logEntry.Id
+					(*fileList)[i].CommitId = newCommitId
 				}
 			}
 			_, fileName := ParsePath(logEntry.Path)

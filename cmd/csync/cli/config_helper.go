@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func GetConfig() Config {
+func GetConfig() *Config {
 	const PATH = "./.csync/config.json"
 	config, err := os.ReadFile(PATH)
 	if err != nil {
@@ -18,5 +18,5 @@ func GetConfig() Config {
 		log.Fatal(err)
 	}
 
-	return content
+	return &content
 }

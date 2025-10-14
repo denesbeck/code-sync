@@ -161,6 +161,8 @@ func runNewCommand(branchName string) {
 	}
 	CopyFile("./.csync/branches/"+currentBranchName+"/commits.json", "./.csync/branches/"+branchName+"/commits.json")
 	color.Green("Branch created successfully")
+	fmt.Println("[...]")
+	runSwitchCommand(branchName)
 }
 
 func runDropCommand(branchName string) {
@@ -214,10 +216,10 @@ func runSwitchCommand(branchName string) {
 
 	commitId := GetLastCommitByBranch(branchName)
 	fileList := GetFileListContent(commitId)
-	for _, file := range fileList {
+	for _, file := range *fileList {
 		_, fileName := ParsePath(file.Path)
 		CopyFile("./.csync/commits/"+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
 	}
 	SetBranch(branchName, "current")
-	color.Green("Switched to " + branchName + " branch")
+	color.Green("Switched to branch `" + branchName + "`")
 }

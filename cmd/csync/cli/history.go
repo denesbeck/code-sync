@@ -32,15 +32,15 @@ func runHistoryCommand() {
 	}
 
 	commits := GetCommits()
-	if len(commits) == 0 {
+	if len(*commits) == 0 {
 		color.Cyan("No commits found")
 		return
 	}
-	if len(commits) > 20 {
-		commits = commits[:20]
+	if len(*commits) > 20 {
+		*commits = (*commits)[:20]
 	}
 
-	for _, commit := range commits {
+	for _, commit := range *commits {
 		color.Yellow(commit.Id[:40])
 		data, err := os.ReadFile("./.csync/commits/" + commit.Id + "/metadata.json")
 		if err != nil {

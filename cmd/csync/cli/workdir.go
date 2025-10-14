@@ -34,15 +34,15 @@ func runWorkdirCommand() {
 	}
 	content := GetFileListContent(commitId)
 
-	sort.Slice(content, func(i, j int) bool {
-		return content[i].Path < content[j].Path
+	sort.Slice(*content, func(i, j int) bool {
+		return (*content)[i].Path < (*content)[j].Path
 	})
 
-	if len(content) == 0 {
+	if len(*content) == 0 {
 		color.Cyan("No files committed")
 	} else {
 		color.Cyan("Files committed:")
-		for _, record := range content {
+		for _, record := range *content {
 			fmt.Println("  - " + record.Path)
 		}
 	}

@@ -103,7 +103,7 @@ func TruncateLogs() {
 	WriteJson(".csync/staging/logs.json", []LogFileEntry{})
 }
 
-func GetStagingLogsContent() (result []LogFileEntry) {
+func GetStagingLogsContent() (result *[]LogFileEntry) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
@@ -115,12 +115,12 @@ func GetStagingLogsContent() (result []LogFileEntry) {
 		}
 	} else {
 		content = []LogFileEntry{}
-		return content
+		return &content
 	}
-	return content
+	return &content
 }
 
-func SortByOperationAndPath(content []LogFileEntry) (result []LogFileEntry) {
+func SortByOperationAndPath(content []LogFileEntry) (result *[]LogFileEntry) {
 	sort.Slice(content, func(i, j int) bool {
 		if content[i].Op == "ADD" && content[j].Op == "MOD" {
 			return true
@@ -138,12 +138,12 @@ func SortByOperationAndPath(content []LogFileEntry) (result []LogFileEntry) {
 		}
 		return false
 	})
-	return content
+	return &content
 }
 
 func PrintLogs(content []LogFileEntry) {
 	sortedContent := SortByOperationAndPath(content)
-	for _, logEntry := range sortedContent {
+	for _, logEntry := range *sortedContent {
 		switch logEntry.Op {
 		case "ADD":
 			fmt.Println("  " + add(logEntry.Op) + "    " + logEntry.Path)

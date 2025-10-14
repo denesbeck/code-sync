@@ -25,10 +25,10 @@ func runStatusCommand() {
 		return
 	}
 	content := GetStagingLogsContent()
-	if len(content) == 0 {
+	if len(*content) == 0 {
 		color.Cyan("No files staged for commit")
 	} else {
 		color.Cyan("Files staged for commit:")
-		PrintLogs(content)
+		PrintLogs(*content)
 	}
 }
