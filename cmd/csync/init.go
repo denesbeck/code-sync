@@ -9,18 +9,20 @@ import (
 )
 
 const (
-	// staging directories for add, modify, remove
+	// Staging directories for added, modified, removed operations
 	stagingAdded    = ".csync/staging/added"
 	stagingModified = ".csync/staging/modified"
 	stagingRemoved  = ".csync/staging/removed"
-	// log files for any add command operations
-	// format: op: ADD | MOD | REM, path: path/to/file
+	// Log file for tracking staging operations
+	// format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
 	stagingLogs = ".csync/staging/logs.json"
 	commits     = ".csync/commits"
-	// branches/<branch-name>/commits.json stores commit hashes for the branch
+	// Initial branch is named "main"
+	// "branches/<branch-name>/commits.json" stores commit hashes for the branch
 	defaultBranch        = ".csync/branches/main"
 	defaultBranchCommits = ".csync/branches/main/commits.json"
-	// branches/metadata.json stores default branch and current branch names
+	// "branches/metadata.json" stores default branch and current branch names
+	// format: { Default: <branch-name>, Current: <branch-name> }
 	branchesMetadata = ".csync/branches/metadata.json"
 )
 
