@@ -11,7 +11,6 @@ func CopyFile(src, dst string) {
 	// File exists?
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
-		log.Fatal(err)
 		log.Fatal("Source file does not exist")
 	}
 
@@ -86,9 +85,9 @@ func IsModified(file1, file2 string) bool {
 	reader1 := bufio.NewReader(f1)
 	reader2 := bufio.NewReader(f2)
 	for {
-		line1, _, err1 := reader1.ReadLine()
-		line2, _, err2 := reader2.ReadLine()
-		if err1 == io.EOF || err2 == io.EOF {
+		line1, _, err := reader1.ReadLine()
+		line2, _, _ := reader2.ReadLine()
+		if err == io.EOF {
 			break
 		}
 		if string(line1) != string(line2) {
