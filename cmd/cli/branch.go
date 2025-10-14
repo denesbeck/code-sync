@@ -33,6 +33,7 @@ var branchCmd = &cobra.Command{
 	Example: "csync branch",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting branch command")
 		runBranchCommand()
 	},
 }
@@ -43,6 +44,7 @@ var currentCmd = &cobra.Command{
 	Example: "csync branch current",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting current branch command")
 		runCurrentCommand()
 	},
 }
@@ -53,6 +55,7 @@ var defaultCmd = &cobra.Command{
 	Example: "csync branch default",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting default branch command")
 		runDefaultCommand()
 	},
 }
@@ -63,6 +66,7 @@ var newCmd = &cobra.Command{
 	Example: "csync new <branch-name> --from-commit <commit-id> --from-branch <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting new branch command: name=%s, from-commit=%s, from-branch=%s", args[0], FromCommit, FromBranch)
 		runNewCommand(args[0], FromCommit, FromBranch)
 	},
 }
@@ -73,6 +77,7 @@ var dropCmd = &cobra.Command{
 	Example: "csync drop <branch-name>",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting drop branch command with args: %v", args)
 		for _, arg := range args {
 			runDropCommand(arg)
 		}
@@ -85,6 +90,7 @@ var switchCmd = &cobra.Command{
 	Example: "csync switch <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting switch branch command: branch=%s", args[0])
 		runSwitchCommand(args[0])
 	},
 }
@@ -92,22 +98,24 @@ var switchCmd = &cobra.Command{
 func runBranchCommand() {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	branches, err := os.ReadDir("./.csync/branches")
 	if err != nil {
+		Debug("No branches found")
 		color.Red("No branches found")
 		return
 	}
 
 	currentBranchName := GetCurrentBranchName()
 	defaultBranchName := GetDefaultBranchName()
+	Debug("Current branch: %s, Default branch: %s", currentBranchName, defaultBranchName)
 
 	for _, branch := range branches {
 		if branch.IsDir() {
-
 			branchName := branch.Name()
 			if branchName == defaultBranchName {
 				branchName = "* " + branchName
@@ -122,38 +130,45 @@ func runBranchCommand() {
 			}
 		}
 	}
+	Debug("Branch command completed successfully")
 }
 
 func runCurrentCommand() {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	currentBranchName := GetCurrentBranchName()
+	Debug("Current branch: %s", currentBranchName)
 	fmt.Println(currentBranchName)
 }
 
 func runDefaultCommand() {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	defaultBranchName := GetDefaultBranchName()
+	Debug("Default branch: %s", defaultBranchName)
 	fmt.Println(defaultBranchName)
 }
 
 func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	if fromCommit != "" && fromBranch != "" {
+		Debug("Cannot create branch from both commit and branch")
 		color.Red("Cannot create branch from both commit and branch")
 		return
 	}
@@ -163,6 +178,7 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 		srcBranch = fromBranch
 		branches := ListBranches()
 		if !slices.Contains(branches, srcBranch) {
+			Debug("Source branch does not exist: %s", srcBranch)
 			color.Red("Source branch does not exist")
 			return
 		}
@@ -171,20 +187,24 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 	}
 
 	if fromCommit != "" {
+		Debug("Creating branch from commit: %s", fromCommit)
 		err := CopyCommitsToBranch(fromCommit, branchName)
 		if err != nil {
+			Debug("Failed to create branch from commit: %v", err)
 			color.Red(err.Error())
 			return
 		}
 	} else {
+		Debug("Creating branch from branch: %s", srcBranch)
 		if err := os.Mkdir(dirs.Branches+branchName, 0755); err != nil {
+			Debug("Branch already exists: %s", branchName)
 			color.Red("Branch already exists")
 			return
 		}
 
 		CopyFile(dirs.Branches+srcBranch+"/commits.json", dirs.Branches+branchName+"/commits.json")
-
 	}
+	Debug("Branch created successfully: %s", branchName)
 	color.Green("Branch created successfully")
 	runSwitchCommand(branchName)
 }
@@ -192,54 +212,64 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 func runDropCommand(branchName string) {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	branches := ListBranches()
 	if !slices.Contains(branches, branchName) {
+		Debug("Branch does not exist: %s", branchName)
 		color.Red("Branch does not exist")
 		return
 	}
 
 	if currentBranchName := GetCurrentBranchName(); currentBranchName == branchName {
+		Debug("Cannot delete current branch: %s", branchName)
 		color.Red("Cannot delete current branch")
 		return
 	}
 
 	if defaultBranchName := GetDefaultBranchName(); defaultBranchName == branchName {
+		Debug("Cannot delete default branch: %s", branchName)
 		color.Red("Cannot delete default branch")
 		return
 	}
 
 	if err := os.RemoveAll(dirs.Branches + branchName); err != nil {
+		Debug("Failed to delete branch: %s", branchName)
 		color.Red("Branch does not exist")
 		return
 	}
+	Debug("Branch deleted successfully: %s", branchName)
 	color.Green("Branch deleted successfully")
 }
 
 func runSwitchCommand(branchName string) {
 	initialized := IsInitialized()
 	if !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 
 	currentBranch := GetCurrentBranchName()
 	if currentBranch == branchName {
+		Debug("Already on branch: %s", branchName)
 		color.Red("You are already on `" + branchName + "` branch")
 		return
 	}
 
 	branches := ListBranches()
 	if !slices.Contains(branches, branchName) {
+		Debug("Branch does not exist: %s", branchName)
 		color.Red("Branch does not exist")
 		return
 	}
 
 	commitId := GetLastCommitByBranch(branchName)
 	if commitId != "" {
+		Debug("Switching to commit: %s", commitId)
 		fileList := GetFileListContent(commitId)
 		for _, file := range *fileList {
 			_, fileName := ParsePath(file.Path)
@@ -247,5 +277,6 @@ func runSwitchCommand(branchName string) {
 		}
 	}
 	SetBranch(branchName, "current")
+	Debug("Switched to branch: %s", branchName)
 	color.Cyan("Current branch: " + branchName)
 }

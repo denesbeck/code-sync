@@ -15,20 +15,25 @@ var statusCmd = &cobra.Command{
 	Example: "csync status",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
+		Debug("Starting status command")
 		runStatusCommand()
 	},
 }
 
 func runStatusCommand() {
 	if initialized := IsInitialized(); !initialized {
+		Debug("CSync not initialized")
 		color.Red("CSync not initialized")
 		return
 	}
 	content := GetStagingLogsContent()
 	if len(*content) == 0 {
+		Debug("No files staged for commit")
 		color.Cyan("No files staged for commit")
 	} else {
+		Debug("Found %d files staged for commit", len(*content))
 		color.Cyan("Files staged for commit:")
 		PrintLogs(*content)
 	}
+	Debug("Status command completed successfully")
 }
