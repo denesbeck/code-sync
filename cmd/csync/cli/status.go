@@ -13,7 +13,7 @@ func init() {
 
 var statusCmd = &cobra.Command{
 	Use:     "status",
-	Short:   "This command lists the files that are staged for commit",
+	Short:   "List the files that are staged for commit",
 	Example: "csync status",
 	RunE: func(_ *cobra.Command, args []string) error {
 		return runStatusCommand()

@@ -11,7 +11,7 @@ func init() {
 
 var addCmd = &cobra.Command{
 	Use:     "add",
-	Short:   "This command adds the selected files to the staging area",
+	Short:   "Add the selected files to the staging area",
 	Example: "csync add <path/to/your/file>",
 	RunE: func(_ *cobra.Command, args []string) error {
 		if len(args) < 1 {

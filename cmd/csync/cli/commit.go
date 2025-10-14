@@ -16,7 +16,7 @@ var Message string
 
 var commitCmd = &cobra.Command{
 	Use:     "commit",
-	Short:   "This command commits the staged files",
+	Short:   "Commit the staged files",
 	Example: "csync commit -m <your commit message>",
 	RunE: func(_ *cobra.Command, args []string) error {
 		return runCommitCommand(Message)

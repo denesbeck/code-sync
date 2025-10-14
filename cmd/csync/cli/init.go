@@ -48,7 +48,7 @@ func init() {
 
 var initCmd = &cobra.Command{
 	Use:     "init",
-	Short:   "This command creates an empty CSync repository",
+	Short:   "Initialize the CSync version control system",
 	Example: "csync init",
 	RunE: func(_ *cobra.Command, _ []string) error {
 		return runInitCommand()

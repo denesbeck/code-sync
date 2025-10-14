@@ -11,7 +11,7 @@ func init() {
 
 var removeCmd = &cobra.Command{
 	Use:     "rm",
-	Short:   "This command removes the selected files from the staging area",
+	Short:   "Remove the selected files from the staging area",
 	Example: "csync rm <path/to/your/file>",
 	RunE: func(_ *cobra.Command, args []string) error {
 		if len(args) < 1 {
