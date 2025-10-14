@@ -12,7 +12,7 @@ type Commit struct {
 	Timestamp string
 }
 
-func GetLastCommit() (string, bool) {
+func GetLastCommit() (latestCommitId string, isCommitted bool) {
 	currentBranchName := GetCurrentBranchName()
 	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
 	if err != nil {

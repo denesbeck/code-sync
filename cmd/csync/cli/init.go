@@ -18,7 +18,7 @@ const (
 	stagingLogs = ".csync/staging/logs.json"
 
 	// Commits directory stores directories for each commit hash.
-	// `commits/<commit-hash>/file-name` refers to the file in the commit.
+	// `commits/<commit-hash>/<file-id>/<file-name>` refers to the file in the commit.
 	// `commits/<commit-hash>/logs.json` is a copy of the staging logs file at the time of the commit.
 	// `commits/<commit-hash>/metadata.json` stores metadata for the commit, e.g. commit message, timestamp.
 	commits = ".csync/commits"

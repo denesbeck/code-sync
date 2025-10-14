@@ -22,126 +22,119 @@ var addCmd = &cobra.Command{
 	},
 }
 
-// return nothing
 func runAddCommand(filePath string) error {
-	// Check if csync is initialized
+	// Check if csync is initialized.
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
 		return nil
 	}
 
-	// Get file name from file path
+	// Get file name from file path.
 	_, file := ParsePath(filePath)
-	// Generate a random 32 byte long hex string
+	// Generate a random 32 byte long hex string. This will be used as the id for the file in the staging area.
 	generatedId := GenRandHex(32)
-	// Get the latest commit for the current branch
-	latestCommitId, commitExists := GetLastCommit()
 
-	// Check if file exists
-	exists := FileExists(filePath)
-	if !exists {
-		// TODO: Check if there is at least one commit registered
-		// If there isn't, return error message indicating that the file doesn't exist.
-		// If there is, check if the file is tracked already (exists in /commits/<latest-commit-id>/fileList.json)
-		// If it is, it means that the file should be removed. Add a REM record to the logs.json file.
-		// If it's not, return error message indicating that the file doesn't exist.
-		if commitExists {
-		} else {
-			color.Red("File does not exist")
-			return nil
-		}
-	}
-
-	// Check if file is already in staging area
+	// Check if file is already in staging area.
 	fileStaged := IsFileStaged(filePath)
+	// If it is, we check the log entries to see if the file was added, modified or removed.
 	if fileStaged {
-		// ADD entry exists?
+		// ADD entry exists? (means the file addition was already staged).
 		added, id := LogEntryLookup("ADD", filePath)
 		if added {
-			// Check if file is modified since ADD entry was created
+			// Check if file is modified since ADD entry was created.
 			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+file)
 			if modified {
-				// If file is modified, just update the file in staging/added
+				// If file is modified, just update the file in staging/added (the id remains the same).
 				AddToStaging(id, filePath, "added")
 				return nil
 			}
-			// If file is not modified, do nothing
+			// If file is not modified, do nothing.
+			color.Cyan("File already staged")
 			return nil
 		}
-		// MOD entry exists?
+		// MOD entry exists? (means that the change of the file was already staged).
 		modified, id := LogEntryLookup("MOD", filePath)
 		if modified {
-			// Check if file is modified since MOD entry was created
+			// Check if file is modified since MOD entry was created.
 			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+file)
 			if modified {
-				// If file is modified, just update the file in staging/modified
+				// If the file is modified, just update the file in staging/modified
 				AddToStaging(id, filePath, "modified")
+				color.Cyan("Staged file updated")
 				return nil
 			}
 			// If file is not modified, do nothing
+			color.Cyan("File already staged")
 			return nil
 		}
-		// REM entry exists?
+		// REM entry exists? (means that the removal of the file was already staged).
 		removed, id := LogEntryLookup("REM", filePath)
 		if removed {
-			// Check if file is still removed
-			fileExists := FileExists(filePath)
-			// If file is not removed, it means that it has been added back, therefore...
-			if fileExists {
-				// Check if file is listed in any of the commits
-				if !commitExists {
-					// If the file is not listed in any of the commits, it means that it's a new file, therefore...
-					//... remove the file from staging/removed and add it to staging/added
-					RemoveFile("./.csync/staging/removed/" + id + "/" + file)
-					// ... remove the log entry
+			// If file is removed, check if it was added back.
+			exists := FileExists(filePath)
+			// If it was...
+			if exists {
+				// Check if it was committed (exists in the file list of the latest commit).
+				isCommitted, commitId, fileId := IsFileCommitted(filePath)
+				// If it wasn't committed (THIS SCENARIO SHOULDN'T BE POSSIBLE!), remove the file from staging/removed and add it to staging/added. Log this operation.
+				if !isCommitted {
+					RemoveFile("./.csync/staging/removed/" + id + file)
 					RemoveLogEntry(id)
-					// ... add the file to staging/added
-					AddToStaging(id, filePath, "added")
-					// ... log the ADD operation
-					LogOperation(generatedId, "ADD", filePath)
-				} else {
-					// If the file is listed in any of the commits, it means that it's already tracked, therefore...
-					modified := IsModified(filePath, "./.csync/commits/"+latestCommitId+"/"+file)
-					// ... check if the file is modified
-					if modified {
-						// If the file was modified, remove it from staging/removed and add it to staging/modified
-						// Also, remove the REM log entry and add a new MOD log entry
-						RemoveFile("./.csync/staging/removed/" + id + "/" + file)
-						RemoveLogEntry(id)
-						AddToStaging(id, filePath, "modified")
-						LogOperation(generatedId, "MOD", filePath)
-					} else {
-						// If the file was not modified, remove it from staging/removed and remove the REM log entry, because
-						// the file is not removed anymore and nothing has changed
-						RemoveFile("./.csync/staging/removed/" + id + "/" + file)
-						RemoveLogEntry(id)
-					}
-				}
-			}
-			// If file is still removed, do nothing
-			return nil
-		}
-	} else {
-		if commitExists {
-			// File should be deleted? Check if it is listed in the latest commit and missing from the working directory
-			shouldBeDeleted, srcCommitId := IsFileDeleted(filePath, latestCommitId)
-			if shouldBeDeleted {
-				AddToStaging(generatedId, "./.csync/commits/"+srcCommitId+"/files/"+filePath, "removed")
-				LogOperation(generatedId, "REM", filePath)
-			} else {
-				fileCommitted, _ := IsFileCommitted(filePath, latestCommitId)
-				// Is it a new file? Check if it was listed in the latest commit
-				if !fileCommitted {
-					// Add file to staging if it was not listed in the latest commit
 					AddToStaging(generatedId, filePath, "added")
 					LogOperation(generatedId, "ADD", filePath)
+					return nil
+				} else {
+					// If it was committed, check if the file is modified since the last commit.
+					modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+filePath)
+					// If it was modified...
+					if modified {
+						// Remove the file from staging/removed and add it to staging/modified. Log this operation.
+						RemoveFile("./.csync/staging/removed/" + id + file)
+						RemoveLogEntry(id)
+						AddToStaging(generatedId, filePath, "modified")
+						LogOperation(generatedId, "MOD", filePath)
+						return nil
+					}
+					// If it wasn't modified, remove the file from staging/removed and remove the log entry.
+					RemoveFile("./.csync/staging/removed/" + id + file)
+					RemoveLogEntry(id)
+					return nil
 				}
 			}
+		}
+	} else {
+		// Check if the file is deleted (exists in the file list of the latest commit but not in the workdir)
+		isDeleted := IsFileDeleted(filePath)
+		if isDeleted {
+			AddToStaging(generatedId, filePath, "removed")
+			LogOperation(generatedId, "REM", filePath)
+			return nil
+		}
+
+		// If it wasn't deleted, check if the file is committed
+		isCommitted, commitId, fileId := IsFileCommitted(filePath)
+		// If it was committed...
+		if isCommitted {
+			// Check if the file is modified since the last commit
+			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+filePath)
+			// If it was modified...
+			if modified {
+				// Add the file to staging/modified and log this operation
+				AddToStaging(generatedId, filePath, "modified")
+				LogOperation(generatedId, "MOD", filePath)
+				return nil
+			} else {
+				// If it wasn't modified, add the file to staging/added and log this operation
+				AddToStaging(generatedId, filePath, "added")
+				LogOperation(generatedId, "ADD", filePath)
+				return nil
+			}
 		} else {
-			// Add file to staging
+			// If it wasn't committed, add the file to staging/added and log this operation. This means the file is new.
 			AddToStaging(generatedId, filePath, "added")
 			LogOperation(generatedId, "ADD", filePath)
+			return nil
 		}
 	}
 	return nil

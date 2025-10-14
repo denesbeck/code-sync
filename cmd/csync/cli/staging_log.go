@@ -17,18 +17,18 @@ func LogOperation(id string, op string, path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var payload []LogFileEntry
+	var content []LogFileEntry
 	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &payload); err != nil {
+		if err = json.Unmarshal(logs, &content); err != nil {
 			log.Fatal(err)
 		}
 	}
-	payload = append(payload, LogFileEntry{
+	content = append(content, LogFileEntry{
 		Id:   id,
 		Op:   op,
 		Path: path,
 	})
-	err = WriteJson(".csync/staging/logs.json", payload)
+	err = WriteJson(".csync/staging/logs.json", content)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,12 +40,12 @@ func LogEntryLookup(op string, path string) (bool, string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var payload []LogFileEntry
+	var content []LogFileEntry
 	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &payload); err != nil {
+		if err = json.Unmarshal(logs, &content); err != nil {
 			log.Fatal(err)
 		}
-		for _, entry := range payload {
+		for _, entry := range content {
 			if entry.Op == op && entry.Path == path {
 				return true, entry.Id
 			}
@@ -60,20 +60,20 @@ func RemoveLogEntry(id string) bool {
 		log.Fatal(err)
 		return false
 	}
-	var payload []LogFileEntry
+	var content []LogFileEntry
 	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &payload); err != nil {
+		if err = json.Unmarshal(logs, &content); err != nil {
 			log.Fatal(err)
 			return false
 		}
 	}
-	for i, entry := range payload {
+	for i, entry := range content {
 		if entry.Id == id {
-			payload = append(payload[:i], payload[i+1:]...)
+			content = append(content[:i], content[i+1:]...)
 			break
 		}
 	}
-	err = WriteJson(".csync/staging/logs.json", payload)
+	err = WriteJson(".csync/staging/logs.json", content)
 	if err != nil {
 		log.Fatal(err)
 		return false

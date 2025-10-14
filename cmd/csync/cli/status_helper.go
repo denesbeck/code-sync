@@ -21,11 +21,11 @@ func IsFileStaged(filePath string) bool {
 	if len(logs) == 0 {
 		return false
 	}
-	var payload []LogFileEntry
-	if err = json.Unmarshal(logs, &payload); err != nil {
+	var content []LogFileEntry
+	if err = json.Unmarshal(logs, &content); err != nil {
 		log.Fatal(err)
 	}
-	for _, entry := range payload {
+	for _, entry := range content {
 		if entry.Path == filePath {
 			return true
 		}
@@ -34,27 +34,28 @@ func IsFileStaged(filePath string) bool {
 }
 
 // Check if the file is already committed, return the commit id where the file was committed the last time
-func IsFileCommitted(filePath string, latestCommitId string) (isCommitted bool, srcCommitId string) {
-	branchName := GetCurrentBranchName()
-	fileList, err := os.ReadFile(".csync/branches/" + branchName + "/fileList.json")
+func IsFileCommitted(filePath string) (isCommitted bool, commitId string, fileId string) {
+	latestCommitId, _ := GetLastCommit()
+	fileList, err := os.ReadFile(".csync/commits/" + latestCommitId + "/fileList.json")
 	if err != nil {
 		log.Fatal(err)
+		return false, "", ""
 	}
 
-	var payload []FileListEntry
-	if err = json.Unmarshal(fileList, &payload); err != nil {
+	var content []FileListEntry
+	if err = json.Unmarshal(fileList, &content); err != nil {
 		log.Fatal(err)
 	}
-	for _, file := range payload {
+	for _, file := range content {
 		if file.Path == filePath {
-			return true, file.CommitId
+			return true, file.CommitId, file.Id
 		}
 	}
-	return false, ""
+	return false, "", ""
 }
 
-func IsFileDeleted(filePath string, latestCommitId string) (isDeleted bool, srcCommitId string) {
-	existsInCommits, sourceCommitId := IsFileCommitted(filePath, latestCommitId)
+func IsFileDeleted(filePath string) bool {
+	isCommitted, _, _ := IsFileCommitted(filePath)
 	existsInWorkdir := FileExists(filePath)
-	return existsInCommits && !existsInWorkdir, sourceCommitId
+	return isCommitted && !existsInWorkdir
 }
