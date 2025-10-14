@@ -60,7 +60,7 @@ var defaultCmd = &cobra.Command{
 var newCmd = &cobra.Command{
 	Use:     "new",
 	Short:   "Create a new branch",
-	Example: "csync new <branch-name>",
+	Example: "csync new <branch-name> --from-commit <commit-id> --from-branch <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		runNewCommand(args[0], FromCommit, FromBranch)
