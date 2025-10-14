@@ -9,20 +9,26 @@ import (
 )
 
 const (
-	// Staging directories for added, modified, removed operations
+	// Staging directories for added, modified, removed operations.
 	stagingAdded    = ".csync/staging/added"
 	stagingModified = ".csync/staging/modified"
 	stagingRemoved  = ".csync/staging/removed"
-	// Log file for tracking staging operations
-	// format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
+	// Log file for tracking staging operations.
+	// Format: { id: <hash>, op: add | mod | rem, path: path/to/file }
 	stagingLogs = ".csync/staging/logs.json"
-	commits     = ".csync/commits"
-	// Initial branch is named "main"
-	// "branches/<branch-name>/commits.json" stores commit hashes for the branch
-	defaultBranch        = ".csync/branches/main"
+	// Commits directory stores directories for each commit hash.
+	// "commits/<commit-hash>/file-name" refers to the file in the commit.
+	commits = ".csync/commits"
+	// Initial branch is named "main".
+	// "branches/<branch-name>/commits.json" stores commit hashes for the branch.
+	defaultBranch = ".csync/branches/main"
+	// Whenever a file is added to the project, it is added to the commits.json file.
+	// Format: { Path: <path>, Commit: <hash> }
+	// Whenever a file is removed from the project, it is removed from the commits.json file.
+	// Whenever a file is modified, its commit hash is updated in the commits.json file.
 	defaultBranchCommits = ".csync/branches/main/commits.json"
-	// "branches/metadata.json" stores default branch and current branch names
-	// format: { Default: <branch-name>, Current: <branch-name> }
+	// "branches/metadata.json" stores default branch and current branch names.
+	// Format: { Default: <branch-name>, Current: <branch-name> }
 	branchesMetadata = ".csync/branches/metadata.json"
 )
 
