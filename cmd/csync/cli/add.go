@@ -42,6 +42,8 @@ func runAddCommand(filePath string) {
 			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+fileName)
 			if modified {
 				AddToStaging(id, filePath, "added")
+				color.Cyan("Staged file updated")
+				return
 			}
 			color.Cyan("File already staged")
 			return
@@ -57,6 +59,7 @@ func runAddCommand(filePath string) {
 			if modified {
 				AddToStaging(id, filePath, "modified")
 				color.Cyan("Staged file updated")
+				return
 			}
 			color.Cyan("File already staged")
 			return
