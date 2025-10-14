@@ -111,10 +111,7 @@ func runInitCommand() error {
 	f.Close()
 
 	// create branches metadata file which contains default branch and current branch names
-	err = CreateBranchesMetadata()
-	if err != nil {
-		log.Fatal(err)
-	}
+	CreateBranchesMetadata()
 
 	color.Green("CSync initialized")
 

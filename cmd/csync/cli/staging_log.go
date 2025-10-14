@@ -28,10 +28,7 @@ func LogOperation(id string, op string, path string) {
 		Op:   op,
 		Path: path,
 	})
-	err = WriteJson(".csync/staging/logs.json", content)
-	if err != nil {
-		log.Fatal(err)
-	}
+	WriteJson(".csync/staging/logs.json", content)
 }
 
 // Look up the logs.json file for a specific operation and path. It returns a boolean value and the id of the log entry.
@@ -55,17 +52,32 @@ func LogEntryLookup(op string, path string) (isLogged bool, logId string, operat
 	return false, "", ""
 }
 
-func RemoveLogEntry(id string) bool {
+func IsLogEntryEmpty() bool {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
-		return false
 	}
 	var content []LogFileEntry
 	if len(logs) > 0 {
 		if err = json.Unmarshal(logs, &content); err != nil {
 			log.Fatal(err)
-			return false
+		}
+		if len(content) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func RemoveLogEntry(id string) {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var content []LogFileEntry
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &content); err != nil {
+			log.Fatal(err)
 		}
 	}
 	for i, entry := range content {
@@ -74,12 +86,7 @@ func RemoveLogEntry(id string) bool {
 			break
 		}
 	}
-	err = WriteJson(".csync/staging/logs.json", content)
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-	return true
+	WriteJson(".csync/staging/logs.json", content)
 }
 
 func TruncateLogs() {
@@ -87,4 +94,21 @@ func TruncateLogs() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func GetStagingLogsContent() (result []LogFileEntry) {
+	logs, err := os.ReadFile(".csync/staging/logs.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var content []LogFileEntry
+	if len(logs) > 0 {
+		if err = json.Unmarshal(logs, &content); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		content = []LogFileEntry{}
+		return content
+	}
+	return content
 }

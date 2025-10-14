@@ -4,20 +4,24 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"log"
 	"os"
 	"strings"
 )
 
-func WriteJson(path string, data interface{}) error {
+func WriteJson(path string, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return err
+		log.Fatal(err)
+	}
+	if _, err = os.Stat(path); os.IsNotExist(err) {
+		path, _ := ParsePath(path)
+		os.MkdirAll(path, 0700)
 	}
 	err = os.WriteFile(path, jsonData, 0644)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	return nil
 }
 
 func GenRandHex(length int) string {
@@ -27,8 +31,8 @@ func GenRandHex(length int) string {
 	return hex.EncodeToString(b)
 }
 
-func ParsePath(path string) (string, string) {
-	tmpArr := strings.Split(path, "/")
+func ParsePath(fullPath string) (path string, fileName string) {
+	tmpArr := strings.Split(fullPath, "/")
 
 	dirs := strings.Join(tmpArr[:len(tmpArr)-1], "/")
 	file := tmpArr[len(tmpArr)-1]

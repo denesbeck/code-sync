@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"time"
 )
 
 type Commit struct {
@@ -12,7 +13,12 @@ type Commit struct {
 	Timestamp string
 }
 
-func GetLastCommit() (latestCommitId string, isCommitted bool) {
+type CommitMetadata struct {
+	Message   string
+	Timestamp string
+}
+
+func GetLastCommit() (latestCommitId string) {
 	currentBranchName := GetCurrentBranchName()
 	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
 	if err != nil {
@@ -23,11 +29,91 @@ func GetLastCommit() (latestCommitId string, isCommitted bool) {
 		log.Fatal(err)
 	}
 	if len(content) == 0 {
-		return "", false
+		return ""
 	}
 	sort.Slice(content, func(i, j int) bool {
-		return content[i].Timestamp < content[j].Timestamp
+		return content[i].Timestamp > content[j].Timestamp
 	})
+	return content[0].Id
+}
 
-	return content[len(content)-1].Id, true
+func GetFileListContent(commitId string) (result []FileListEntry) {
+	fileList, err := os.ReadFile(".csync/commits/" + commitId + "/fileList.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var content []FileListEntry
+	if len(fileList) > 0 {
+		if err = json.Unmarshal(fileList, &content); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		return []FileListEntry{}
+	}
+	return content
+}
+
+func ProcessFileList(latestCommitId string, newCommitId string) {
+	var fileList []FileListEntry
+	if latestCommitId == "" {
+		fileList = []FileListEntry{}
+	} else {
+		c := GetFileListContent(latestCommitId)
+		fileList = c
+	}
+	stagingLogs := GetStagingLogsContent()
+
+	for _, logEntry := range stagingLogs {
+		switch logEntry.Op {
+		case "REM":
+			if len(fileList) == 0 {
+				continue
+			}
+			for i, entry := range fileList {
+				if entry.Path == logEntry.Path {
+					fileList = append(fileList[:i], fileList[i+1:]...)
+					break
+				}
+			}
+		case "ADD":
+			fileList = append(fileList, FileListEntry{Id: logEntry.Id, CommitId: newCommitId, Path: logEntry.Path})
+			_, fileName := ParsePath(logEntry.Path)
+			CopyFile(logEntry.Path, ".csync/commits/"+newCommitId+"/"+logEntry.Id+"/"+fileName)
+		case "MOD":
+			if len(fileList) == 0 {
+				continue
+			}
+			for i, entry := range fileList {
+				if logEntry.Path == entry.Path {
+					fileList[i].Id = logEntry.Id
+					fileList[i].CommitId = newCommitId
+				}
+			}
+			_, fileName := ParsePath(logEntry.Path)
+			CopyFile(logEntry.Path, ".csync/commits/"+newCommitId+"/"+logEntry.Id+"/"+fileName)
+		}
+	}
+	WriteJson(".csync/commits/"+newCommitId+"/fileList.json", fileList)
+}
+
+func WriteCommitMetadata(commitId string, message string) {
+	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Message: message, Timestamp: getTimestamp()})
+}
+
+func getTimestamp() string {
+	return time.Now().Format(time.RFC3339)
+}
+
+func RegisterCommitForBranch(commitId string) {
+	currentBranchName := GetCurrentBranchName()
+	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var content []Commit
+	if err = json.Unmarshal(commits, &content); err != nil {
+		log.Fatal(err)
+	}
+	content = append(content, Commit{Id: commitId, Timestamp: getTimestamp()})
+	WriteJson(".csync/branches/"+currentBranchName+"/commits.json", content)
 }

@@ -10,16 +10,3 @@ func IsInitialized() bool {
 	}
 	return false
 }
-
-func CreateBranchesMetadata() error {
-	branchesMetadata := BranchMetadata{
-		Default: "main",
-		Current: "main",
-	}
-
-	err := WriteJson(".csync/branches/metadata.json", branchesMetadata)
-	if err != nil {
-		return err
-	}
-	return nil
-}

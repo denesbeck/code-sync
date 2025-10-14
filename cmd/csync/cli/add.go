@@ -136,7 +136,7 @@ func runAddCommand(filePath string) error {
 		// If it was committed...
 		if isCommitted {
 			// Check if the file is modified since the last commit
-			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+filePath)
+			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+file)
 			// If it was modified...
 			if modified {
 				// Add the file to staging/modified and log this operation
@@ -144,9 +144,7 @@ func runAddCommand(filePath string) error {
 				LogOperation(generatedId, "MOD", filePath)
 				return nil
 			} else {
-				// If it wasn't modified, add the file to staging/added and log this operation
-				AddToStaging(generatedId, filePath, "added")
-				LogOperation(generatedId, "ADD", filePath)
+				color.Red("File not modified")
 				return nil
 			}
 		} else {

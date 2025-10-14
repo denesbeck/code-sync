@@ -34,3 +34,11 @@ func GetDefaultBranchName() string {
 	}
 	return metadata.Default
 }
+
+func CreateBranchesMetadata() {
+	branchesMetadata := BranchMetadata{
+		Default: "main",
+		Current: "main",
+	}
+	WriteJson(".csync/branches/metadata.json", branchesMetadata)
+}
