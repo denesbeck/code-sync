@@ -18,3 +18,12 @@ var ADD_RETURN_CODES = map[int]string{
 	111: "File not modified",         // file committed, not staged, not modified
 	112: "File added to staging",     // file not committed, not staged -> staged (ADD)
 }
+
+var BRANCH_RETURN_CODES = map[int]string{
+	201: "Invalid branch name",
+	202: "Cannot create branch from both commit and branch",
+	203: "Source branch does not exist",
+	204: "Failed to create branch from commit",
+	205: "Branch already exists",
+	206: "Branch created successfully",
+}
