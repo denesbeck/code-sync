@@ -40,7 +40,7 @@ git clone https://github.com/denesbeck/code-sync.git
 2. Change the directory:
 
 ```bash
-cd code-sync/cmd/csync
+cd code-sync/cmd
 ```
 
 3. Install the dependencies:
