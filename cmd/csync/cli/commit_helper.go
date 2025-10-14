@@ -36,6 +36,26 @@ func GetLastCommit() (latestCommitId string) {
 	return content[0].Id
 }
 
+func GetCommits() []string {
+	currentBranchName := GetCurrentBranchName()
+	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var content []Commit
+	if err = json.Unmarshal(commits, &content); err != nil {
+		log.Fatal(err)
+	}
+	sort.Slice(content, func(i, j int) bool {
+		return content[i].Timestamp > content[j].Timestamp
+	})
+	var result []string
+	for _, commit := range content {
+		result = append(result, commit.Id)
+	}
+	return result
+}
+
 func GetFileListContent(commitId string) (result []FileListEntry) {
 	fileList, err := os.ReadFile(".csync/commits/" + commitId + "/fileList.json")
 	if err != nil {
