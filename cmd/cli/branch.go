@@ -240,33 +240,33 @@ func runDropCommand(branchName string) int {
 
 	if err := os.RemoveAll(dirs.Branches + branchName); err != nil {
 		Debug("Failed to delete branch: %s", branchName)
-		color.Red(BRANCH_RETURN_CODES[210])
-		return 210
+		color.Red(BRANCH_RETURN_CODES[207])
+		return 207
 	}
 	Debug("Branch deleted successfully: %s", branchName)
-	color.Green(BRANCH_RETURN_CODES[211])
-	return 211
+	color.Green(BRANCH_RETURN_CODES[210])
+	return 210
 }
 
-func runSwitchCommand(branchName string) {
+func runSwitchCommand(branchName string) int {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001
 	}
 
 	currentBranch := GetCurrentBranchName()
 	if currentBranch == branchName {
 		Debug("Already on branch: %s", branchName)
-		color.Red("You are already on `" + branchName + "` branch")
-		return
+		color.Red(BRANCH_RETURN_CODES[211])
+		return 211
 	}
 
 	branches := ListBranches()
 	if !slices.Contains(branches, branchName) {
 		Debug("Branch does not exist: %s", branchName)
-		color.Red("Branch does not exist")
-		return
+		color.Red(BRANCH_RETURN_CODES[212])
+		return 212
 	}
 
 	commitId := GetLastCommitByBranch(branchName).Id
@@ -280,5 +280,6 @@ func runSwitchCommand(branchName string) {
 	}
 	SetBranch(branchName, "current")
 	Debug("Switched to branch: %s", branchName)
-	color.Cyan("Current branch: " + branchName)
+	color.Cyan(BRANCH_RETURN_CODES[213] + branchName)
+	return 213
 }
