@@ -25,7 +25,15 @@ var historyCmd = &cobra.Command{
 	},
 }
 
-func runHistoryCommand() {
+type History struct {
+	author  string
+	email   string
+	date    string
+	message string
+	commits []LogFileEntry
+}
+
+func runHistoryCommand() (returnCode int, history []History) {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
@@ -44,6 +52,9 @@ func runHistoryCommand() {
 	}
 
 	Debug("Displaying %d commits", len(*commits))
+
+	history = make([]History, 0, len(*commits))
+
 	for _, commit := range *commits {
 		Debug("Processing commit: %s", commit.Id)
 		color.Yellow(commit.Id[:40])
@@ -75,6 +86,13 @@ func runHistoryCommand() {
 		Debug("Displaying %d log entries for commit", len(logs))
 		PrintLogs(logs)
 		fmt.Println()
+		history = append(history, History{
+			author:  metadata.Author,
+			date:    commit.Timestamp,
+			message: metadata.Message,
+			commits: logs,
+		})
 	}
 	Debug("History command completed successfully")
+	return 401, history
 }
