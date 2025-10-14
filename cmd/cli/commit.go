@@ -25,18 +25,18 @@ var commitCmd = &cobra.Command{
 	},
 }
 
-func runCommitCommand(message string) {
+func runCommitCommand(message string) (returnCode int, commitId string) {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red(COMMON_RETURN_CODES[001])
-		return
+		return 001, ""
 	}
 
 	empty := IsStagingLogsEmpty()
 	if empty {
 		Debug("No changes staged for commit")
-		color.Red("Nothing to commit")
-		return
+		color.Red(COMMIT_RETURN_CODES[701])
+		return 701, ""
 	}
 
 	newCommitId := GenRandHex(20)
@@ -62,4 +62,5 @@ func runCommitCommand(message string) {
 	Debug("Registered commit for current branch")
 
 	color.Green("Changes committed successfully")
+	return 702, newCommitId
 }
