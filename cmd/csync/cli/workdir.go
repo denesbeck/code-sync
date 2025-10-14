@@ -27,6 +27,10 @@ func runWorkdirCommand() error {
 		return nil
 	}
 	commitId := GetLastCommit()
+	if commitId == "" {
+		color.Cyan("No commits yet")
+		return nil
+	}
 	content := GetFileListContent(commitId)
 
 	sort.Slice(content, func(i, j int) bool {
