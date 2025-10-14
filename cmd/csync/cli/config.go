@@ -174,6 +174,7 @@ func setDefaultBranch(branch string) {
 		color.Red("CSync not initialized")
 	}
 	SetDefaultBranch(branch)
+	color.Green("Default branch set to " + branch)
 }
 
 func getDefaultBranch() {
