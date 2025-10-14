@@ -37,7 +37,7 @@ func runRemoveCommand(filePath string) {
 	}
 
 	if isLogged {
-		RemoveFile("./.csync/staging/" + ops[operation] + "/" + logId)
+		RemoveFile(dirs.Staging + ops[operation] + "/" + logId)
 		RemoveLogEntry(logId)
 		color.Green("File removed from staging")
 	} else {

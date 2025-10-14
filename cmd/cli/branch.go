@@ -177,12 +177,12 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 			return
 		}
 	} else {
-		if err := os.Mkdir("./.csync/branches/"+branchName, 0755); err != nil {
+		if err := os.Mkdir(dirs.Branches+branchName, 0755); err != nil {
 			color.Red("Branch already exists")
 			return
 		}
 
-		CopyFile("./.csync/branches/"+srcBranch+"/commits.json", "./.csync/branches/"+branchName+"/commits.json")
+		CopyFile(dirs.Branches+srcBranch+"/commits.json", dirs.Branches+branchName+"/commits.json")
 
 	}
 	color.Green("Branch created successfully")
@@ -212,7 +212,7 @@ func runDropCommand(branchName string) {
 		return
 	}
 
-	if err := os.RemoveAll("./.csync/branches/" + branchName); err != nil {
+	if err := os.RemoveAll(dirs.Branches + branchName); err != nil {
 		color.Red("Branch does not exist")
 		return
 	}
@@ -243,7 +243,7 @@ func runSwitchCommand(branchName string) {
 		fileList := GetFileListContent(commitId)
 		for _, file := range *fileList {
 			_, fileName := ParsePath(file.Path)
-			CopyFile("./.csync/commits/"+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
+			CopyFile(dirs.Commits+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
 		}
 	}
 	SetBranch(branchName, "current")

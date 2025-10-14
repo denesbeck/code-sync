@@ -54,9 +54,12 @@ func runAddCommand(filePath string) int {
 		if modified {
 			if !exists {
 				removeFileAndLog(id, "modified")
+				/* INFO:
+								        * As the file is deleted, we should only log the operation.
+												* The file should not be copied to the staging directory.
+				                * Therefore calling LogOperation() and skipping AddToStaging().
+				*/
 				LogOperation(generatedId, "REM", filePath)
-				// TODO: check if this is correct!
-				// stageAndLog(generatedId, filePath, "removed")
 				return 4
 			}
 			modified := IsModified(filePath, dirs.StagingModified+id+"/"+fileName)
@@ -72,22 +75,17 @@ func runAddCommand(filePath string) int {
 		if removed {
 			if exists {
 				removeFileAndLog(id, "removed")
-				isCommitted, commitId, fileId := GetFileMetadata(filePath)
-				if !isCommitted {
-					stageAndLog(generatedId, filePath, "added") // this scenario shouldn't be possible
-				} else {
-					modified := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+filePath)
-					if modified {
-						stageAndLog(generatedId, filePath, "modified")
-						color.Cyan(ADD_RETURN_CODES[7])
-						return 7
-					}
-					/*
-											* Checking use case when file was not modified is not necessary,
-											* because the file was removed from staging (REM).
-						          * So, everything should be unchanged.
-					*/
+				_, commitId, fileId := GetFileMetadata(filePath)
+				// If file was staged (REM), it indicates that it was committed, too
+				modified := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+fileName)
+				if modified {
+					stageAndLog(generatedId, filePath, "modified")
+					color.Cyan(ADD_RETURN_CODES[7])
+					return 7
 				}
+				/*
+				 If file was staged (REM) and added back to workdir without any modifications, everything should be unchanged.
+				*/
 			} else {
 				color.Cyan(ADD_RETURN_CODES[8])
 				return 8

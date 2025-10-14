@@ -46,7 +46,7 @@ func GetLastCommitByBranch(branch string) string {
 
 func GetCommits() *[]Commit {
 	currentBranchName := GetCurrentBranchName()
-	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
+	commits, err := os.ReadFile(dirs.Branches + currentBranchName + "/commits.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func GetCommits() *[]Commit {
 }
 
 func GetFileListContent(commitId string) (result *[]FileListEntry) {
-	fileList, err := os.ReadFile(".csync/commits/" + commitId + "/fileList.json")
+	fileList, err := os.ReadFile(dirs.Commits + commitId + "/fileList.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 		case "ADD":
 			*fileList = append(*fileList, FileListEntry{Id: logEntry.Id, CommitId: newCommitId, Path: logEntry.Path})
 			_, fileName := ParsePath(logEntry.Path)
-			CopyFile(logEntry.Path, ".csync/commits/"+newCommitId+"/"+logEntry.Id+"/"+fileName)
+			CopyFile(logEntry.Path, dirs.Commits+newCommitId+"/"+logEntry.Id+"/"+fileName)
 		case "MOD":
 			if len(*fileList) == 0 {
 				continue
@@ -116,20 +116,20 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 				}
 			}
 			_, fileName := ParsePath(logEntry.Path)
-			CopyFile(logEntry.Path, ".csync/commits/"+newCommitId+"/"+logEntry.Id+"/"+fileName)
+			CopyFile(logEntry.Path, dirs.Commits+newCommitId+"/"+logEntry.Id+"/"+fileName)
 		}
 	}
-	WriteJson(".csync/commits/"+newCommitId+"/fileList.json", fileList)
+	WriteJson(dirs.Commits+newCommitId+"/fileList.json", fileList)
 }
 
 func WriteCommitMetadata(commitId string, message string) {
 	config := GetConfig()
-	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Author: config.Username + " <" + config.Email + ">", Message: message})
+	WriteJson(dirs.Commits+commitId+"/metadata.json", CommitMetadata{Author: config.Username + " <" + config.Email + ">", Message: message})
 }
 
 func RegisterCommitForBranch(commitId string) {
 	currentBranchName := GetCurrentBranchName()
-	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
+	commits, err := os.ReadFile(dirs.Branches + currentBranchName + "/commits.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -139,7 +139,7 @@ func RegisterCommitForBranch(commitId string) {
 	}
 	lastCommit := GetLastCommit()
 	content = append(content, Commit{Id: commitId, Timestamp: GetTimestamp(), PrevCommitId: lastCommit})
-	WriteJson(".csync/branches/"+currentBranchName+"/commits.json", content)
+	WriteJson(dirs.Branches+currentBranchName+"/commits.json", content)
 }
 
 func CopyCommitsToBranch(commitId string, targetBranch string) error {
@@ -152,12 +152,12 @@ func CopyCommitsToBranch(commitId string, targetBranch string) error {
 		return errors.New("Commit does not exist")
 	}
 
-	if err := os.Mkdir("./.csync/branches/"+targetBranch, 0755); err != nil {
+	if err := os.Mkdir(dirs.Branches+targetBranch, 0755); err != nil {
 		return errors.New("Branch already exists")
 	}
 
 	index := FindIndex(commitIds, commitId)
 	*commits = (*commits)[:(index + 1)]
-	WriteJson(".csync/branches/"+targetBranch+"/commits.json", *commits)
+	WriteJson(dirs.Branches+targetBranch+"/commits.json", *commits)
 	return nil
 }

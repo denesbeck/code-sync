@@ -42,7 +42,7 @@ func runHistoryCommand() {
 
 	for _, commit := range *commits {
 		color.Yellow(commit.Id[:40])
-		data, err := os.ReadFile("./.csync/commits/" + commit.Id + "/metadata.json")
+		data, err := os.ReadFile(dirs.Commits + commit.Id + "/metadata.json")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -55,7 +55,7 @@ func runHistoryCommand() {
 		color.Cyan("Message: " + metadata.Message)
 		fmt.Println()
 
-		data, err = os.ReadFile("./.csync/commits/" + commit.Id + "/logs.json")
+		data, err = os.ReadFile(dirs.Commits + commit.Id + "/logs.json")
 		if err != nil {
 			log.Fatal(err)
 		}
