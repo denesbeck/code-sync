@@ -31,12 +31,11 @@ func runAddCommand(filePath string) {
 
 	fileStaged := IsFileStaged(filePath)
 	if fileStaged {
+		exists := FileExists(filePath)
 		added, id, _ := LogEntryLookup("ADD", filePath)
 		if added {
-			exists := FileExists(filePath)
 			if !exists {
-				RemoveFile("./.csync/staging/added/" + id)
-				RemoveLogEntry(id)
+				removeFileAndLog(id, "added")
 				color.Cyan("File removed from staging")
 				return
 			}
@@ -49,12 +48,9 @@ func runAddCommand(filePath string) {
 		}
 		modified, id, _ := LogEntryLookup("MOD", filePath)
 		if modified {
-			exists := FileExists(filePath)
 			if !exists {
-				RemoveFile("./.csync/staging/modified/" + id)
-				RemoveLogEntry(id)
-				AddToStaging(generatedId, filePath, "removed")
-				LogOperation(generatedId, "REM", filePath)
+				removeFileAndLog(id, "modified")
+				stageAndLog(generatedId, filePath, "removed")
 				return
 			}
 			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+fileName)
@@ -67,19 +63,15 @@ func runAddCommand(filePath string) {
 		}
 		removed, id, _ := LogEntryLookup("REM", filePath)
 		if removed {
-			exists := FileExists(filePath)
 			if exists {
-				RemoveFile("./.csync/staging/removed/" + id)
-				RemoveLogEntry(id)
+				removeFileAndLog(id, "removed")
 				isCommitted, commitId, fileId := GetFileMetadata(filePath)
 				if !isCommitted {
-					AddToStaging(generatedId, filePath, "added")
-					LogOperation(generatedId, "ADD", filePath)
+					stageAndLog(generatedId, filePath, "added")
 				} else {
 					modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+filePath)
 					if modified {
-						AddToStaging(generatedId, filePath, "modified")
-						LogOperation(generatedId, "MOD", filePath)
+						stageAndLog(generatedId, filePath, "modified")
 					}
 				}
 			} else {
@@ -98,14 +90,27 @@ func runAddCommand(filePath string) {
 		if isCommitted {
 			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+fileName)
 			if modified {
-				AddToStaging(generatedId, filePath, "modified")
-				LogOperation(generatedId, "MOD", filePath)
+				stageAndLog(generatedId, filePath, "modified")
 			} else {
 				color.Red("File not modified")
 			}
 		} else {
-			AddToStaging(generatedId, filePath, "added")
-			LogOperation(generatedId, "ADD", filePath)
+			stageAndLog(generatedId, filePath, "added")
 		}
 	}
+}
+
+func removeFileAndLog(id string, op string) {
+	RemoveFile("./.csync/staging/" + op + "/" + id)
+	RemoveLogEntry(id)
+}
+
+func stageAndLog(id string, path string, op string) {
+	logOperations := map[string]string{
+		"added":    "ADD",
+		"modified": "MOD",
+		"removed":  "REM",
+	}
+	AddToStaging(id, path, op)
+	LogOperation(id, logOperations[op], path)
 }
