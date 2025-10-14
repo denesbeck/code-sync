@@ -15,10 +15,9 @@ type BranchMetadata struct {
 }
 
 const (
-	BranchMetadataPath = "./.csync/branches/metadata.json"
-	DefaultBranch      = "default"
-	CurrentBranch      = "current"
-	InitBranch         = "main"
+	DefaultBranch = "default"
+	CurrentBranch = "current"
+	InitBranch    = "main"
 )
 
 func GetCurrentBranchName() string {
@@ -32,29 +31,29 @@ func GetDefaultBranchName() string {
 }
 
 func CreateBranchesMetadata() {
-	branchesMetadata := BranchMetadata{
+	payload := BranchMetadata{
 		Default: InitBranch,
 		Current: InitBranch,
 	}
-	WriteJson(BranchMetadataPath, branchesMetadata)
+	WriteJson(dirs.BranchesMetadata, payload)
 }
 
 func GetBranchesMetadata() (m *BranchMetadata) {
-	branchesMetadata, err := os.ReadFile(BranchMetadataPath)
+	content, err := os.ReadFile(dirs.BranchesMetadata)
 	if err != nil {
 		log.Fatal(err)
 	}
 	var metadata BranchMetadata
-	if err = json.Unmarshal(branchesMetadata, &metadata); err != nil {
+	if err = json.Unmarshal(content, &metadata); err != nil {
 		log.Fatal(err)
 	}
 	return &metadata
 }
 
 func SetBranch(branch string, configParam string) {
-	branchesMetadata := GetBranchesMetadata()
+	metadata := GetBranchesMetadata()
 
-	if (configParam == DefaultBranch && branchesMetadata.Default == branch) || (configParam == CurrentBranch && branchesMetadata.Current == branch) {
+	if (configParam == DefaultBranch && metadata.Default == branch) || (configParam == CurrentBranch && metadata.Current == branch) {
 		color.Red("Branch already set as " + configParam)
 		return
 	}
@@ -62,26 +61,26 @@ func SetBranch(branch string, configParam string) {
 	branches := ListBranches()
 	if slices.Contains(branches, branch) {
 		if configParam == DefaultBranch {
-			branchesMetadata.Default = branch
+			metadata.Default = branch
 		} else {
-			branchesMetadata.Current = branch
+			metadata.Current = branch
 		}
 	} else {
 		color.Red("Branch does not exist")
 	}
 
-	jsonData, err := json.Marshal(branchesMetadata)
+	jsonData, err := json.Marshal(metadata)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = os.WriteFile(BranchMetadataPath, jsonData, 0644); err != nil {
+	if err = os.WriteFile(dirs.BranchesMetadata, jsonData, 0644); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func ListBranches() []string {
-	entries, err := os.ReadDir(".csync/branches")
+	entries, err := os.ReadDir(dirs.Branches)
 	if err != nil {
 		log.Fatal(err)
 	}

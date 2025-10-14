@@ -27,6 +27,11 @@ func runPurgeCommand() {
 		color.Red("CSync not initialized")
 		return
 	}
-	os.RemoveAll(".csync")
+	if namespace == "" {
+		os.RemoveAll(dirs.Root)
+	} else {
+		os.RemoveAll(namespace)
+	}
+
 	color.Green("CSync purged successfully")
 }
