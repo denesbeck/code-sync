@@ -204,7 +204,7 @@ func runSwitchCommand(branchName string) {
 
 	currentBranch := GetCurrentBranchName()
 	if currentBranch == branchName {
-		color.Red("You are already on " + branchName + " branch")
+		color.Red("You are already on `" + branchName + "` branch")
 		return
 	}
 
