@@ -63,7 +63,7 @@ var newCmd = &cobra.Command{
 	Example: "csync new <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
-		runNewCommand(args[0])
+		runNewCommand(args[0], FromCommit, FromBranch)
 	},
 }
 
@@ -71,9 +71,11 @@ var dropCmd = &cobra.Command{
 	Use:     "drop",
 	Short:   "Delete a branch",
 	Example: "csync drop <branch-name>",
-	Args:    cobra.ExactArgs(1),
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
-		runDropCommand(args[0])
+		for _, arg := range args {
+			runDropCommand(arg)
+		}
 	},
 }
 
@@ -144,24 +146,44 @@ func runDefaultCommand() {
 	fmt.Println(defaultBranchName)
 }
 
-func runNewCommand(branchName string) {
+func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
 		return
 	}
 
-	currentBranchName := GetCurrentBranchName()
+	if fromCommit != "" && fromBranch != "" {
+		color.Red("Cannot create branch from both commit and branch")
+		return
+	}
 
-	// TODO: Implement from-commit and from-branch
+	var srcBranch string
+	if fromBranch != "" {
+		srcBranch = fromBranch
+		branches := ListBranches()
+		if !slices.Contains(branches, srcBranch) {
+			color.Red("Source branch does not exist")
+			return
+		}
+	} else {
+		srcBranch = GetCurrentBranchName()
+	}
 
 	if err := os.Mkdir("./.csync/branches/"+branchName, 0755); err != nil {
 		color.Red("Branch already exists")
 		return
 	}
-	CopyFile("./.csync/branches/"+currentBranchName+"/commits.json", "./.csync/branches/"+branchName+"/commits.json")
+
+	CopyFile("./.csync/branches/"+srcBranch+"/commits.json", "./.csync/branches/"+branchName+"/commits.json")
+	if fromCommit != "" {
+		err := CopyCommitsToBranch(fromCommit, branchName)
+		if err != nil {
+			color.Red(err.Error())
+			return
+		}
+	}
 	color.Green("Branch created successfully")
-	fmt.Println("[...]")
 	runSwitchCommand(branchName)
 }
 
@@ -215,11 +237,13 @@ func runSwitchCommand(branchName string) {
 	}
 
 	commitId := GetLastCommitByBranch(branchName)
-	fileList := GetFileListContent(commitId)
-	for _, file := range *fileList {
-		_, fileName := ParsePath(file.Path)
-		CopyFile("./.csync/commits/"+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
+	if commitId != "" {
+		fileList := GetFileListContent(commitId)
+		for _, file := range *fileList {
+			_, fileName := ParsePath(file.Path)
+			CopyFile("./.csync/commits/"+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
+		}
 	}
 	SetBranch(branchName, "current")
-	color.Green("Switched to branch `" + branchName + "`")
+	color.Cyan("Current branch: " + branchName)
 }

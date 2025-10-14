@@ -2,14 +2,17 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
+	"slices"
 	"sort"
 )
 
 type Commit struct {
-	Id        string
-	Timestamp string
+	Id           string
+	Timestamp    string
+	PrevCommitId string
 }
 
 type CommitMetadata struct {
@@ -134,6 +137,29 @@ func RegisterCommitForBranch(commitId string) {
 	if err = json.Unmarshal(commits, &content); err != nil {
 		log.Fatal(err)
 	}
-	content = append(content, Commit{Id: commitId, Timestamp: getTimestamp()})
+	lastCommit := GetLastCommit()
+	content = append(content, Commit{Id: commitId, Timestamp: getTimestamp(), PrevCommitId: lastCommit})
 	WriteJson(".csync/branches/"+currentBranchName+"/commits.json", content)
+}
+
+func CopyCommitsToBranch(commitId string, targetBranch string) error {
+	commits := GetCommits()
+	commitIds := []string{}
+	for _, commit := range *commits {
+		commitIds = append(commitIds, commit.Id)
+	}
+	if !slices.Contains(commitIds, commitId) {
+		return errors.New("Commit does not exist")
+	}
+
+	var index int
+	for i, commit := range *commits {
+		if commit.Id == commitId {
+			index = i
+			break
+		}
+	}
+	*commits = (*commits)[:(index + 1)]
+	WriteJson(".csync/branches/"+targetBranch+"/commits.json", *commits)
+	return nil
 }
