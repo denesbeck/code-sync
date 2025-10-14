@@ -1,5 +1,9 @@
 package cli
 
+import (
+	"reflect"
+)
+
 type Dirs struct {
 	Root                 string
 	StagingAdded         string
@@ -57,15 +61,11 @@ var dirs = Dirs{
 	Config: namespace + ".csync/config.json",
 }
 
-var dirsArr = []string{
-	dirs.Root,
-	dirs.StagingAdded,
-	dirs.StagingModified,
-	dirs.StagingRemoved,
-	dirs.StagingLogs,
-	dirs.Commits,
-	dirs.DefaultBranch,
-	dirs.DefaultBranchCommits,
-	dirs.BranchesMetadata,
-	dirs.Config,
+func (d Dirs) GetDirs() []string {
+	fields := reflect.ValueOf(d)
+	var dirs []string
+	for i := 0; i < fields.NumField(); i++ {
+		dirs = append(dirs, fields.Field(i).String())
+	}
+	return dirs
 }
