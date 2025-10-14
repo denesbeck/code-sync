@@ -14,5 +14,5 @@ func AddToStaging(id string, path string, op string) {
 		log.Fatal(err)
 	}
 	CopyFile(path, ".csync/staging/"+op+"/"+id+"/"+file)
-	color.Green("File added successfully")
+	color.Green("File added to staging")
 }
