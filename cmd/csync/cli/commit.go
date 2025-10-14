@@ -28,7 +28,7 @@ func runCommitCommand(message string) error {
 	if !initialized {
 		color.Red("CSync not initialized")
 	}
-	empty := IsLogEntryEmpty()
+	empty := IsStagingLogsEmpty()
 
 	if empty {
 		color.Red("Nothing to commit")
@@ -51,6 +51,6 @@ func runCommitCommand(message string) error {
 
 	RegisterCommitForBranch(newCommitId)
 
-	color.Green("Committed successfully")
+	color.Green("Changes committed successfully")
 	return nil
 }

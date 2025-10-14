@@ -113,7 +113,7 @@ func runInitCommand() error {
 	// create branches metadata file which contains default branch and current branch names
 	CreateBranchesMetadata()
 
-	color.Green("CSync initialized")
+	color.Green("CSync initialized successfully")
 
 	return nil
 }

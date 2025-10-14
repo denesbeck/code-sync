@@ -53,7 +53,7 @@ func LogEntryLookup(op string, path string) (isLogged bool, logId string, operat
 	return false, "", ""
 }
 
-func IsLogEntryEmpty() bool {
+func IsStagingLogsEmpty() bool {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
@@ -66,8 +66,9 @@ func IsLogEntryEmpty() bool {
 		if len(content) == 0 {
 			return true
 		}
+		return false
 	}
-	return false
+	return true
 }
 
 func RemoveLogEntry(id string) {
@@ -91,10 +92,7 @@ func RemoveLogEntry(id string) {
 }
 
 func TruncateLogs() {
-	err := os.WriteFile(".csync/staging/logs.json", []byte{}, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	WriteJson(".csync/staging/logs.json", []LogFileEntry{})
 }
 
 func GetStagingLogsContent() (result []LogFileEntry) {
