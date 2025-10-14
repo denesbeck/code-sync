@@ -8,13 +8,11 @@ import (
 )
 
 func CopyFile(src, dst string) {
-	// File exists?
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		log.Fatal("Source file does not exist")
 	}
 
-	// Is it a regular file?
 	if !sourceFileStat.Mode().IsRegular() {
 		log.Fatal("Source file is not a regular file")
 	}
@@ -25,7 +23,6 @@ func CopyFile(src, dst string) {
 	}
 	defer source.Close()
 
-	// Check if the file already exists. If yes, remove it.
 	if FileExists(dst) {
 		os.Remove(dst)
 	}
@@ -35,7 +32,6 @@ func CopyFile(src, dst string) {
 		os.MkdirAll(path, 0700)
 	}
 
-	// Create the file
 	destination, err := os.Create(dst)
 	if err != nil {
 		log.Fatal(err)

@@ -33,7 +33,6 @@ func IsFileStaged(filePath string) bool {
 	return false
 }
 
-// Check if the file is already committed, return the commit id where the file was committed the last time
 func GetFileMetadata(filePath string) (isCommitted bool, commitId string, fileId string) {
 	latestCommitId := GetLastCommit()
 	if latestCommitId == "" {

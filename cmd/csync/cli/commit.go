@@ -18,21 +18,23 @@ var commitCmd = &cobra.Command{
 	Use:     "commit",
 	Short:   "Commit the staged files",
 	Example: "csync commit -m <your commit message>",
-	RunE: func(_ *cobra.Command, args []string) error {
-		return runCommitCommand(Message)
+	Args:    cobra.NoArgs,
+	Run: func(_ *cobra.Command, args []string) {
+		runCommitCommand(Message)
 	},
 }
 
-func runCommitCommand(message string) error {
+func runCommitCommand(message string) {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
+		return
 	}
-	empty := IsStagingLogsEmpty()
 
+	empty := IsStagingLogsEmpty()
 	if empty {
 		color.Red("Nothing to commit")
-		return nil
+		return
 	}
 
 	newCommitId := GenRandHex(20)
@@ -52,5 +54,4 @@ func runCommitCommand(message string) error {
 	RegisterCommitForBranch(newCommitId)
 
 	color.Green("Changes committed successfully")
-	return nil
 }

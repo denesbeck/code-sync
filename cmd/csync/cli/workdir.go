@@ -16,20 +16,21 @@ var workdirCmd = &cobra.Command{
 	Use:     "workdir",
 	Short:   "List the files that are committed",
 	Example: "csync workdir",
-	RunE: func(_ *cobra.Command, args []string) error {
-		return runWorkdirCommand()
+	Args:    cobra.NoArgs,
+	Run: func(_ *cobra.Command, args []string) {
+		runWorkdirCommand()
 	},
 }
 
-func runWorkdirCommand() error {
+func runWorkdirCommand() {
 	if initialized := IsInitialized(); !initialized {
 		color.Red("CSync not initialized")
-		return nil
+		return
 	}
 	commitId := GetLastCommit()
 	if commitId == "" {
 		color.Cyan("No commits yet")
-		return nil
+		return
 	}
 	content := GetFileListContent(commitId)
 
@@ -45,5 +46,4 @@ func runWorkdirCommand() error {
 			fmt.Println("  - " + record.Path)
 		}
 	}
-	return nil
 }

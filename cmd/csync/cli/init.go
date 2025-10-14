@@ -57,15 +57,16 @@ var initCmd = &cobra.Command{
 	Use:     "init",
 	Short:   "Initialize the CSync version control system",
 	Example: "csync init",
-	RunE: func(_ *cobra.Command, _ []string) error {
-		return runInitCommand()
+	Args:    cobra.NoArgs,
+	Run: func(_ *cobra.Command, _ []string) {
+		runInitCommand()
 	},
 }
 
-func runInitCommand() error {
+func runInitCommand() {
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		color.Red("CSync already initialized")
-		return nil
+		return
 	}
 
 	if err := os.MkdirAll(stagingAdded, os.ModePerm); err != nil {
@@ -120,6 +121,4 @@ func runInitCommand() error {
 	color.Green("CSync initialized successfully")
 	fmt.Println()
 	color.Cyan("Use `csync config set username <your-username>` to set your username and `csync config set email <your-email>` to set your email.")
-
-	return nil
 }

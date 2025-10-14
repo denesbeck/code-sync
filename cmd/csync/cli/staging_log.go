@@ -41,7 +41,6 @@ func LogOperation(id string, op string, path string) {
 	WriteJson(".csync/staging/logs.json", content)
 }
 
-// Look up the logs.json file for a specific operation and path. It returns a boolean value and the id of the log entry.
 func LogEntryLookup(op string, path string) (isLogged bool, logId string, operation string) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {

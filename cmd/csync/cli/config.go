@@ -41,9 +41,8 @@ var setDefaultBranchCmd = &cobra.Command{
 	Short:   "Set default branch",
 	Example: "csync config set default-branch <branch-name>",
 	Args:    cobra.ExactArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		setDefaultBranch(args[0])
-		return nil
 	},
 }
 
@@ -52,9 +51,8 @@ var setUsernameCmd = &cobra.Command{
 	Short:   "Set username",
 	Example: "csync config set username <username>",
 	Args:    cobra.ExactArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		setConfig("username", args[0])
-		return nil
 	},
 }
 
@@ -63,9 +61,8 @@ var setEmailCmd = &cobra.Command{
 	Short:   "Set email",
 	Example: "csync config set email <email>",
 	Args:    cobra.ExactArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		setConfig("email", args[0])
-		return nil
 	},
 }
 
@@ -74,9 +71,8 @@ var getCmd = &cobra.Command{
 	Short:   "Get config values",
 	Example: "csync config get username <username>",
 	Args:    cobra.ExactArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		getConfig(args[0])
-		return nil
 	},
 }
 
@@ -95,9 +91,8 @@ var getUsernameCmd = &cobra.Command{
 	Short:   "Get username",
 	Example: "csync config get username",
 	Args:    cobra.ExactArgs(0),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		getConfig("username")
-		return nil
 	},
 }
 
@@ -106,9 +101,8 @@ var getEmailCmd = &cobra.Command{
 	Short:   "Get email",
 	Example: "csync config get email <email>",
 	Args:    cobra.ExactArgs(0),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		getConfig("email")
-		return nil
 	},
 }
 
@@ -117,9 +111,8 @@ var getUserCmd = &cobra.Command{
 	Short:   "Get username and email",
 	Example: "csync config get user",
 	Args:    cobra.ExactArgs(0),
-	RunE: func(_ *cobra.Command, args []string) error {
+	Run: func(_ *cobra.Command, args []string) {
 		getConfig("user")
-		return nil
 	},
 }
 

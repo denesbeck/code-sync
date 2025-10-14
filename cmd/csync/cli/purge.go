@@ -15,18 +15,18 @@ var purgeCmd = &cobra.Command{
 	Use:     "purge",
 	Short:   "Purge CSync and all its data. This command is irreversible!",
 	Example: "csync purge",
-	RunE: func(_ *cobra.Command, args []string) error {
-		return runPurgeCommand()
+	Args:    cobra.NoArgs,
+	Run: func(_ *cobra.Command, args []string) {
+		runPurgeCommand()
 	},
 }
 
-func runPurgeCommand() error {
+func runPurgeCommand() {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
-		return nil
+		return
 	}
 	os.RemoveAll(".csync")
 	color.Green("CSync purged successfully")
-	return nil
 }

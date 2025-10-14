@@ -18,22 +18,23 @@ var historyCmd = &cobra.Command{
 	Use:     "history",
 	Short:   "List all commits for the current branch",
 	Example: "csync history",
-	RunE: func(_ *cobra.Command, args []string) error {
-		return runHistoryCommand()
+	Args:    cobra.NoArgs,
+	Run: func(_ *cobra.Command, args []string) {
+		runHistoryCommand()
 	},
 }
 
-func runHistoryCommand() error {
+func runHistoryCommand() {
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
-		return nil
+		return
 	}
 
 	commits := GetCommits()
 	if len(commits) == 0 {
 		color.Cyan("No commits found")
-		return nil
+		return
 	}
 	if len(commits) > 20 {
 		commits = commits[:20]
@@ -65,5 +66,4 @@ func runHistoryCommand() error {
 		PrintLogs(logs)
 		fmt.Println()
 	}
-	return nil
 }
