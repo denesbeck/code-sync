@@ -45,5 +45,12 @@ var HISTORY_RETURN_CODES = map[int]string{
 
 var STATUS_RETURN_CODES = map[int]string{
 	501: "No files staged for commit",
-	502: "",
+	502: "Get status success",
+}
+
+var CONFIG_RETURN_CODES = map[int]string{
+	601: "Get default branch success",
+	602: "Set default branch success",
+	603: "Set config success",
+	604: "Get config success",
 }
