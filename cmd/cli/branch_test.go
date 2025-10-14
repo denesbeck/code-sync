@@ -2,7 +2,9 @@ package cli
 
 import (
 	"os"
+	"strconv"
 	"testing"
+	"time"
 )
 
 func Test_NewBranchCmd(t *testing.T) {
@@ -36,19 +38,114 @@ func Test_NewBranchCmd(t *testing.T) {
 }
 
 func Test_NewBranchFromCommit(t *testing.T) {
-	// TODO: Implement
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+	runNewCommand("test-branch", "", "")
+
+	for i := 1; i < 6; i++ {
+		time.Sleep(1 * time.Second)
+		// create 5 test files
+		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
+		// add files to staging
+		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt")
+		// commit files
+		runCommitCommand("test commit " + strconv.Itoa(i))
+	}
+
+	selectedCommit := GetLastCommit()
+
+	for i := 6; i < 11; i++ {
+		time.Sleep(1 * time.Second)
+		// create 5 test files
+		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
+		// add files to staging
+		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt")
+		// commit files
+		runCommitCommand("test commit " + strconv.Itoa(i))
+	}
+	countCommitsOriginalBranch := len(*GetCommits())
+
+	if countCommitsOriginalBranch != 10 {
+		t.Errorf("Expected 10 commits, got %d", countCommitsOriginalBranch)
+	}
+
+	t.Log(GetCommits())
+	t.Log(selectedCommit)
+	runNewCommand("test-branch-1", selectedCommit, "")
+
+	countCommitsNewBranch := len(*GetCommits())
+	if countCommitsNewBranch != 5 {
+		t.Errorf("Expected 5 commits, got %d", countCommitsNewBranch)
+	}
+
+	lastCommitNewBranch := GetLastCommit()
+	if selectedCommit != lastCommitNewBranch {
+		t.Errorf("Expected last commit to be %s, got %s", selectedCommit, lastCommitNewBranch)
+	}
+
+	os.RemoveAll(namespace)
 }
 
 func Test_NewBranchFromBranch(t *testing.T) {
-	// TODO: Implement
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+	runNewCommand("test-branch", "", "")
+	for i := 1; i < 4; i++ {
+		// create test files
+		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
+		// add files to staging
+		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt")
+		// commit files
+		runCommitCommand("test commit " + strconv.Itoa(i))
+	}
+	lastCommitOriginalBranch := GetLastCommit()
+
+	runNewCommand("test-branch-1", "", "test-branch")
+	commits := GetCommits()
+	if len(*commits) != 3 {
+		t.Errorf("Expected 3 commits, got %d", len(*commits))
+	}
+	lastCommitNewBranch := GetLastCommit()
+	if lastCommitOriginalBranch != lastCommitNewBranch {
+		t.Errorf("Expected last commit to be %s, got %s", lastCommitOriginalBranch, lastCommitNewBranch)
+	}
+
+	os.RemoveAll(namespace)
 }
 
 func Test_DropDefaultBranch(t *testing.T) {
-	// TODO: Implement
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+	runNewCommand("test-branch", "", "")
+	runNewCommand("test-branch-1", "", "")
+
+	setDefaultBranch("test-branch")
+
+	runSwitchCommand("test-branch-1")
+
+	statusCode := runDropCommand("test-branch")
+
+	if statusCode != 209 {
+		t.Errorf("Expected 209, got %d", statusCode)
+	}
+
+	os.RemoveAll(namespace)
 }
 
 func Test_DropCurrentBranch(t *testing.T) {
-	// TODO: Implement
+	os.RemoveAll(namespace)
+
+	runInitCommand()
+	runNewCommand("test-branch", "", "")
+
+	statusCode := runDropCommand("test-branch")
+
+	if statusCode != 208 {
+		t.Errorf("Expected 208, got %d", statusCode)
+	}
 }
 
 func Test_NewBranchAlreadyExists(t *testing.T) {
