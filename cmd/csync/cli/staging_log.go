@@ -35,7 +35,7 @@ func LogOperation(id string, op string, path string) {
 }
 
 // Look up the logs.json file for a specific operation and path. It returns a boolean value and the id of the log entry.
-func LogEntryLookup(op string, path string) (bool, string) {
+func LogEntryLookup(op string, path string) (isLogged bool, logId string, operation string) {
 	logs, err := os.ReadFile(".csync/staging/logs.json")
 	if err != nil {
 		log.Fatal(err)
@@ -46,12 +46,13 @@ func LogEntryLookup(op string, path string) (bool, string) {
 			log.Fatal(err)
 		}
 		for _, entry := range content {
-			if entry.Op == op && entry.Path == path {
-				return true, entry.Id
+			// Consider op "*" as a wildcard.
+			if op == "*" && entry.Path == path || entry.Op == op && entry.Path == path {
+				return true, entry.Id, entry.Op
 			}
 		}
 	}
-	return false, ""
+	return false, "", ""
 }
 
 func RemoveLogEntry(id string) bool {
