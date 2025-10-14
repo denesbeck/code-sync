@@ -24,7 +24,7 @@ var removeCmd = &cobra.Command{
 func runRemoveCommand(filePath string) {
 	initialized := IsInitialized()
 	if !initialized {
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 

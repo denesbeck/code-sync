@@ -133,8 +133,8 @@ var configCmd = &cobra.Command{
 func setConfig(key string, value string) {
 	Debug("Setting config: key=%s, value=%s", key, value)
 	if initialized := IsInitialized(); !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
+		return
 	}
 	config, err := os.ReadFile(dirs.Config)
 	if err != nil {
@@ -171,8 +171,8 @@ func setConfig(key string, value string) {
 func getConfig(key string) {
 	Debug("Getting config: key=%s", key)
 	if initialized := IsInitialized(); !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
+		return
 	}
 	config := GetConfig()
 	switch key {
@@ -191,8 +191,8 @@ func getConfig(key string) {
 func setDefaultBranch(branch string) {
 	Debug("Setting default branch: %s", branch)
 	if initialized := IsInitialized(); !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
+		return
 	}
 	SetBranch(branch, "default")
 	Debug("Default branch set successfully")
@@ -202,8 +202,8 @@ func setDefaultBranch(branch string) {
 func getDefaultBranch() {
 	Debug("Getting default branch")
 	if initialized := IsInitialized(); !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
+		return
 	}
 	branch := GetDefaultBranchName()
 	Debug("Default branch: %s", branch)

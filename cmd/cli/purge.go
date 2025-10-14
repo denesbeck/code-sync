@@ -24,7 +24,7 @@ var purgeCmd = &cobra.Command{
 func runPurgeCommand() {
 	initialized := IsInitialized()
 	if !initialized {
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 	if namespace == "" {

@@ -22,8 +22,7 @@ var statusCmd = &cobra.Command{
 
 func runStatusCommand() {
 	if initialized := IsInitialized(); !initialized {
-		Debug("CSync not initialized")
-		color.Red("CSync not initialized")
+		color.Red(COMMON_RETURN_CODES[001])
 		return
 	}
 	content := GetStagingLogsContent()
