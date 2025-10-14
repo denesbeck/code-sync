@@ -45,6 +45,15 @@ func ParsePath(fullPath string) (path string, fileName string) {
 	return dirs, file
 }
 
-func getTimestamp() string {
+func GetTimestamp() string {
 	return time.Now().Format(time.RFC3339)
+}
+
+func FindIndex(arr []string, val string) int {
+	for i, v := range arr {
+		if v == val {
+			return i
+		}
+	}
+	return -1
 }

@@ -138,7 +138,7 @@ func RegisterCommitForBranch(commitId string) {
 		log.Fatal(err)
 	}
 	lastCommit := GetLastCommit()
-	content = append(content, Commit{Id: commitId, Timestamp: getTimestamp(), PrevCommitId: lastCommit})
+	content = append(content, Commit{Id: commitId, Timestamp: GetTimestamp(), PrevCommitId: lastCommit})
 	WriteJson(".csync/branches/"+currentBranchName+"/commits.json", content)
 }
 
@@ -152,13 +152,11 @@ func CopyCommitsToBranch(commitId string, targetBranch string) error {
 		return errors.New("Commit does not exist")
 	}
 
-	var index int
-	for i, commit := range *commits {
-		if commit.Id == commitId {
-			index = i
-			break
-		}
+	if err := os.Mkdir("./.csync/branches/"+targetBranch, 0755); err != nil {
+		return errors.New("Branch already exists")
 	}
+
+	index := FindIndex(commitIds, commitId)
 	*commits = (*commits)[:(index + 1)]
 	WriteJson(".csync/branches/"+targetBranch+"/commits.json", *commits)
 	return nil

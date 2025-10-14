@@ -170,18 +170,20 @@ func runNewCommand(branchName string, fromCommit string, fromBranch string) {
 		srcBranch = GetCurrentBranchName()
 	}
 
-	if err := os.Mkdir("./.csync/branches/"+branchName, 0755); err != nil {
-		color.Red("Branch already exists")
-		return
-	}
-
-	CopyFile("./.csync/branches/"+srcBranch+"/commits.json", "./.csync/branches/"+branchName+"/commits.json")
 	if fromCommit != "" {
 		err := CopyCommitsToBranch(fromCommit, branchName)
 		if err != nil {
 			color.Red(err.Error())
 			return
 		}
+	} else {
+		if err := os.Mkdir("./.csync/branches/"+branchName, 0755); err != nil {
+			color.Red("Branch already exists")
+			return
+		}
+
+		CopyFile("./.csync/branches/"+srcBranch+"/commits.json", "./.csync/branches/"+branchName+"/commits.json")
+
 	}
 	color.Green("Branch created successfully")
 	runSwitchCommand(branchName)
