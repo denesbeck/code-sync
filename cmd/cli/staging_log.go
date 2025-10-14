@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"sort"
 
 	"github.com/fatih/color"
@@ -111,7 +112,7 @@ func RemoveLogEntry(id string) {
 	for i, entry := range content {
 		if entry.Id == id {
 			Debug("Found and removing log entry: id=%s, op=%s", entry.Id, entry.Op)
-			content = append(content[:i], content[i+1:]...)
+			content = slices.Delete(content, i, i+1)
 			break
 		}
 	}
