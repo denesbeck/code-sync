@@ -41,7 +41,7 @@ func runAddCommand(filePath string) {
 				color.Cyan("File removed from staging")
 				return
 			}
-			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+fileName)
+			modified := IsModified(filePath, dirs.StagingAdded+id+"/"+fileName)
 			if modified {
 				AddToStaging(id, filePath, "added")
 				color.Cyan("Staged file updated")
@@ -57,7 +57,7 @@ func runAddCommand(filePath string) {
 				stageAndLog(generatedId, filePath, "removed")
 				return
 			}
-			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+fileName)
+			modified := IsModified(filePath, dirs.StagingModified+id+"/"+fileName)
 			if modified {
 				AddToStaging(id, filePath, "modified")
 				color.Cyan("Staged file updated")
@@ -74,7 +74,7 @@ func runAddCommand(filePath string) {
 				if !isCommitted {
 					stageAndLog(generatedId, filePath, "added")
 				} else {
-					modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+filePath)
+					modified := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+filePath)
 					if modified {
 						stageAndLog(generatedId, filePath, "modified")
 					}
@@ -87,13 +87,13 @@ func runAddCommand(filePath string) {
 		isCommitted, commitId, fileId := GetFileMetadata(filePath)
 		isDeleted := IsFileDeleted(filePath)
 		if isDeleted {
-			AddToStaging(generatedId, "./.csync/commits/"+commitId+"/"+fileId+"/"+fileName, "removed")
+			AddToStaging(generatedId, dirs.Commits+commitId+"/"+fileId+"/"+fileName, "removed")
 			LogOperation(generatedId, "REM", filePath)
 			return
 		}
 
 		if isCommitted {
-			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+fileName)
+			modified := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+fileName)
 			if modified {
 				stageAndLog(generatedId, filePath, "modified")
 			} else {
@@ -106,7 +106,7 @@ func runAddCommand(filePath string) {
 }
 
 func removeFileAndLog(id string, op string) {
-	RemoveFile("./.csync/staging/" + op + "/" + id)
+	RemoveFile(dirs.Staging + op + "/" + id)
 	RemoveLogEntry(id)
 }
 

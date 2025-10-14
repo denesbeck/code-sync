@@ -6,6 +6,7 @@ import (
 
 type Dirs struct {
 	Root                 string
+	Staging              string
 	StagingAdded         string
 	StagingModified      string
 	StagingRemoved       string
@@ -19,11 +20,12 @@ type Dirs struct {
 }
 
 var dirs = Dirs{
-	Root: namespace + ".csync",
+	Root: namespace + ".csync/",
 	// Staging directories for `added`, `modified`, `removed` operations.
-	StagingAdded:    namespace + ".csync/staging/added",
-	StagingModified: namespace + ".csync/staging/modified",
-	StagingRemoved:  namespace + ".csync/staging/removed",
+	Staging:         namespace + ".csync/staging/",
+	StagingAdded:    namespace + ".csync/staging/added/",
+	StagingModified: namespace + ".csync/staging/modified/",
+	StagingRemoved:  namespace + ".csync/staging/removed/",
 
 	// Log file for tracking staging operations.
 	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
@@ -41,12 +43,12 @@ var dirs = Dirs{
 	// Whenever a file is added to the project, it is added to the `fileList.json` file.
 	// Whenever a file is modified, its commit hash is updated in the fileList.json file with the new commit hash.
 	// Whenever a file is removed from the project, it is removed from the fileList.json file.
-	Commits: namespace + ".csync/commits",
+	Commits: namespace + ".csync/commits/",
 
-	Branches: namespace + ".csync/branches",
+	Branches: namespace + ".csync/branches/",
 
 	// Initial branch is named `main`.
-	DefaultBranch: namespace + ".csync/branches/main",
+	DefaultBranch: namespace + ".csync/branches/main/",
 
 	// "branches/<branch-name>/commits.json" stores commit hashes for the given branch.
 	// Format: [ { Id: <commit-hash>, Timestamp: <timestamp> }, ... ]

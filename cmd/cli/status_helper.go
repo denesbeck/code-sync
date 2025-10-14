@@ -13,7 +13,7 @@ type FileListEntry struct {
 }
 
 func IsFileStaged(filePath string) bool {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func GetFileMetadata(filePath string) (isCommitted bool, commitId string, fileId
 	if latestCommitId == "" {
 		return false, "", ""
 	}
-	fileList, err := os.ReadFile(".csync/commits/" + latestCommitId + "/fileList.json")
+	fileList, err := os.ReadFile(dirs.Commits + latestCommitId + "/fileList.json")
 	if err != nil {
 		log.Fatal(err)
 	}

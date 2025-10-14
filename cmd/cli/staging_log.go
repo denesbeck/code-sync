@@ -23,7 +23,7 @@ var (
 )
 
 func LogOperation(id string, op string, path string) {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,11 +38,11 @@ func LogOperation(id string, op string, path string) {
 		Op:   op,
 		Path: path,
 	})
-	WriteJson(".csync/staging/logs.json", content)
+	WriteJson(dirs.StagingLogs, content)
 }
 
 func LogEntryLookup(op string, path string) (isLogged bool, logId string, operation string) {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func LogEntryLookup(op string, path string) (isLogged bool, logId string, operat
 }
 
 func IsStagingLogsEmpty() bool {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func IsStagingLogsEmpty() bool {
 }
 
 func RemoveLogEntry(id string) {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,15 +96,15 @@ func RemoveLogEntry(id string) {
 			break
 		}
 	}
-	WriteJson(".csync/staging/logs.json", content)
+	WriteJson(dirs.StagingLogs, content)
 }
 
 func TruncateLogs() {
-	WriteJson(".csync/staging/logs.json", []LogFileEntry{})
+	WriteJson(dirs.StagingLogs, []LogFileEntry{})
 }
 
 func GetStagingLogsContent() (result *[]LogFileEntry) {
-	logs, err := os.ReadFile(".csync/staging/logs.json")
+	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		log.Fatal(err)
 	}
