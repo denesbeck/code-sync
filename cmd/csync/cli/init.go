@@ -9,27 +9,34 @@ import (
 )
 
 const (
-	// Staging directories for added, modified, removed operations.
+	// Staging directories for `added`, `modified`, `removed` operations.
 	stagingAdded    = ".csync/staging/added"
 	stagingModified = ".csync/staging/modified"
 	stagingRemoved  = ".csync/staging/removed"
 	// Log file for tracking staging operations.
-	// Format: { id: <hash>, op: add | mod | rem, path: path/to/file }
+	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
 	stagingLogs = ".csync/staging/logs.json"
 
 	// Commits directory stores directories for each commit hash.
-	// "commits/<commit-hash>/file-name" refers to the file in the commit.
-	// "commits/<commit-hash>/metadata.json" stores metadata for the commit, e.g. commit message, timestamp.
+	// `commits/<commit-hash>/file-name` refers to the file in the commit.
+	// `commits/<commit-hash>/logs.json` is a copy of the staging logs file at the time of the commit.
+	// `commits/<commit-hash>/metadata.json` stores metadata for the commit, e.g. commit message, timestamp.
 	commits = ".csync/commits"
+	// For each commit hash a file called `commits/<commit-hash>/fileList.json` will be created. It represents the project state at the time of the commit listing all the files with commit hashes.
+	// Format: { Id: <hash>, CommitId: <hash>, Path: <base64-encoded path> }
+	// Before each commit, the `fileList.json` will be copied from the previous commit. This file will be updated according to the changes made in the commit.
+	// Whenever a file is added to the project, it is added to the `fileList.json` file.
+	// Whenever a file is modified, its commit hash is updated in the fileList.json file with the new commit hash.
+	// Whenever a file is removed from the project, it is removed from the fileList.json file.
 
-	// Initial branch is named "main".
+	// Initial branch is named `main`.
 	// "branches/<branch-name>/commits.json" stores commit hashes for the branch.
 	defaultBranch = ".csync/branches/main"
-	// Whenever a file is added to the project, it is added to the commits.json file.
-	// Format: { Commit: <hash>, Path: <path>, Name: <file-name> }
-	// Whenever a file is removed from the project, it is removed from the commits.json file.
-	// Whenever a file is modified, its commit hash is updated in the commits.json file.
+
+	// "branches/<branch-name>/commits.json" stores commit hashes for the given branch.
+	// Format: [ { Id: <commit-hash>, Timestamp: <timestamp> }, ... ]
 	defaultBranchCommits = ".csync/branches/main/commits.json"
+
 	// "branches/metadata.json" stores default branch and current branch names.
 	// Format: { Default: <branch-name>, Current: <branch-name> }
 	branchesMetadata = ".csync/branches/metadata.json"
@@ -75,14 +82,15 @@ func runInitCommand() error {
 
 	// create commits directory
 	/*
-		Structure of commits directory:
-		  commits/
-		    |
-		    - <commit-hash>/
-		      |
-		      - added/
-		      - modified/
-		      - fileList.json
+						Structure of commits directory:
+						  commits/
+						    |
+						    - <commit-hash>/
+						      |
+				          - <file-name> (file in the commit)
+				          - metadata.json
+		              - logs.json
+						      - fileList.json
 	*/
 	if err := os.MkdirAll(commits, os.ModePerm); err != nil {
 		log.Fatal(err)

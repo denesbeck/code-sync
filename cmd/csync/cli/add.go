@@ -22,6 +22,7 @@ var addCmd = &cobra.Command{
 	},
 }
 
+// return nothing
 func runAddCommand(filePath string) error {
 	// Check if csync is initialized
 	initialized := IsInitialized()
@@ -29,18 +30,28 @@ func runAddCommand(filePath string) error {
 		color.Red("CSync not initialized")
 		return nil
 	}
-	// Check if file exists
-	exists := FileExists(filePath)
-	if !exists {
-		color.Red("File does not exist")
-		return nil
-	}
+
 	// Get file name from file path
 	_, file := ParsePath(filePath)
 	// Generate a random 32 byte long hex string
 	generatedId := GenRandHex(32)
-	// Check if there is at least one commit registered
+	// Get the latest commit for the current branch
 	latestCommitId, commitExists := GetLastCommit()
+
+	// Check if file exists
+	exists := FileExists(filePath)
+	if !exists {
+		// TODO: Check if there is at least one commit registered
+		// If there isn't, return error message indicating that the file doesn't exist.
+		// If there is, check if the file is tracked already (exists in /commits/<latest-commit-id>/fileList.json)
+		// If it is, it means that the file should be removed. Add a REM record to the logs.json file.
+		// If it's not, return error message indicating that the file doesn't exist.
+		if commitExists {
+		} else {
+			color.Red("File does not exist")
+			return nil
+		}
+	}
 
 	// Check if file is already in staging area
 	fileStaged := IsFileStaged(filePath)
@@ -75,7 +86,7 @@ func runAddCommand(filePath string) error {
 		removed, id := LogEntryLookup("REM", filePath)
 		if removed {
 			// Check if file is still removed
-			fileExists := FileExists("./.csync/staging/removed/" + id + "/" + file)
+			fileExists := FileExists(filePath)
 			// If file is not removed, it means that it has been added back, therefore...
 			if fileExists {
 				// Check if file is listed in any of the commits
