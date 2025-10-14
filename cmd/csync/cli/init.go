@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -13,24 +14,26 @@ const (
 	stagingAdded    = ".csync/staging/added"
 	stagingModified = ".csync/staging/modified"
 	stagingRemoved  = ".csync/staging/removed"
+
 	// Log file for tracking staging operations.
 	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
 	stagingLogs = ".csync/staging/logs.json"
 
 	// Commits directory stores directories for each commit hash.
-	// `commits/<commit-hash>/<file-id>/<file-name>` refers to the file in the commit.
-	// `commits/<commit-hash>/logs.json` is a copy of the staging logs file at the time of the commit.
+	// `commits/<commit-hash>/<file-id>/<file-name>`: refers to the file in the commit.
+	// `commits/<commit-hash>/logs.json`: copy of the staging logs file at the time of the commit.
+	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
 	// `commits/<commit-hash>/metadata.json` stores metadata for the commit, e.g. commit message, timestamp.
-	commits = ".csync/commits"
+	// Format: { Author: <username <user-email>>, Message: <commit-message>, Timestamp: <time when committed> }
 	// For each commit hash a file called `commits/<commit-hash>/fileList.json` will be created. It represents the project state at the time of the commit listing all the files with commit hashes.
-	// Format: { Id: <hash>, CommitId: <hash>, Path: <base64-encoded path> }
+	// Format: { Id: <hash>, CommitId: <hash>, Path: path/to/file }
 	// Before each commit, the `fileList.json` will be copied from the previous commit. This file will be updated according to the changes made in the commit.
 	// Whenever a file is added to the project, it is added to the `fileList.json` file.
 	// Whenever a file is modified, its commit hash is updated in the fileList.json file with the new commit hash.
 	// Whenever a file is removed from the project, it is removed from the fileList.json file.
+	commits = ".csync/commits"
 
 	// Initial branch is named `main`.
-	// "branches/<branch-name>/commits.json" stores commit hashes for the branch.
 	defaultBranch = ".csync/branches/main"
 
 	// "branches/<branch-name>/commits.json" stores commit hashes for the given branch.
@@ -40,6 +43,10 @@ const (
 	// "branches/metadata.json" stores default branch and current branch names.
 	// Format: { Default: <branch-name>, Current: <branch-name> }
 	branchesMetadata = ".csync/branches/metadata.json"
+
+	// "config.json" stores CSync config data, e.g. username, email.
+	// Format: { Username: <username>, Email: <email> }
+	config = ".csync/config.json"
 )
 
 func init() {
@@ -56,13 +63,11 @@ var initCmd = &cobra.Command{
 }
 
 func runInitCommand() error {
-	// check if .csync directory already exists
 	if _, err := os.Stat(".csync"); !os.IsNotExist(err) {
 		color.Red("CSync already initialized")
 		return nil
 	}
 
-	// create staging directories: added, modified, removed
 	if err := os.MkdirAll(stagingAdded, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
@@ -73,30 +78,20 @@ func runInitCommand() error {
 		log.Fatal(err)
 	}
 
-	// create staging logs file
 	f, err := os.Create(stagingLogs)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString("[]")
 	if err != nil {
 		log.Fatal(err)
 	}
 	f.Close()
 
-	// create commits directory
-	/*
-						Structure of commits directory:
-						  commits/
-						    |
-						    - <commit-hash>/
-						      |
-				          - <file-name> (file in the commit)
-				          - metadata.json
-		              - logs.json
-						      - fileList.json
-	*/
 	if err := os.MkdirAll(commits, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
-	// create default branch directory and commits file that lists commit hashes
 	if err := os.MkdirAll(defaultBranch, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
@@ -110,10 +105,21 @@ func runInitCommand() error {
 	}
 	f.Close()
 
-	// create branches metadata file which contains default branch and current branch names
 	CreateBranchesMetadata()
 
+	f, err = os.Create(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString("{ \"Username\": \"\", \"Email\": \"\" }")
+	if err != nil {
+		log.Fatal(err)
+	}
+	f.Close()
+
 	color.Green("CSync initialized successfully")
+	fmt.Println()
+	color.Cyan("Use `csync config set username <your-username>` to set your username and `csync config set email <your-email>` to set your email.")
 
 	return nil
 }
