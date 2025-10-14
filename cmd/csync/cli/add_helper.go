@@ -13,6 +13,7 @@ func AddToStaging(id string, path string, op string) {
 	if err := os.MkdirAll(".csync/staging/"+op+"/"+id, 0755); err != nil {
 		log.Fatal(err)
 	}
+	log.Println(path)
 	CopyFile(path, ".csync/staging/"+op+"/"+id+"/"+file)
 	color.Green("File added successfully")
 }

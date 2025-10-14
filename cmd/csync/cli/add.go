@@ -30,8 +30,8 @@ func runAddCommand(filePath string) error {
 		return nil
 	}
 
-	// Get file name from file path.
-	_, file := ParsePath(filePath)
+	// Get fileName name from fileName path.
+	_, fileName := ParsePath(filePath)
 	// Generate a random 32 byte long hex string. This will be used as the id for the file in the staging area.
 	generatedId := GenRandHex(32)
 
@@ -52,7 +52,7 @@ func runAddCommand(filePath string) error {
 				return nil
 			}
 			// Check if file is modified since ADD entry was created.
-			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+file)
+			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+fileName)
 			if modified {
 				// If file is modified, just update the file in staging/added (the id remains the same).
 				AddToStaging(id, filePath, "added")
@@ -76,7 +76,7 @@ func runAddCommand(filePath string) error {
 				LogOperation(generatedId, "REM", filePath)
 			}
 			// Check if file is modified since MOD entry was created.
-			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+file)
+			modified := IsModified(filePath, "./.csync/staging/modified/"+id+"/"+fileName)
 			if modified {
 				// If the file is modified, just update the file in staging/modified
 				AddToStaging(id, filePath, "modified")
@@ -95,7 +95,7 @@ func runAddCommand(filePath string) error {
 			// If it was...
 			if exists {
 				// Check if it was committed (exists in the file list of the latest commit).
-				isCommitted, commitId, fileId := IsFileCommitted(filePath)
+				isCommitted, commitId, fileId := GetFileMetadata(filePath)
 				// If it wasn't committed (THIS SCENARIO SHOULDN'T BE POSSIBLE!), remove the file from staging/removed and add it to staging/added. Log this operation.
 				if !isCommitted {
 					RemoveFile("./.csync/staging/removed/" + id)
@@ -120,23 +120,27 @@ func runAddCommand(filePath string) error {
 					RemoveLogEntry(id)
 					return nil
 				}
+			} else {
+				// If the file was removed and not added back, do nothing.
+				color.Cyan("File already staged")
 			}
 		}
 	} else {
+		// Get the file's metadata
+		isCommitted, commitId, fileId := GetFileMetadata(filePath)
 		// Check if the file is deleted (exists in the file list of the latest commit but not in the workdir)
 		isDeleted := IsFileDeleted(filePath)
 		if isDeleted {
-			AddToStaging(generatedId, filePath, "removed")
+			AddToStaging(generatedId, "./.csync/commits/"+commitId+"/"+fileId+"/"+fileName, "removed")
 			LogOperation(generatedId, "REM", filePath)
 			return nil
 		}
 
 		// If it wasn't deleted, check if the file is committed
-		isCommitted, commitId, fileId := IsFileCommitted(filePath)
 		// If it was committed...
 		if isCommitted {
 			// Check if the file is modified since the last commit
-			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+file)
+			modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+fileName)
 			// If it was modified...
 			if modified {
 				// Add the file to staging/modified and log this operation

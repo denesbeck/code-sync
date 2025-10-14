@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"sort"
-	"time"
 )
 
 type Commit struct {
@@ -98,10 +97,6 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 
 func WriteCommitMetadata(commitId string, message string) {
 	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Message: message, Timestamp: getTimestamp()})
-}
-
-func getTimestamp() string {
-	return time.Now().Format(time.RFC3339)
 }
 
 func RegisterCommitForBranch(commitId string) {

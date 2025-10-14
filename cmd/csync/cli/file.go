@@ -11,6 +11,7 @@ func CopyFile(src, dst string) {
 	// File exists?
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
+		log.Fatal(err)
 		log.Fatal("Source file does not exist")
 	}
 

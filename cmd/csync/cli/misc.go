@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 func WriteJson(path string, data interface{}) {
@@ -42,4 +43,8 @@ func ParsePath(fullPath string) (path string, fileName string) {
 	}
 
 	return dirs, file
+}
+
+func getTimestamp() string {
+	return time.Now().Format(time.RFC3339)
 }

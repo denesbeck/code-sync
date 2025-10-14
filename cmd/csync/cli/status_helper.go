@@ -34,7 +34,7 @@ func IsFileStaged(filePath string) bool {
 }
 
 // Check if the file is already committed, return the commit id where the file was committed the last time
-func IsFileCommitted(filePath string) (isCommitted bool, commitId string, fileId string) {
+func GetFileMetadata(filePath string) (isCommitted bool, commitId string, fileId string) {
 	latestCommitId := GetLastCommit()
 	if latestCommitId == "" {
 		return false, "", ""
@@ -42,7 +42,6 @@ func IsFileCommitted(filePath string) (isCommitted bool, commitId string, fileId
 	fileList, err := os.ReadFile(".csync/commits/" + latestCommitId + "/fileList.json")
 	if err != nil {
 		log.Fatal(err)
-		return false, "", ""
 	}
 
 	var content []FileListEntry
@@ -58,7 +57,7 @@ func IsFileCommitted(filePath string) (isCommitted bool, commitId string, fileId
 }
 
 func IsFileDeleted(filePath string) bool {
-	isCommitted, _, _ := IsFileCommitted(filePath)
+	committed, _, _ := GetFileMetadata(filePath)
 	existsInWorkdir := FileExists(filePath)
-	return isCommitted && !existsInWorkdir
+	return committed && !existsInWorkdir
 }
