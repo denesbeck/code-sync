@@ -4,14 +4,11 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"time"
 )
 
 func Test_NewBranchCmd(t *testing.T) {
 	os.RemoveAll(namespace)
-
 	runInitCommand()
-
 	runNewCommand("test-branch", "", "")
 
 	branches, err := os.ReadDir(dirs.Branches)
@@ -20,7 +17,6 @@ func Test_NewBranchCmd(t *testing.T) {
 	}
 
 	found := false
-
 	for _, branch := range branches {
 		if branch.IsDir() {
 			if branch.Name() == "test-branch" {
@@ -33,7 +29,6 @@ func Test_NewBranchCmd(t *testing.T) {
 	if !found {
 		t.Error("Branch `test-branch` not found")
 	}
-
 	os.RemoveAll(namespace)
 }
 
@@ -43,8 +38,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 	runInitCommand()
 	runNewCommand("test-branch", "", "")
 
-	for i := 1; i < 6; i++ {
-		time.Sleep(1 * time.Second)
+	for i := 1; i < 501; i++ {
 		// create 5 test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
@@ -55,8 +49,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 
 	selectedCommit := GetLastCommit().Id
 
-	for i := 6; i < 11; i++ {
-		time.Sleep(1 * time.Second)
+	for i := 501; i < 1001; i++ {
 		// create 5 test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
@@ -66,8 +59,8 @@ func Test_NewBranchFromCommit(t *testing.T) {
 	}
 	countCommitsOriginalBranch := len(*GetCommits())
 
-	if countCommitsOriginalBranch != 10 {
-		t.Errorf("Expected 10 commits, got %d", countCommitsOriginalBranch)
+	if countCommitsOriginalBranch != 1000 {
+		t.Errorf("Expected 1000 commits, got %d", countCommitsOriginalBranch)
 	}
 
 	t.Log(GetCommits())
@@ -75,8 +68,8 @@ func Test_NewBranchFromCommit(t *testing.T) {
 	runNewCommand("test-branch-1", selectedCommit, "")
 
 	countCommitsNewBranch := len(*GetCommits())
-	if countCommitsNewBranch != 5 {
-		t.Errorf("Expected 5 commits, got %d", countCommitsNewBranch)
+	if countCommitsNewBranch != 500 {
+		t.Errorf("Expected 500 commits, got %d", countCommitsNewBranch)
 	}
 
 	lastCommitNewBranch := GetLastCommit().Id
