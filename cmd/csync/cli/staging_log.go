@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sort"
 )
 
 type LogFileEntry struct {
@@ -110,5 +111,26 @@ func GetStagingLogsContent() (result []LogFileEntry) {
 		content = []LogFileEntry{}
 		return content
 	}
+	return content
+}
+
+func SortByOperationAndPath(content []LogFileEntry) (result []LogFileEntry) {
+	sort.Slice(content, func(i, j int) bool {
+		if content[i].Op == "ADD" && content[j].Op == "MOD" {
+			return true
+		}
+		if content[i].Op == "ADD" && content[j].Op == "REM" {
+			return true
+		}
+		if content[i].Op == "MOD" && content[j].Op == "REM" {
+			return true
+		}
+		if content[i].Op == content[j].Op {
+			if content[i].Path < content[j].Path {
+				return true
+			}
+		}
+		return false
+	})
 	return content
 }
