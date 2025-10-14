@@ -21,9 +21,9 @@ var statusCmd = &cobra.Command{
 }
 
 var (
-	add = color.New(color.FgGreen, color.Bold).SprintFunc()
-	mod = color.New(color.FgBlue, color.Bold).SprintFunc()
-	rem = color.New(color.FgRed, color.Bold).SprintFunc()
+	add = color.New(color.FgGreen).SprintFunc()
+	mod = color.New(color.FgBlue).SprintFunc()
+	rem = color.New(color.FgRed).SprintFunc()
 )
 
 func runStatusCommand() error {
