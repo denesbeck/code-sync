@@ -34,3 +34,7 @@ var BRANCH_RETURN_CODES = map[int]string{
 	212: "Branch does not exist",    // switch
 	213: "Current branch: ",         // switch
 }
+
+var WORKDIR_RETURN_CODES = map[int]string{
+	301: "Success",
+}
