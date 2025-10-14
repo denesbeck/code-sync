@@ -42,3 +42,8 @@ var WORKDIR_RETURN_CODES = map[int]string{
 var HISTORY_RETURN_CODES = map[int]string{
 	401: "Success",
 }
+
+var STATUS_RETURN_CODES = map[int]string{
+	501: "No files staged for commit",
+	502: "",
+}
