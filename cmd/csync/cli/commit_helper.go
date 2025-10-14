@@ -13,8 +13,8 @@ type Commit struct {
 }
 
 type CommitMetadata struct {
-	Message   string
-	Timestamp string
+	Author  string
+	Message string
 }
 
 func GetLastCommit() (latestCommitId string) {
@@ -36,7 +36,7 @@ func GetLastCommit() (latestCommitId string) {
 	return content[0].Id
 }
 
-func GetCommits() []string {
+func GetCommits() []Commit {
 	currentBranchName := GetCurrentBranchName()
 	commits, err := os.ReadFile(".csync/branches/" + currentBranchName + "/commits.json")
 	if err != nil {
@@ -46,11 +46,7 @@ func GetCommits() []string {
 	if err = json.Unmarshal(commits, &content); err != nil {
 		log.Fatal(err)
 	}
-	var result []string
-	for _, commit := range content {
-		result = append(result, commit.Id)
-	}
-	return result
+	return content
 }
 
 func GetFileListContent(commitId string) (result []FileListEntry) {
@@ -113,7 +109,7 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 }
 
 func WriteCommitMetadata(commitId string, message string) {
-	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Message: message, Timestamp: getTimestamp()})
+	WriteJson(".csync/commits/"+commitId+"/metadata.json", CommitMetadata{Author: "", Message: message})
 }
 
 func RegisterCommitForBranch(commitId string) {
