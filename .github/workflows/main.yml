@@ -1,0 +1,77 @@
+name: CodeSync CI/CD
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+jobs:
+  Scan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cmd
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: GitGuardian scan
+        uses: GitGuardian/ggshield/actions/secret@v1.37.0
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.organization=denes-beck
+            -Dsonar.projectKey=code-sync
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+  Build:
+    needs: Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Golang environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - run: go version
+
+      - name: Install dependencies
+        working-directory: cmd
+        run: go mod download
+
+      - name: Lint
+        working-directory: cmd
+        run: go vet ./...
+        continue-on-error: true
+
+      - name: Check formatting
+        working-directory: cmd
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Files need formatting:"
+            gofmt -l .
+            exit 1
+          fi
+
+      - name: Run tests
+        working-directory: cmd/cli
+        run: pwd && CSYNC_ENV=test go test . -cover
+
+      - name: Build
+        working-directory: cmd
+        run: go build -o csync
