@@ -13,21 +13,18 @@ var addCmd = &cobra.Command{
 	Use:     "add",
 	Short:   "Add the selected files to the staging area",
 	Example: "csync add <path/to/your/file>",
-	RunE: func(_ *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			color.Red("Please specify a file to add")
-			return nil
-		}
-		return runAddCommand(args[0])
+	Args:    cobra.ExactArgs(1),
+	Run: func(_ *cobra.Command, args []string) {
+		runAddCommand(args[0])
 	},
 }
 
-func runAddCommand(filePath string) error {
+func runAddCommand(filePath string) {
 	// Check if csync is initialized.
 	initialized := IsInitialized()
 	if !initialized {
 		color.Red("CSync not initialized")
-		return nil
+		return
 	}
 
 	// Get fileName name from fileName path.
@@ -49,18 +46,18 @@ func runAddCommand(filePath string) error {
 				RemoveFile("./.csync/staging/added/" + id)
 				RemoveLogEntry(id)
 				color.Cyan("File removed from staging")
-				return nil
+				return
 			}
 			// Check if file is modified since ADD entry was created.
 			modified := IsModified(filePath, "./.csync/staging/added/"+id+"/"+fileName)
 			if modified {
 				// If file is modified, just update the file in staging/added (the id remains the same).
 				AddToStaging(id, filePath, "added")
-				return nil
+				return
 			}
 			// If file is not modified, do nothing.
 			color.Cyan("File already staged")
-			return nil
+			return
 		}
 		// MOD entry exists? (means that the change of the file was already staged).
 		modified, id, _ := LogEntryLookup("MOD", filePath)
@@ -81,11 +78,11 @@ func runAddCommand(filePath string) error {
 				// If the file is modified, just update the file in staging/modified
 				AddToStaging(id, filePath, "modified")
 				color.Cyan("Staged file updated")
-				return nil
+				return
 			}
 			// If file is not modified, do nothing
 			color.Cyan("File already staged")
-			return nil
+			return
 		}
 		// REM entry exists? (means that the removal of the file was already staged).
 		removed, id, _ := LogEntryLookup("REM", filePath)
@@ -102,7 +99,7 @@ func runAddCommand(filePath string) error {
 					RemoveLogEntry(id)
 					AddToStaging(generatedId, filePath, "added")
 					LogOperation(generatedId, "ADD", filePath)
-					return nil
+					return
 				} else {
 					// If it was committed, check if the file is modified since the last commit.
 					modified := IsModified(filePath, "./.csync/commits/"+commitId+"/"+fileId+"/"+filePath)
@@ -113,12 +110,12 @@ func runAddCommand(filePath string) error {
 						RemoveLogEntry(id)
 						AddToStaging(generatedId, filePath, "modified")
 						LogOperation(generatedId, "MOD", filePath)
-						return nil
+						return
 					}
 					// If it wasn't modified, remove the file from staging/removed and remove the log entry.
 					RemoveFile("./.csync/staging/removed/" + id)
 					RemoveLogEntry(id)
-					return nil
+					return
 				}
 			} else {
 				// If the file was removed and not added back, do nothing.
@@ -133,7 +130,7 @@ func runAddCommand(filePath string) error {
 		if isDeleted {
 			AddToStaging(generatedId, "./.csync/commits/"+commitId+"/"+fileId+"/"+fileName, "removed")
 			LogOperation(generatedId, "REM", filePath)
-			return nil
+			return
 		}
 
 		// If it wasn't deleted, check if the file is committed
@@ -146,17 +143,17 @@ func runAddCommand(filePath string) error {
 				// Add the file to staging/modified and log this operation
 				AddToStaging(generatedId, filePath, "modified")
 				LogOperation(generatedId, "MOD", filePath)
-				return nil
+				return
 			} else {
 				color.Red("File not modified")
-				return nil
+				return
 			}
 		} else {
 			// If it wasn't committed, add the file to staging/added and log this operation. This means the file is new.
 			AddToStaging(generatedId, filePath, "added")
 			LogOperation(generatedId, "ADD", filePath)
-			return nil
+			return
 		}
 	}
-	return nil
+	return
 }
