@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -129,7 +130,7 @@ func runCurrentCommand() {
 	}
 
 	currentBranchName := GetCurrentBranchName()
-	color.Blue(currentBranchName)
+	fmt.Println(currentBranchName)
 }
 
 func runDefaultCommand() {
@@ -140,7 +141,7 @@ func runDefaultCommand() {
 	}
 
 	defaultBranchName := GetDefaultBranchName()
-	color.Blue(defaultBranchName)
+	fmt.Println(defaultBranchName)
 }
 
 func runNewCommand(branchName string) {
@@ -169,6 +170,12 @@ func runDropCommand(branchName string) {
 		return
 	}
 
+	branches := ListBranches()
+	if !slices.Contains(branches, branchName) {
+		color.Red("Branch does not exist")
+		return
+	}
+
 	if currentBranchName := GetCurrentBranchName(); currentBranchName == branchName {
 		color.Red("Cannot delete current branch")
 		return
@@ -192,6 +199,25 @@ func runSwitchCommand(branchName string) {
 		color.Red("CSync not initialized")
 		return
 	}
-	color.White("Switching to branch: " + branchName)
-	// TODO: Implement switch
+
+	currentBranch := GetCurrentBranchName()
+	if currentBranch == branchName {
+		color.Red("You are already on " + branchName + " branch")
+		return
+	}
+
+	branches := ListBranches()
+	if !slices.Contains(branches, branchName) {
+		color.Red("Branch does not exist")
+		return
+	}
+
+	commitId := GetLastCommitByBranch(branchName)
+	fileList := GetFileListContent(commitId)
+	for _, file := range fileList {
+		_, fileName := ParsePath(file.Path)
+		CopyFile("./.csync/commits/"+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
+	}
+	SetCurrentBranch(branchName)
+	color.Green("Switched to " + branchName + " branch")
 }
