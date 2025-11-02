@@ -4,8 +4,10 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -44,6 +46,37 @@ func ParsePath(fullPath string) (path string, fileName string) {
 	}
 
 	return dirs, file
+}
+
+// ValidatePath ensures a file path doesn't escape the working directory
+func ValidatePath(userPath string) error {
+	// Get the working directory
+	workdir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	// Clean and make the user path absolute
+	cleanPath := filepath.Clean(userPath)
+	var absPath string
+	if filepath.IsAbs(cleanPath) {
+		absPath = cleanPath
+	} else {
+		absPath = filepath.Join(workdir, cleanPath)
+	}
+
+	// Check if the absolute path is within the working directory
+	relPath, err := filepath.Rel(workdir, absPath)
+	if err != nil {
+		return err
+	}
+
+	// If the relative path starts with "..", it's trying to escape
+	if strings.HasPrefix(relPath, "..") {
+		return errors.New("path traversal detected: path escapes working directory")
+	}
+
+	return nil
 }
 
 func GetTimestamp() string {

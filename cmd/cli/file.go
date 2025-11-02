@@ -1,79 +1,104 @@
 package cli
 
 import (
-	"bufio"
+	"bytes"
 	"io"
-	"log"
 	"os"
+	"path/filepath"
 )
 
-func CopyFile(src, dst string) {
+func CopyFile(src, dst string) error {
 	Debug("Copying file from %s to %s", src, dst)
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		Debug("Source file does not exist: %s", src)
-		log.Fatal("Source file does not exist")
+		return err
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
 		Debug("Source is not a regular file: %s", src)
-		log.Fatal("Source file is not a regular file")
+		return os.ErrInvalid
 	}
 
 	source, err := os.Open(src)
 	if err != nil {
 		Debug("Failed to open source file: %s", src)
-		log.Fatal(err)
+		return err
 	}
 	defer source.Close()
 
 	if FileExists(dst) {
 		Debug("Destination file exists, removing: %s", dst)
-		os.Remove(dst)
+		if err := os.Remove(dst); err != nil {
+			return err
+		}
 	}
 
 	path, _ := ParsePath(dst)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		Debug("Creating destination directory: %s", path)
-		os.MkdirAll(path, 0700)
+		if err := os.MkdirAll(path, 0700); err != nil {
+			return err
+		}
 	}
 
 	destination, err := os.Create(dst)
 	if err != nil {
 		Debug("Failed to create destination file: %s", dst)
-		log.Fatal(err)
+		return err
 	}
 	defer destination.Close()
 
 	_, err = io.Copy(destination, source)
 	if err != nil {
 		Debug("Failed to copy file contents")
-		log.Fatal(err)
+		return err
 	}
 	Debug("File copied successfully")
+	return nil
 }
 
-func RemoveFile(path string) {
+func RemoveFile(path string) error {
 	Debug("Removing file/directory: %s", path)
 	err := os.RemoveAll(path)
 	if err != nil {
 		Debug("Failed to remove file/directory: %s", path)
-		log.Fatal(err)
+		return err
 	}
 	Debug("File/directory removed successfully")
+	return nil
 }
 
-func EmptyDir(path string) {
+func EmptyDir(path string) error {
 	Debug("Emptying directory: %s", path)
-	if err := os.RemoveAll(path); err != nil {
-		Debug("Failed to remove directory contents: %s", path)
-		log.Fatal((err))
+
+	// Read directory contents
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		// If directory doesn't exist, create it
+		if os.IsNotExist(err) {
+			Debug("Directory doesn't exist, creating: %s", path)
+			if err := os.MkdirAll(path, os.ModePerm); err != nil {
+				Debug("Failed to create directory: %s", path)
+				return err
+			}
+			return nil
+		}
+		Debug("Failed to read directory: %s", path)
+		return err
 	}
-	if err := os.MkdirAll(path, os.ModePerm); err != nil {
-		Debug("Failed to recreate empty directory: %s", path)
-		log.Fatal((err))
+
+	// Remove each entry
+	for _, entry := range entries {
+		entryPath := filepath.Join(path, entry.Name())
+		if err := os.RemoveAll(entryPath); err != nil {
+			Debug("Failed to remove entry: %s", entryPath)
+			return err
+		}
 	}
+
 	Debug("Directory emptied successfully")
+	return nil
 }
 
 func FileExists(path string) bool {
@@ -85,33 +110,24 @@ func FileExists(path string) bool {
 	return exists
 }
 
-func IsModified(file1, file2 string) bool {
+func IsModified(file1, file2 string) (bool, error) {
 	Debug("Checking if files are modified: %s vs %s", file1, file2)
-	f1, err := os.Open(file1)
+	data1, err := os.ReadFile(file1)
 	if err != nil {
-		Debug("Failed to open first file: %s", file1)
-		log.Fatal(err)
+		Debug("Failed to read first file: %s", file1)
+		return false, err
 	}
-	defer f1.Close()
-	f2, err := os.Open(file2)
+	data2, err := os.ReadFile(file2)
 	if err != nil {
-		Debug("Failed to open second file: %s", file2)
-		log.Fatal(err)
+		Debug("Failed to read second file: %s", file2)
+		return false, err
 	}
-	defer f2.Close()
-	reader1 := bufio.NewReader(f1)
-	reader2 := bufio.NewReader(f2)
-	for {
-		line1, _, err := reader1.ReadLine()
-		line2, _, _ := reader2.ReadLine()
-		if err == io.EOF {
-			break
-		}
-		if string(line1) != string(line2) {
-			Debug("Files are different")
-			return true
-		}
+
+	areEqual := bytes.Equal(data1, data2)
+	if !areEqual {
+		Debug("Files are different")
+	} else {
+		Debug("Files are identical")
 	}
-	Debug("Files are identical")
-	return false
+	return !areEqual, nil
 }

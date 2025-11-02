@@ -32,6 +32,9 @@ func runCommitCommand(message string) (returnCode int, commitId string) {
 		return 001, ""
 	}
 
+	// Clean up any orphaned staging entries from previous failed operations
+	CleanOrphanedStagingEntries()
+
 	empty := IsStagingLogsEmpty()
 	if empty {
 		Debug("No changes staged for commit")
@@ -49,13 +52,25 @@ func runCommitCommand(message string) (returnCode int, commitId string) {
 	WriteCommitMetadata(newCommitId, message)
 	Debug("Wrote commit metadata")
 
-	CopyFile(dirs.StagingLogs, dirs.Commits+newCommitId+"/logs.json")
+	if err := CopyFile(dirs.StagingLogs, dirs.Commits+newCommitId+"/logs.json"); err != nil {
+		color.Red("Error copying staging logs: " + err.Error())
+		return 001, ""
+	}
 	Debug("Copied staging logs to commit")
 
 	TruncateLogs()
-	EmptyDir(dirs.StagingAdded)
-	EmptyDir(dirs.StagingModified)
-	EmptyDir(dirs.StagingRemoved)
+	if err := EmptyDir(dirs.StagingAdded); err != nil {
+		color.Red("Error emptying staging added directory: " + err.Error())
+		return 001, ""
+	}
+	if err := EmptyDir(dirs.StagingModified); err != nil {
+		color.Red("Error emptying staging modified directory: " + err.Error())
+		return 001, ""
+	}
+	if err := EmptyDir(dirs.StagingRemoved); err != nil {
+		color.Red("Error emptying staging removed directory: " + err.Error())
+		return 001, ""
+	}
 	Debug("Cleaned up staging area")
 
 	RegisterCommitForBranch(newCommitId)

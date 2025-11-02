@@ -30,6 +30,12 @@ func runAddCommand(filePath string) int {
 		return 001
 	}
 
+	// Validate path to prevent traversal attacks
+	if err := ValidatePath(filePath); err != nil {
+		color.Red("Invalid file path: " + err.Error())
+		return 001
+	}
+
 	_, fileName := ParsePath(filePath)
 	generatedId := GenRandHex(20)
 	Debug("Generated ID for file: %s", generatedId)
@@ -42,14 +48,24 @@ func runAddCommand(filePath string) int {
 		if added {
 			if !exists {
 				Debug("File was added but no longer exists, removing from staging")
-				removeFileAndLog(id, "added")
+				if err := removeFileAndLog(id, "added"); err != nil {
+					color.Red("Error removing file from staging: " + err.Error())
+					return 001
+				}
 				color.Cyan(ADD_RETURN_CODES[101])
 				return 101
 			}
-			modified := IsModified(filePath, dirs.StagingAdded+id+"/"+fileName)
+			modified, err := IsModified(filePath, dirs.StagingAdded+id+"/"+fileName)
+			if err != nil {
+				color.Red("Error checking if file is modified: " + err.Error())
+				return 001
+			}
 			if modified {
 				Debug("File was added and modified, updating staging")
-				AddToStaging(id, filePath, "added")
+				if err := AddToStaging(id, filePath, "added"); err != nil {
+					color.Red("Error adding file to staging: " + err.Error())
+					return 001
+				}
 				color.Cyan(ADD_RETURN_CODES[102])
 				return 102
 			}
@@ -61,14 +77,24 @@ func runAddCommand(filePath string) int {
 		if modified {
 			if !exists {
 				Debug("File was modified but no longer exists, removing from staging")
-				removeFileAndLog(id, "modified")
+				if err := removeFileAndLog(id, "modified"); err != nil {
+					color.Red("Error removing file from staging: " + err.Error())
+					return 001
+				}
 				LogOperation(generatedId, "REM", filePath)
 				return 104
 			}
-			modified := IsModified(filePath, dirs.StagingModified+id+"/"+fileName)
+			modified, err := IsModified(filePath, dirs.StagingModified+id+"/"+fileName)
+			if err != nil {
+				color.Red("Error checking if file is modified: " + err.Error())
+				return 001
+			}
 			if modified {
 				Debug("File was modified and changed, updating staging")
-				AddToStaging(id, filePath, "modified")
+				if err := AddToStaging(id, filePath, "modified"); err != nil {
+					color.Red("Error adding file to staging: " + err.Error())
+					return 001
+				}
 				color.Green(ADD_RETURN_CODES[105])
 				return 105
 			}
@@ -80,12 +106,22 @@ func runAddCommand(filePath string) int {
 		if removed {
 			if exists {
 				Debug("File was removed but exists again, checking modifications")
-				removeFileAndLog(id, "removed")
+				if err := removeFileAndLog(id, "removed"); err != nil {
+					color.Red("Error removing file from staging: " + err.Error())
+					return 001
+				}
 				_, commitId, fileId := GetFileMetadata(filePath)
-				modified := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+fileName)
+				modified, err := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+fileName)
+				if err != nil {
+					color.Red("Error checking if file is modified: " + err.Error())
+					return 001
+				}
 				if modified {
 					Debug("File was removed but modified, adding back as modified")
-					stageAndLog(generatedId, filePath, "modified")
+					if err := stageAndLog(generatedId, filePath, "modified"); err != nil {
+						color.Red("Error staging file: " + err.Error())
+						return 001
+					}
 					color.Cyan(ADD_RETURN_CODES[107])
 					return 107
 				}
@@ -101,17 +137,27 @@ func runAddCommand(filePath string) int {
 		isDeleted := IsFileDeleted(filePath)
 		if isDeleted {
 			Debug("File was committed but deleted, staging for removal")
-			AddToStaging(generatedId, dirs.Commits+commitId+"/"+fileId+"/"+fileName, "removed")
+			if err := AddToStaging(generatedId, dirs.Commits+commitId+"/"+fileId+"/"+fileName, "removed"); err != nil {
+				color.Red("Error adding file to staging: " + err.Error())
+				return 001
+			}
 			LogOperation(generatedId, "REM", filePath)
 			color.Green(ADD_RETURN_CODES[109])
 			return 109
 		}
 
 		if isCommitted {
-			modified := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+fileName)
+			modified, err := IsModified(filePath, dirs.Commits+commitId+"/"+fileId+"/"+fileName)
+			if err != nil {
+				color.Red("Error checking if file is modified: " + err.Error())
+				return 001
+			}
 			if modified {
 				Debug("File was committed and modified, staging as modified")
-				stageAndLog(generatedId, filePath, "modified")
+				if err := stageAndLog(generatedId, filePath, "modified"); err != nil {
+					color.Red("Error staging file: " + err.Error())
+					return 001
+				}
 				color.Green(ADD_RETURN_CODES[110])
 				return 110
 			} else {
@@ -121,7 +167,10 @@ func runAddCommand(filePath string) int {
 			}
 		} else {
 			Debug("File is new, staging as added")
-			stageAndLog(generatedId, filePath, "added")
+			if err := stageAndLog(generatedId, filePath, "added"); err != nil {
+				color.Red("Error staging file: " + err.Error())
+				return 001
+			}
 			color.Green(ADD_RETURN_CODES[112])
 			return 112
 		}
@@ -129,19 +178,25 @@ func runAddCommand(filePath string) int {
 	return 100
 }
 
-func removeFileAndLog(id string, op string) {
+func removeFileAndLog(id string, op string) error {
 	Debug("Removing file and log entry: id=%s, op=%s", id, op)
-	RemoveFile(dirs.Staging + op + "/" + id)
+	if err := RemoveFile(dirs.Staging + op + "/" + id); err != nil {
+		return err
+	}
 	RemoveLogEntry(id)
+	return nil
 }
 
-func stageAndLog(id string, path string, op string) {
+func stageAndLog(id string, path string, op string) error {
 	Debug("Staging and logging file: id=%s, path=%s, op=%s", id, path, op)
 	logOperations := map[string]string{
 		"added":    "ADD",
 		"modified": "MOD",
 		"removed":  "REM",
 	}
-	AddToStaging(id, path, op)
+	if err := AddToStaging(id, path, op); err != nil {
+		return err
+	}
 	LogOperation(id, logOperations[op], path)
+	return nil
 }

@@ -188,3 +188,46 @@ func PrintLogs(content []LogFileEntry) {
 	}
 	Debug("Log entries printed successfully")
 }
+
+// ValidateStagingIntegrity checks if staging logs match actual staged files
+// Returns list of orphaned file IDs that should be cleaned up
+func ValidateStagingIntegrity() []string {
+	Debug("Validating staging integrity")
+	logs := GetStagingLogsContent()
+	orphanedIds := []string{}
+
+	// Check if all logged files exist in staging
+	for _, entry := range *logs {
+		var stagingPath string
+		switch entry.Op {
+		case "ADD":
+			stagingPath = dirs.StagingAdded + entry.Id
+		case "MOD":
+			stagingPath = dirs.StagingModified + entry.Id
+		case "REM":
+			stagingPath = dirs.StagingRemoved + entry.Id
+		}
+
+		if _, err := os.Stat(stagingPath); os.IsNotExist(err) {
+			Debug("Found orphaned log entry: %s (path: %s)", entry.Id, entry.Path)
+			orphanedIds = append(orphanedIds, entry.Id)
+		}
+	}
+
+	Debug("Found %d orphaned entries", len(orphanedIds))
+	return orphanedIds
+}
+
+// CleanOrphanedStagingEntries removes log entries that don't have corresponding staged files
+func CleanOrphanedStagingEntries() int {
+	Debug("Cleaning orphaned staging entries")
+	orphanedIds := ValidateStagingIntegrity()
+
+	for _, id := range orphanedIds {
+		RemoveLogEntry(id)
+		Debug("Removed orphaned log entry: %s", id)
+	}
+
+	Debug("Cleaned %d orphaned entries", len(orphanedIds))
+	return len(orphanedIds)
+}
