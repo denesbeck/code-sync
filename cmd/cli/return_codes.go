@@ -13,8 +13,8 @@ var ADD_RETURN_CODES = map[int]string{
 	106: "File already staged",       // the user staged the same file again (MOD)
 	107: "Staged file update",        // file was staged (REM), but it got added back and modified
 	108: "File already staged",       // the user staged the same file again (REM)
-	109: "Filed added to staging",    // file committed but not staged -> staged (REM)
-	110: "Filed added to staging",    // file committed but not staged -> staged (MOD)
+	109: "File added to staging",     // file committed but not staged -> staged (REM)
+	110: "File added to staging",     // file committed but not staged -> staged (MOD)
 	111: "File not modified",         // file committed, not staged, not modified
 	112: "File added to staging",     // file not committed, not staged -> staged (ADD)
 }
