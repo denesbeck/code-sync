@@ -59,7 +59,7 @@ func Test_ConfigUsername(t *testing.T) {
 		t.Errorf("Expected return code 604, got %d", returnCode)
 	}
 	if config.Email != "email@email.com" {
-		t.Errorf("Expected email 'email@email.com', got '%s'", config.Username)
+		t.Errorf("Expected email 'email@email.com', got '%s'", config.Email)
 	}
 
 	os.RemoveAll(namespace)
