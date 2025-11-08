@@ -123,12 +123,10 @@ func IsModified(file1, file2 string) (bool, error) {
 		return false, err
 	}
 	size1 := stat1.Size()
-	updated1 := stat1.ModTime()
 	size2 := stat2.Size()
-	updated2 := stat2.ModTime()
 
-	if size1 != size2 || updated1 != updated2 {
-		Debug("Files have been modified or have different sizes")
+	if size1 != size2 {
+		Debug("Files have different sizes")
 		return true, nil
 	}
 
