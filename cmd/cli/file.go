@@ -112,6 +112,26 @@ func FileExists(path string) bool {
 
 func IsModified(file1, file2 string) (bool, error) {
 	Debug("Checking if files are modified: %s vs %s", file1, file2)
+	stat1, err := os.Stat(file1)
+	if err != nil {
+		Debug("Failed to stat first file: %s", file1)
+		return false, err
+	}
+	stat2, err := os.Stat(file2)
+	if err != nil {
+		Debug("Failed to stat second file: %s", file2)
+		return false, err
+	}
+	size1 := stat1.Size()
+	updated1 := stat1.ModTime()
+	size2 := stat2.Size()
+	updated2 := stat2.ModTime()
+
+	if size1 != size2 || updated1 != updated2 {
+		Debug("Files have been modified or have different sizes")
+		return true, nil
+	}
+
 	data1, err := os.ReadFile(file1)
 	if err != nil {
 		Debug("Failed to read first file: %s", file1)
