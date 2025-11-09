@@ -273,7 +273,6 @@ func runSwitchCommand(branchName string) int {
 	if HasUncommittedChanges() {
 		Debug("Cannot switch branches with uncommitted changes")
 		color.Red(BRANCH_RETURN_CODES[214])
-		color.Yellow("Please commit or stash your changes before switching branches.")
 		color.Yellow("Uncommitted changes:")
 
 		// Show what changes would be lost
@@ -282,6 +281,7 @@ func runSwitchCommand(branchName string) int {
 			color.Cyan("\nStaged files:")
 			PrintLogs(*stagingLogs)
 		}
+		color.Yellow("\nPlease commit or stash your changes before switching branches.")
 
 		modified, deleted := GetModifiedOrDeletedFiles()
 		if len(modified) > 0 {
