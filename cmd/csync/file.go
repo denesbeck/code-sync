@@ -1,0 +1,151 @@
+package main
+
+import (
+	"bytes"
+	"io"
+	"os"
+	"path/filepath"
+)
+
+func CopyFile(src, dst string) error {
+	Debug("Copying file from %s to %s", src, dst)
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		Debug("Source file does not exist: %s", src)
+		return err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		Debug("Source is not a regular file: %s", src)
+		return os.ErrInvalid
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		Debug("Failed to open source file: %s", src)
+		return err
+	}
+	defer source.Close()
+
+	if FileExists(dst) {
+		Debug("Destination file exists, removing: %s", dst)
+		if err := os.Remove(dst); err != nil {
+			return err
+		}
+	}
+
+	path, _ := ParsePath(dst)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		Debug("Creating destination directory: %s", path)
+		if err := os.MkdirAll(path, 0700); err != nil {
+			return err
+		}
+	}
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		Debug("Failed to create destination file: %s", dst)
+		return err
+	}
+	defer destination.Close()
+
+	_, err = io.Copy(destination, source)
+	if err != nil {
+		Debug("Failed to copy file contents")
+		return err
+	}
+	Debug("File copied successfully")
+	return nil
+}
+
+func RemoveFile(path string) error {
+	Debug("Removing file/directory: %s", path)
+	err := os.RemoveAll(path)
+	if err != nil {
+		Debug("Failed to remove file/directory: %s", path)
+		return err
+	}
+	Debug("File/directory removed successfully")
+	return nil
+}
+
+func EmptyDir(path string) error {
+	Debug("Emptying directory: %s", path)
+
+	// Read directory contents
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		// If directory doesn't exist, create it
+		if os.IsNotExist(err) {
+			Debug("Directory doesn't exist, creating: %s", path)
+			if err := os.MkdirAll(path, os.ModePerm); err != nil {
+				Debug("Failed to create directory: %s", path)
+				return err
+			}
+			return nil
+		}
+		Debug("Failed to read directory: %s", path)
+		return err
+	}
+
+	// Remove each entry
+	for _, entry := range entries {
+		entryPath := filepath.Join(path, entry.Name())
+		if err := os.RemoveAll(entryPath); err != nil {
+			Debug("Failed to remove entry: %s", entryPath)
+			return err
+		}
+	}
+
+	Debug("Directory emptied successfully")
+	return nil
+}
+
+func FileExists(path string) bool {
+	exists := false
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		exists = true
+	}
+	Debug("Checking if file exists: %s = %v", path, exists)
+	return exists
+}
+
+func IsModified(file1, file2 string) (bool, error) {
+	Debug("Checking if files are modified: %s vs %s", file1, file2)
+	stat1, err := os.Stat(file1)
+	if err != nil {
+		Debug("Failed to stat first file: %s", file1)
+		return false, err
+	}
+	stat2, err := os.Stat(file2)
+	if err != nil {
+		Debug("Failed to stat second file: %s", file2)
+		return false, err
+	}
+	size1 := stat1.Size()
+	size2 := stat2.Size()
+
+	if size1 != size2 {
+		Debug("Files have different sizes")
+		return true, nil
+	}
+
+	data1, err := os.ReadFile(file1)
+	if err != nil {
+		Debug("Failed to read first file: %s", file1)
+		return false, err
+	}
+	data2, err := os.ReadFile(file2)
+	if err != nil {
+		Debug("Failed to read second file: %s", file2)
+		return false, err
+	}
+
+	areEqual := bytes.Equal(data1, data2)
+	if !areEqual {
+		Debug("Files are different")
+	} else {
+		Debug("Files are identical")
+	}
+	return !areEqual, nil
+}

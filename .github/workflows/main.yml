@@ -10,9 +10,6 @@ on:
 jobs:
   Scan:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: cmd
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -51,16 +48,13 @@ jobs:
       - run: go version
 
       - name: Install dependencies
-        working-directory: cmd
         run: go mod download
 
       - name: Lint
-        working-directory: cmd
         run: go vet ./...
         continue-on-error: true
 
       - name: Check formatting
-        working-directory: cmd
         run: |
           if [ -n "$(gofmt -l .)" ]; then
             echo "Files need formatting:"
@@ -69,9 +63,8 @@ jobs:
           fi
 
       - name: Run tests
-        working-directory: cmd/cli
+        working-directory: cmd/csync
         run: pwd && CSYNC_ENV=test go test . -cover
 
       - name: Build
-        working-directory: cmd
-        run: go build -o csync
+        run: go build -o csync ./cmd/csync

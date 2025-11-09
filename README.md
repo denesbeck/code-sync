@@ -40,7 +40,7 @@ git clone https://github.com/denesbeck/code-sync.git
 2. Change the directory:
 
 ```bash
-cd code-sync/cmd
+cd code-sync
 ```
 
 3. Install the dependencies:
@@ -52,7 +52,7 @@ go mod tidy
 4. Build the project:
 
 ```bash
-go build -o csync
+go build -o csync ./cmd/csync
 ```
 
 5. Run the project:
