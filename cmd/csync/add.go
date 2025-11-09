@@ -6,8 +6,12 @@ import (
 )
 
 func init() {
+	addCmd.Flags().BoolVarP(&Force, "force", "f", false, "Disregard the rules defined in `.csync.rules.yml`")
+
 	rootCmd.AddCommand(addCmd)
 }
+
+var Force bool
 
 var addCmd = &cobra.Command{
 	Use:     "add",
@@ -17,12 +21,12 @@ var addCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting add command with args: %v", args)
 		for _, arg := range args {
-			runAddCommand(arg)
+			runAddCommand(arg, Force)
 		}
 	},
 }
 
-func runAddCommand(filePath string) int {
+func runAddCommand(filePath string, force bool) int {
 	Debug("Processing file: %s", filePath)
 	initialized := IsInitialized()
 	if !initialized {
@@ -34,6 +38,14 @@ func runAddCommand(filePath string) int {
 	if err := ValidatePath(filePath); err != nil {
 		color.Red("Invalid file path: " + err.Error())
 		return 001
+	}
+
+	if !force {
+		shouldIgnore := ShouldIgnore(filePath)
+		if shouldIgnore {
+			color.Red(COMMON_RETURN_CODES[002])
+			return 002
+		}
 	}
 
 	_, fileName := ParsePath(filePath)
