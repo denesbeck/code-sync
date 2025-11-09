@@ -247,6 +247,29 @@ func RegisterCommitForBranch(commitId string) {
 	Debug("Commit registered successfully")
 }
 
+// HasUncommittedChanges checks if there are any uncommitted changes in the working directory
+// Returns true if there are staged files, modified files, or deleted files
+func HasUncommittedChanges() bool {
+	Debug("Checking for uncommitted changes")
+
+	// Check for staged files
+	stagingLogs := GetStagingLogsContent()
+	if len(*stagingLogs) > 0 {
+		Debug("Found %d staged files", len(*stagingLogs))
+		return true
+	}
+
+	// Check for modified or deleted files
+	modified, deleted := GetModifiedOrDeletedFiles()
+	if len(modified) > 0 || len(deleted) > 0 {
+		Debug("Found %d modified and %d deleted files", len(modified), len(deleted))
+		return true
+	}
+
+	Debug("No uncommitted changes found")
+	return false
+}
+
 func CopyCommitsToBranch(commitId string, targetBranch string) error {
 	Debug("Copying commits to branch: commit=%s, branch=%s", commitId, targetBranch)
 	commits := GetCommits()

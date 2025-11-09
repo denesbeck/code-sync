@@ -31,9 +31,10 @@ var BRANCH_RETURN_CODES = map[int]string{
 	208: "Cannot delete current branch.",
 	209: "Cannot delete default branch.",
 	210: "Branch deleted successfully.",
-	211: "Already on target branch.", // switch
-	212: "Branch does not exist.",    // switch
-	213: "Current branch: ",          // switch
+	211: "Already on target branch.",                        // switch
+	212: "Branch does not exist.",                           // switch
+	213: "Current branch: ",                                 // switch
+	214: "Cannot switch branches with uncommitted changes.", // switch
 }
 
 var WORKDIR_RETURN_CODES = map[int]string{
