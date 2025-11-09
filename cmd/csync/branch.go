@@ -269,10 +269,18 @@ func runSwitchCommand(branchName string) int {
 		return 212
 	}
 
-	commitId := GetLastCommitByBranch(branchName).Id
-	if commitId != "" {
-		Debug("Switching to commit: %s", commitId)
-		fileList := GetFileListContent(commitId)
+	Debug("Remove tracked files for current branch %s before switching.", currentBranch)
+	oldBranchCommitId := GetLastCommitByBranch(currentBranch).Id
+	if oldBranchCommitId != "" {
+		fileList := GetFileListContent(oldBranchCommitId)
+		for _, file := range *fileList {
+			RemoveFile("./" + file.Path)
+		}
+	}
+	newBrnachCommitId := GetLastCommitByBranch(branchName).Id
+	Debug("Switching to commit: %s", newBrnachCommitId)
+	if newBrnachCommitId != "" {
+		fileList := GetFileListContent(newBrnachCommitId)
 		for _, file := range *fileList {
 			_, fileName := ParsePath(file.Path)
 			CopyFile(dirs.Commits+file.CommitId+"/"+file.Id+"/"+fileName, "./"+file.Path)
