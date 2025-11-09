@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Default: all files are allowed (tracked).
+// default: all files are allowed (tracked).
 // ignore: defines patterns to exclude.
 // allow: defines patterns to re-include (override an ignore).
 
