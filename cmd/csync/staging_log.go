@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"slices"
 	"sort"
+	"strings"
 
 	"github.com/fatih/color"
 )
@@ -230,4 +232,77 @@ func CleanOrphanedStagingEntries() int {
 
 	Debug("Cleaned %d orphaned entries", len(orphanedIds))
 	return len(orphanedIds)
+}
+
+func GetUntrackedFiles() []string {
+	Debug("Getting untracked files")
+
+	var untracked []string
+	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Skip directories
+		if info.IsDir() {
+			// Skip .csync directory
+			if strings.Contains(path, ".csync") {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// Check if file is ignored by rules
+		if ShouldIgnore(path) {
+			return nil
+		}
+
+		// Check if already staged
+		if IsFileStaged(path) {
+			return nil
+		}
+
+		// Check if already committed
+		if isCommitted, _, _ := GetFileMetadata(path); isCommitted {
+			return nil
+		}
+
+		untracked = append(untracked, path)
+		return nil
+	})
+
+	Debug("Found %d untracked files.", len(untracked))
+
+	return untracked
+}
+
+func GetModifiedOrDeletedFiles() (modified []string, deleted []string) {
+	Debug("Getting modified or deleted files")
+	lastCommit := GetLastCommit()
+	if lastCommit.Id == "" {
+		return nil, nil
+	}
+
+	fileList := GetFileListContent(lastCommit.Id)
+
+	for _, file := range *fileList {
+		// Skip if staged already
+		if IsFileStaged(file.Path) {
+			continue
+		}
+
+		// Check if file exists in working directory
+		if !FileExists(file.Path) {
+			deleted = append(deleted, file.Path)
+			continue
+		}
+
+		_, fileName := ParsePath(file.Path)
+
+		if isModified, _ := IsModified(file.Path, dirs.Commits+file.CommitId+"/"+file.Id+"/"+fileName); isModified {
+			modified = append(modified, file.Path)
+		}
+	}
+
+	return modified, deleted
 }

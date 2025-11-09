@@ -13,7 +13,7 @@ func TestRemove(t *testing.T) {
 	file := namespace + "file.txt"
 	os.Create(file)
 
-	runAddCommand(file)
+	runAddCommand(file, false)
 	isLogged, logId, operation := LogEntryLookup("*", file)
 	if !isLogged && operation != "ADD" {
 		t.Errorf("Expected log entry to be added, got %s", operation)

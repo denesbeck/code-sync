@@ -10,7 +10,7 @@ func Test_IsFileStaged(t *testing.T) {
 	runInitCommand()
 	file := namespace + "file.txt"
 	os.Create(file)
-	runAddCommand(file)
+	runAddCommand(file, false)
 	if !IsFileStaged(file) {
 		t.Errorf("Expected file %s to be staged", file)
 	}
@@ -25,7 +25,7 @@ func Test_IsFileDeleted(t *testing.T) {
 	runInitCommand()
 	file := namespace + "file.txt"
 	os.Create(file)
-	runAddCommand(file)
+	runAddCommand(file, false)
 	runCommitCommand("test commit")
 
 	os.Remove(file)
@@ -51,7 +51,7 @@ func Test_GetFileMetadata(t *testing.T) {
 	runInitCommand()
 	file := namespace + "file.txt"
 	os.Create(file)
-	runAddCommand(file)
+	runAddCommand(file, false)
 	runCommitCommand("test commit")
 
 	isCommitted, commitId, fileId := GetFileMetadata(file)
@@ -80,7 +80,7 @@ func Test_StatusCommand(t *testing.T) {
 	runInitCommand()
 	file := namespace + "file.txt"
 	os.Create(file)
-	runAddCommand(file)
+	runAddCommand(file, false)
 
 	returnCode, stagingLogs := runStatusCommand()
 
@@ -96,8 +96,8 @@ func Test_StatusCommand(t *testing.T) {
 
 	returnCode, stagingLogs = runStatusCommand()
 
-	if returnCode != 501 {
-		t.Errorf("Expected return code 501, got %d", returnCode)
+	if returnCode != 502 {
+		t.Errorf("Expected return code 502, got %d", returnCode)
 	}
 
 	if len(stagingLogs) != 0 {

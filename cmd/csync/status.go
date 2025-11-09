@@ -26,14 +26,44 @@ func runStatusCommand() (returnCode int, stagingLogs []LogFileEntry) {
 		return 001, nil
 	}
 	content := GetStagingLogsContent()
-	if len(*content) == 0 {
-		Debug("No files staged for commit")
-		color.Cyan(STATUS_RETURN_CODES[501])
-		return 501, nil
-	} else {
-		Debug("Found %d files staged for commit", len(*content))
-		color.Cyan("Files staged for commit:")
+	currentBranch := GetCurrentBranchName()
+	color.Cyan("On branch %s.", currentBranch)
+	if len(*content) != 0 {
+		Debug("Found %d files staged for commit.", len(*content))
+		color.Cyan("\nFiles staged for commit:")
 		PrintLogs(*content)
+	} else {
+		Debug("%s", STATUS_RETURN_CODES[501])
+	}
+
+	modified, deleted := GetModifiedOrDeletedFiles()
+	if len(modified) > 0 || len(deleted) > 0 {
+		Debug("Found %d tracked files that have been modified or deleted.", len(modified)+len(deleted))
+		color.Cyan("\nChanges not staged for commit:")
+		for _, file := range modified {
+			color.Yellow("  modified: " + file)
+		}
+		for _, file := range deleted {
+			color.Yellow("  deleted: " + file)
+		}
+	} else {
+		Debug("%s", STATUS_RETURN_CODES[503])
+	}
+
+	untracked := GetUntrackedFiles()
+	if len(untracked) != 0 {
+		color.Cyan("\nUntracked files:")
+		for _, file := range untracked {
+			color.Yellow("  " + file)
+		}
+		color.Cyan("(use \"csync add <file>...\" to track)")
+	} else {
+		Debug("%s", STATUS_RETURN_CODES[504])
+	}
+
+	if len(*content) == 0 && len(modified) == 0 && len(deleted) == 0 && len(untracked) == 0 {
+		Debug("%s", STATUS_RETURN_CODES[505])
+		color.Cyan("\n" + STATUS_RETURN_CODES[505])
 	}
 	Debug("Status command completed successfully")
 	return 502, *content

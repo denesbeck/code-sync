@@ -42,7 +42,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 		// create 5 test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
-		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt")
+		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt", false)
 		// commit files
 		runCommitCommand("test commit " + strconv.Itoa(i))
 	}
@@ -53,7 +53,7 @@ func Test_NewBranchFromCommit(t *testing.T) {
 		// create 5 test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
-		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt")
+		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt", false)
 		// commit files
 		runCommitCommand("test commit " + strconv.Itoa(i))
 	}
@@ -89,7 +89,7 @@ func Test_NewBranchFromBranch(t *testing.T) {
 		// create test files
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
-		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt")
+		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt", false)
 		// commit files
 		runCommitCommand("test commit " + strconv.Itoa(i))
 	}

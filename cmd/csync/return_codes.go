@@ -47,6 +47,9 @@ var HISTORY_RETURN_CODES = map[int]string{
 var STATUS_RETURN_CODES = map[int]string{
 	501: "No files staged for commit.",
 	502: "Get status success.",
+	503: "No tracked files have been modified or deleted.",
+	504: "No untracked files.",
+	505: "Nothing to commit, working tree clean.",
 }
 
 var CONFIG_RETURN_CODES = map[int]string{

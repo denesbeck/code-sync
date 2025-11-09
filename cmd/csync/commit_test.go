@@ -17,7 +17,7 @@ func TestCommit(t *testing.T) {
 	for i := range 10 {
 		file := namespace + "file" + strconv.Itoa(i) + ".txt"
 		os.Create(file)
-		runAddCommand(file)
+		runAddCommand(file, false)
 		returnCode, commitId := runCommitCommand("test commit " + strconv.Itoa(i))
 		if returnCode != 702 {
 			t.Errorf("Expected 702, got %d", returnCode)
