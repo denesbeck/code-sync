@@ -62,39 +62,47 @@ func GetBranchesMetadata() (m *BranchMetadata) {
 
 func SetBranch(branch string, configParam string) {
 	Debug("Setting branch: branch=%s, config=%s", branch, configParam)
-	metadata := GetBranchesMetadata()
 
-	if (configParam == DefaultBranch && metadata.Default == branch) || (configParam == CurrentBranch && metadata.Current == branch) {
-		Debug("Branch already set as %s", configParam)
-		color.Red("Branch already set as " + configParam)
-		return
-	}
+	err := WithLock(dirs.BranchesMetadata, DefaultLockTimeout, func() error {
+		metadata := GetBranchesMetadata()
 
-	branches := ListBranches()
-	if slices.Contains(branches, branch) {
-		if configParam == DefaultBranch {
-			metadata.Default = branch
-			Debug("Setting default branch to: %s", branch)
-		} else {
-			metadata.Current = branch
-			Debug("Setting current branch to: %s", branch)
+		if (configParam == DefaultBranch && metadata.Default == branch) || (configParam == CurrentBranch && metadata.Current == branch) {
+			Debug("Branch already set as %s", configParam)
+			color.Red("Branch already set as " + configParam)
+			return nil
 		}
-	} else {
-		Debug("Branch does not exist: %s", branch)
-		color.Red("Branch does not exist")
-	}
 
-	jsonData, err := json.Marshal(metadata)
+		branches := ListBranches()
+		if slices.Contains(branches, branch) {
+			if configParam == DefaultBranch {
+				metadata.Default = branch
+				Debug("Setting default branch to: %s", branch)
+			} else {
+				metadata.Current = branch
+				Debug("Setting current branch to: %s", branch)
+			}
+		} else {
+			Debug("Branch does not exist: %s", branch)
+			color.Red("Branch does not exist")
+		}
+
+		jsonData, err := json.Marshal(metadata)
+		if err != nil {
+			Debug("Failed to marshal branch metadata")
+			return err
+		}
+
+		if err = os.WriteFile(dirs.BranchesMetadata, jsonData, 0644); err != nil {
+			Debug("Failed to write branch metadata")
+			return err
+		}
+		Debug("Branch metadata updated successfully")
+		return nil
+	})
+
 	if err != nil {
-		Debug("Failed to marshal branch metadata")
 		log.Fatal(err)
 	}
-
-	if err = os.WriteFile(dirs.BranchesMetadata, jsonData, 0644); err != nil {
-		Debug("Failed to write branch metadata")
-		log.Fatal(err)
-	}
-	Debug("Branch metadata updated successfully")
 }
 
 func ListBranches() []string {

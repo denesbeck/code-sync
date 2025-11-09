@@ -229,22 +229,30 @@ func WriteCommitMetadata(commitId string, message string) {
 func RegisterCommitForBranch(commitId string) {
 	Debug("Registering commit for branch: %s", commitId)
 	currentBranchName := GetCurrentBranchName()
-	commits, err := os.ReadFile(dirs.Branches + currentBranchName + "/commits.json")
+
+	err := WithLock(dirs.Branches+currentBranchName+"/commits", DefaultLockTimeout, func() error {
+		commits, err := os.ReadFile(dirs.Branches + currentBranchName + "/commits.json")
+		if err != nil {
+			Debug("Failed to read commits file")
+			return err
+		}
+		var content []Commit
+		if err = json.Unmarshal(commits, &content); err != nil {
+			Debug("Failed to unmarshal commits")
+			return err
+		}
+		content = append(content, Commit{Id: commitId, Timestamp: GetTimestamp(), Next: ""})
+		if len(content) > 1 {
+			content[len(content)-2].Next = commitId
+		}
+		WriteJson(dirs.Branches+currentBranchName+"/commits.json", content)
+		Debug("Commit registered successfully")
+		return nil
+	})
+
 	if err != nil {
-		Debug("Failed to read commits file")
 		log.Fatal(err)
 	}
-	var content []Commit
-	if err = json.Unmarshal(commits, &content); err != nil {
-		Debug("Failed to unmarshal commits")
-		log.Fatal(err)
-	}
-	content = append(content, Commit{Id: commitId, Timestamp: GetTimestamp(), Next: ""})
-	if len(content) > 1 {
-		content[len(content)-2].Next = commitId
-	}
-	WriteJson(dirs.Branches+currentBranchName+"/commits.json", content)
-	Debug("Commit registered successfully")
 }
 
 // HasUncommittedChanges checks if there are any uncommitted changes in the working directory

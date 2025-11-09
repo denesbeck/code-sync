@@ -27,25 +27,33 @@ var (
 
 func LogOperation(id string, op string, path string) {
 	Debug("Logging operation: id=%s, op=%s, path=%s", id, op, path)
-	logs, err := os.ReadFile(dirs.StagingLogs)
+
+	err := WithLock(dirs.StagingLogs, DefaultLockTimeout, func() error {
+		logs, err := os.ReadFile(dirs.StagingLogs)
+		if err != nil {
+			Debug("Failed to read staging logs")
+			return err
+		}
+		var content []LogFileEntry
+		if len(logs) > 0 {
+			if err = json.Unmarshal(logs, &content); err != nil {
+				Debug("Failed to unmarshal staging logs")
+				return err
+			}
+		}
+		content = append(content, LogFileEntry{
+			Id:   id,
+			Op:   op,
+			Path: path,
+		})
+		WriteJson(dirs.StagingLogs, content)
+		Debug("Operation logged successfully")
+		return nil
+	})
+
 	if err != nil {
-		Debug("Failed to read staging logs")
 		log.Fatal(err)
 	}
-	var content []LogFileEntry
-	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &content); err != nil {
-			Debug("Failed to unmarshal staging logs")
-			log.Fatal(err)
-		}
-	}
-	content = append(content, LogFileEntry{
-		Id:   id,
-		Op:   op,
-		Path: path,
-	})
-	WriteJson(dirs.StagingLogs, content)
-	Debug("Operation logged successfully")
 }
 
 func LogEntryLookup(op string, path string) (isLogged bool, logId string, operation string) {
@@ -99,33 +107,49 @@ func IsStagingLogsEmpty() bool {
 
 func RemoveLogEntry(id string) {
 	Debug("Removing log entry: id=%s", id)
-	logs, err := os.ReadFile(dirs.StagingLogs)
+
+	err := WithLock(dirs.StagingLogs, DefaultLockTimeout, func() error {
+		logs, err := os.ReadFile(dirs.StagingLogs)
+		if err != nil {
+			Debug("Failed to read staging logs")
+			return err
+		}
+		var content []LogFileEntry
+		if len(logs) > 0 {
+			if err = json.Unmarshal(logs, &content); err != nil {
+				Debug("Failed to unmarshal staging logs")
+				return err
+			}
+		}
+		for i, entry := range content {
+			if entry.Id == id {
+				Debug("Found and removing log entry: id=%s, op=%s", entry.Id, entry.Op)
+				content = slices.Delete(content, i, i+1)
+				break
+			}
+		}
+		WriteJson(dirs.StagingLogs, content)
+		Debug("Log entry removed successfully")
+		return nil
+	})
+
 	if err != nil {
-		Debug("Failed to read staging logs")
 		log.Fatal(err)
 	}
-	var content []LogFileEntry
-	if len(logs) > 0 {
-		if err = json.Unmarshal(logs, &content); err != nil {
-			Debug("Failed to unmarshal staging logs")
-			log.Fatal(err)
-		}
-	}
-	for i, entry := range content {
-		if entry.Id == id {
-			Debug("Found and removing log entry: id=%s, op=%s", entry.Id, entry.Op)
-			content = slices.Delete(content, i, i+1)
-			break
-		}
-	}
-	WriteJson(dirs.StagingLogs, content)
-	Debug("Log entry removed successfully")
 }
 
 func TruncateLogs() {
 	Debug("Truncating staging logs")
-	WriteJson(dirs.StagingLogs, []LogFileEntry{})
-	Debug("Staging logs truncated successfully")
+
+	err := WithLock(dirs.StagingLogs, DefaultLockTimeout, func() error {
+		WriteJson(dirs.StagingLogs, []LogFileEntry{})
+		Debug("Staging logs truncated successfully")
+		return nil
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func GetStagingLogsContent() (result *[]LogFileEntry) {
