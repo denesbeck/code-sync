@@ -15,7 +15,7 @@ func Test_AddToStaging(t *testing.T) {
 		// create files: file1.txt, file2.txt, file3.txt
 		os.Create(namespace + "file" + strconv.Itoa(i) + ".txt")
 		// add files to staging
-		runAddCommand(namespace + "file" + strconv.Itoa(i) + ".txt", false)
+		runAddCommand(namespace+"file"+strconv.Itoa(i)+".txt", false)
 		// check if files are staged
 		if IsFileStaged(namespace+"file"+strconv.Itoa(i)+".txt") == false {
 			t.Errorf("File not staged")
@@ -67,8 +67,8 @@ func Test_AddCmdStatusCode103(t *testing.T) {
 	runInitCommand()
 
 	os.Create(namespace + "file.txt")
-	runAddCommand(namespace + "file.txt", false)
-	statusCode := runAddCommand(namespace + "file.txt", false)
+	runAddCommand(namespace+"file.txt", false)
+	statusCode := runAddCommand(namespace+"file.txt", false)
 	if statusCode != 103 {
 		t.Errorf("Expected 103, got %d", statusCode)
 	}
@@ -271,7 +271,7 @@ func Test_AddCmdStatusCode112(t *testing.T) {
 func Test_AddCmdStatusCode001(t *testing.T) {
 	os.RemoveAll(namespace)
 
-	statusCode := runAddCommand(namespace + "file.txt", false)
+	statusCode := runAddCommand(namespace+"file.txt", false)
 	if statusCode != 001 {
 		t.Errorf("Expected 001, got %d", statusCode)
 	}

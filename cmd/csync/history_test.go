@@ -23,7 +23,7 @@ func Test_History(t *testing.T) {
 		os.Create(fileName)
 		if i%2 == 0 {
 			os.Create(fileName + "a")
-			runAddCommand(fileName + "a", false)
+			runAddCommand(fileName+"a", false)
 		}
 		runAddCommand(fileName, false)
 		runCommitCommand("Commit " + strconv.Itoa(i))
