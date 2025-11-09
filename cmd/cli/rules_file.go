@@ -14,14 +14,9 @@ import (
 // ignore: defines patterns to exclude.
 // allow: defines patterns to re-include (override an ignore).
 
-type Rule struct {
-	Type    string `yaml:"type"`
-	Pattern string `yaml:"pattern"`
-}
-
 type Rules struct {
-	Ignore []Rule `yaml:"ignore"`
-	Allow  []Rule `yaml:"allow"`
+	Ignore []string `yaml:"ignore"`
+	Allow  []string `yaml:"allow"`
 }
 
 func readRules() (*Rules, error) {
@@ -58,9 +53,9 @@ func pathToRegexp() (ignore []*regexp.Regexp, allow []*regexp.Regexp, err error)
 
 	var ignoreRegexps []*regexp.Regexp
 	for _, rule := range rules.Ignore {
-		pattern, err := regexp.Compile(rule.Pattern)
+		pattern, err := regexp.Compile(rule)
 		if err != nil {
-			patternRegexp, err := patternToRegexp(rule.Pattern)
+			patternRegexp, err := patternToRegexp(rule)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -72,9 +67,9 @@ func pathToRegexp() (ignore []*regexp.Regexp, allow []*regexp.Regexp, err error)
 
 	var allowRegexps []*regexp.Regexp
 	for _, rule := range rules.Allow {
-		pattern, err := regexp.Compile(rule.Pattern)
+		pattern, err := regexp.Compile(rule)
 		if err != nil {
-			patternRegexp, err := patternToRegexp(rule.Pattern)
+			patternRegexp, err := patternToRegexp(rule)
 			if err != nil {
 				return nil, nil, err
 			}
