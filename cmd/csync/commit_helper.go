@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"slices"
-	"sort"
 )
 
 type Commit struct {
@@ -44,11 +43,16 @@ func GetLastCommitByBranch(branch string) Commit {
 		Debug("No commits found for branch")
 		return Commit{}
 	}
-	sort.Slice(content, func(i, j int) bool {
-		return content[i].Next != content[j].Id
-	})
-	Debug("Last commit for branch: %s", content[0].Id)
-	return content[0]
+	// The last commit is the one with an empty Next field
+	for _, commit := range content {
+		if commit.Next == "" {
+			Debug("Last commit for branch: %s", commit.Id)
+			return commit
+		}
+	}
+	// Fallback: if no commit has empty Next (shouldn't happen), return the last in array
+	Debug("Warning: No commit found with empty Next, using last in array")
+	return content[len(content)-1]
 }
 
 func GetCommits() *[]Commit {
@@ -65,7 +69,73 @@ func GetCommits() *[]Commit {
 		log.Fatal(err)
 	}
 	Debug("Retrieved %d commits", len(content))
-	return &content
+
+	// Sort commits by following the linked list
+	sortedCommits := sortCommitsByLinkedList(content)
+	return &sortedCommits
+}
+
+// sortCommitsByLinkedList sorts commits by traversing the linked list from first to last
+// The first commit has no predecessor (no other commit points to it)
+// Each commit points to the next one via the Next field
+func sortCommitsByLinkedList(commits []Commit) []Commit {
+	if len(commits) == 0 {
+		return commits
+	}
+
+	Debug("Sorting %d commits by linked list", len(commits))
+
+	// Build a map for O(1) lookup: commitId -> Commit
+	commitMap := make(map[string]Commit)
+	// Track which commits are pointed to by another commit
+	hasParent := make(map[string]bool)
+
+	for _, commit := range commits {
+		commitMap[commit.Id] = commit
+		if commit.Next != "" {
+			hasParent[commit.Next] = true
+		}
+	}
+
+	// Find the first commit (the one that has no parent pointing to it)
+	var firstCommit *Commit
+	for _, commit := range commits {
+		if !hasParent[commit.Id] {
+			firstCommit = &commit
+			Debug("Found first commit: %s", commit.Id)
+			break
+		}
+	}
+
+	if firstCommit == nil {
+		Debug("Warning: Could not find first commit, returning unsorted")
+		return commits
+	}
+
+	// Traverse the linked list from first to last
+	sorted := make([]Commit, 0, len(commits))
+	current := firstCommit
+	visited := make(map[string]bool) // Prevent infinite loops
+
+	for current != nil && !visited[current.Id] {
+		sorted = append(sorted, *current)
+		visited[current.Id] = true
+
+		// Move to next commit
+		if current.Next == "" {
+			break
+		}
+
+		next, exists := commitMap[current.Next]
+		if !exists {
+			Debug("Warning: Broken linked list at commit %s -> %s", current.Id, current.Next)
+			break
+		}
+		current = &next
+	}
+
+	Debug("Sorted %d commits in chronological order", len(sorted))
+	return sorted
 }
 
 func GetFileListContent(commitId string) (result *[]FileListEntry) {
