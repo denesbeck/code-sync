@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"time"
 )
@@ -34,8 +35,9 @@ func (l *Lock) Acquire(timeout time.Duration) error {
 		if err == nil {
 			// Acquire lock, write PID to lock file (for debugging)
 			l.lockFile = lockFile
-			lockFile.WriteString(string(rune(os.Getpid())))
-			Debug("Lock acquired: %s", l.path)
+			pid := os.Getpid()
+			fmt.Fprintf(lockFile, "%d\n", pid)
+			Debug("Lock acquired: %s (PID: %d)", l.path, pid)
 			return nil
 		}
 
