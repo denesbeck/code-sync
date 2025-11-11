@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 )
 
@@ -11,13 +10,13 @@ func GetConfig() *Config {
 	config, err := os.ReadFile(dirs.Config)
 	if err != nil {
 		Debug("Failed to read config file")
-		log.Fatal(err)
+		MustSucceed(err, "failed to read config file")
 	}
 
 	var content Config
 	if err = json.Unmarshal(config, &content); err != nil {
 		Debug("Failed to unmarshal config")
-		log.Fatal(err)
+		MustSucceed(err, "failed to parse config file")
 	}
 
 	Debug("Config retrieved successfully: username=%s, email=%s", content.Username, content.Email)

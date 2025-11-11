@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/fatih/color"
@@ -61,12 +60,12 @@ func runHistoryCommand() (returnCode int, history []History) {
 		data, err := os.ReadFile(dirs.Commits + commit.Id + "/metadata.json")
 		if err != nil {
 			Debug("Failed to read commit metadata")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 		var metadata CommitMetadata
 		if err = json.Unmarshal(data, &metadata); err != nil {
 			Debug("Failed to unmarshal commit metadata")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 		color.Cyan("Author:  " + metadata.Author)
 		color.Cyan("Date:    " + commit.Timestamp)
@@ -76,12 +75,12 @@ func runHistoryCommand() (returnCode int, history []History) {
 		data, err = os.ReadFile(dirs.Commits + commit.Id + "/logs.json")
 		if err != nil {
 			Debug("Failed to read commit logs")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 		var logs []LogFileEntry
 		if err = json.Unmarshal(data, &logs); err != nil {
 			Debug("Failed to unmarshal commit logs")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 		Debug("Displaying %d log entries for commit", len(logs))
 		PrintLogs(logs)

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 
 	"github.com/fatih/color"
@@ -139,13 +138,13 @@ func setConfig(key string, value string) int {
 	config, err := os.ReadFile(dirs.Config)
 	if err != nil {
 		Debug("Failed to read config file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	var content Config
 	if err = json.Unmarshal(config, &content); err != nil {
 		Debug("Failed to unmarshal config")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	switch key {
@@ -158,12 +157,12 @@ func setConfig(key string, value string) int {
 	jsonData, err := json.Marshal(content)
 	if err != nil {
 		Debug("Failed to marshal config")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	if err = os.WriteFile(dirs.Config, jsonData, 0644); err != nil {
 		Debug("Failed to write config file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	Debug("Config updated successfully")
 	return 603

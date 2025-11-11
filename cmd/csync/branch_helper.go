@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"slices"
 
@@ -49,12 +48,12 @@ func GetBranchesMetadata() (m *BranchMetadata) {
 	content, err := os.ReadFile(dirs.BranchesMetadata)
 	if err != nil {
 		Debug("Failed to read branches metadata")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var metadata BranchMetadata
 	if err = json.Unmarshal(content, &metadata); err != nil {
 		Debug("Failed to unmarshal branches metadata")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	Debug("Branches metadata retrieved successfully")
 	return &metadata
@@ -101,7 +100,7 @@ func SetBranch(branch string, configParam string) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 }
 
@@ -110,7 +109,7 @@ func ListBranches() []string {
 	entries, err := os.ReadDir(dirs.Branches)
 	if err != nil {
 		Debug("Failed to read branches directory")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	branches := []string{}
 	for _, e := range entries {

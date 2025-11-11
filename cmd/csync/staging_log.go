@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"slices"
@@ -52,7 +51,7 @@ func LogOperation(id string, op string, path string) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 }
 
@@ -61,13 +60,13 @@ func LogEntryLookup(op string, path string) (isLogged bool, logId string, operat
 	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		Debug("Failed to read staging logs")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var content []LogFileEntry
 	if len(logs) > 0 {
 		if err = json.Unmarshal(logs, &content); err != nil {
 			Debug("Failed to unmarshal staging logs")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 		for _, entry := range content {
 			// Consider op "*" as a wildcard.
@@ -86,13 +85,13 @@ func IsStagingLogsEmpty() bool {
 	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		Debug("Failed to read staging logs")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var content []LogFileEntry
 	if len(logs) > 0 {
 		if err = json.Unmarshal(logs, &content); err != nil {
 			Debug("Failed to unmarshal staging logs")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 		if len(content) == 0 {
 			Debug("Staging logs are empty")
@@ -134,7 +133,7 @@ func RemoveLogEntry(id string) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 }
 
@@ -148,7 +147,7 @@ func TruncateLogs() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 }
 
@@ -157,13 +156,13 @@ func GetStagingLogsContent() (result *[]LogFileEntry) {
 	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		Debug("Failed to read staging logs")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var content []LogFileEntry
 	if len(logs) > 0 {
 		if err = json.Unmarshal(logs, &content); err != nil {
 			Debug("Failed to unmarshal staging logs")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 	} else {
 		content = []LogFileEntry{}

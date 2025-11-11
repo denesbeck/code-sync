@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -16,7 +15,7 @@ import (
 func WriteJson(fullPath string, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	if _, err = os.Stat(fullPath); os.IsNotExist(err) {
 		path, _ := ParsePath(fullPath)
@@ -24,7 +23,7 @@ func WriteJson(fullPath string, data interface{}) {
 	}
 	err = os.WriteFile(fullPath, jsonData, 0644)
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 }
 

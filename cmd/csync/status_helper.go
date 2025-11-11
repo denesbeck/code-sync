@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 )
 
@@ -17,7 +16,7 @@ func IsFileStaged(filePath string) bool {
 	logs, err := os.ReadFile(dirs.StagingLogs)
 	if err != nil {
 		Debug("Failed to read staging logs")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	if len(logs) == 0 {
@@ -27,7 +26,7 @@ func IsFileStaged(filePath string) bool {
 	var content []LogFileEntry
 	if err = json.Unmarshal(logs, &content); err != nil {
 		Debug("Failed to unmarshal staging logs")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	for _, entry := range content {
 		if entry.Path == filePath {
@@ -49,13 +48,13 @@ func GetFileMetadata(filePath string) (isCommitted bool, commitId string, fileId
 	fileList, err := os.ReadFile(dirs.Commits + latestCommitId + "/fileList.json")
 	if err != nil {
 		Debug("Failed to read file list")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	var content []FileListEntry
 	if err = json.Unmarshal(fileList, &content); err != nil {
 		Debug("Failed to unmarshal file list")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	for _, file := range content {
 		if file.Path == filePath {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/fatih/color"
@@ -34,51 +33,51 @@ func runInitCommand() {
 	Debug("Creating staging directories")
 	if err := os.MkdirAll(dirs.StagingAdded, os.ModePerm); err != nil {
 		Debug("Failed to create staging/added directory")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	if err := os.MkdirAll(dirs.StagingModified, os.ModePerm); err != nil {
 		Debug("Failed to create staging/modified directory")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	if err := os.MkdirAll(dirs.StagingRemoved, os.ModePerm); err != nil {
 		Debug("Failed to create staging/removed directory")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	Debug("Creating staging logs file")
 	f, err := os.Create(dirs.StagingLogs)
 	if err != nil {
 		Debug("Failed to create staging logs file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	_, err = f.WriteString("[]")
 	if err != nil {
 		Debug("Failed to write initial staging logs")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	f.Close()
 
 	Debug("Creating commits directory")
 	if err := os.MkdirAll(dirs.Commits, os.ModePerm); err != nil {
 		Debug("Failed to create commits directory")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 
 	Debug("Creating default branch directory")
 	if err := os.MkdirAll(dirs.DefaultBranch, os.ModePerm); err != nil {
 		Debug("Failed to create default branch directory")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	Debug("Creating default branch commits file")
 	f, err = os.Create(dirs.DefaultBranchCommits)
 	if err != nil {
 		Debug("Failed to create default branch commits file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	_, err = f.WriteString("[]")
 	if err != nil {
 		Debug("Failed to write initial default branch commits")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	f.Close()
 
@@ -89,12 +88,12 @@ func runInitCommand() {
 	f, err = os.Create(dirs.Config)
 	if err != nil {
 		Debug("Failed to create config file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	_, err = f.WriteString("{ \"Username\": \"\", \"Email\": \"\" }")
 	if err != nil {
 		Debug("Failed to write initial config")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	f.Close()
 

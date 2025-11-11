@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"os"
 	"slices"
 )
@@ -32,12 +31,12 @@ func GetLastCommitByBranch(branch string) Commit {
 	commits, err := os.ReadFile(dirs.Branches + branch + "/commits.json")
 	if err != nil {
 		Debug("Failed to read commits file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var content []Commit
 	if err = json.Unmarshal(commits, &content); err != nil {
 		Debug("Failed to unmarshal commits")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	if len(content) == 0 {
 		Debug("No commits found for branch")
@@ -61,12 +60,12 @@ func GetCommits() *[]Commit {
 	commits, err := os.ReadFile(dirs.Branches + currentBranchName + "/commits.json")
 	if err != nil {
 		Debug("Failed to read commits file")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var content []Commit
 	if err = json.Unmarshal(commits, &content); err != nil {
 		Debug("Failed to unmarshal commits")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	Debug("Retrieved %d commits", len(content))
 
@@ -143,13 +142,13 @@ func GetFileListContent(commitId string) (result *[]FileListEntry) {
 	fileList, err := os.ReadFile(dirs.Commits + commitId + "/fileList.json")
 	if err != nil {
 		Debug("Failed to read file list")
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 	var content []FileListEntry
 	if len(fileList) > 0 {
 		if err = json.Unmarshal(fileList, &content); err != nil {
 			Debug("Failed to unmarshal file list")
-			log.Fatal(err)
+			MustSucceed(err, "operation failed")
 		}
 	} else {
 		content = []FileListEntry{}
@@ -251,7 +250,7 @@ func RegisterCommitForBranch(commitId string) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		MustSucceed(err, "operation failed")
 	}
 }
 
