@@ -60,3 +60,14 @@ go build -o csync ./cmd/csync
 ```bash
 ./csync
 ```
+
+## Running Tests 🧪
+
+To run the test suite, use the provided test script:
+
+```bash
+cd cmd/csync
+./run-tests.sh
+```
+
+**Important:** Tests must be run using `run-tests.sh` instead of `go test` directly. The script sets the required `CSYNC_ENV=test` environment variable, which ensures tests run in an isolated namespace to prevent conflicts with your actual `.csync` directory.
