@@ -54,7 +54,18 @@ func CopyFile(src, dst string) error {
 		Debug("Failed to copy file contents")
 		return err
 	}
-	Debug("File copied successfully")
+
+	if err := destination.Sync(); err != nil {
+		Debug("Failed to sync destination file: %s", dst)
+		return err
+	}
+
+	if err := os.Chmod(dst, sourceFileStat.Mode()); err != nil {
+		Debug("Failed to set permissions on destination file: %s", dst)
+		return err
+	}
+
+	Debug("File copied successfully with permissions %v", sourceFileStat.Mode())
 	return nil
 }
 
