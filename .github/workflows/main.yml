@@ -1,4 +1,4 @@
-name: CodeSync CI/CD
+name: CodeSync CI
 on:
   push:
     branches: ["main"]
