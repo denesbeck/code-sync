@@ -141,22 +141,49 @@ func IsModified(file1, file2 string) (bool, error) {
 		return true, nil
 	}
 
-	data1, err := os.ReadFile(file1)
+	f1, err := os.Open(file1)
 	if err != nil {
-		Debug("Failed to read first file: %s", file1)
+		Debug("Failed to open first file: %s", file1)
 		return false, err
 	}
-	data2, err := os.ReadFile(file2)
-	if err != nil {
-		Debug("Failed to read second file: %s", file2)
-		return false, err
-	}
+	defer f1.Close()
 
-	areEqual := bytes.Equal(data1, data2)
-	if !areEqual {
-		Debug("Files are different")
-	} else {
-		Debug("Files are identical")
+	f2, err := os.Open(file2)
+	if err != nil {
+		Debug("Failed to open first file: %s", file2)
+		return false, err
 	}
-	return !areEqual, nil
+	defer f2.Close()
+
+	const bufferSize = 8192 // 8KB
+	buffer1 := make([]byte, bufferSize)
+	buffer2 := make([]byte, bufferSize)
+
+	for {
+		n1, err1 := f1.Read(buffer1)
+		n2, err2 := f2.Read(buffer2)
+
+		if n1 != n2 {
+			Debug("Files are different (read different amounts)")
+			return true, nil
+		}
+
+		if !bytes.Equal(buffer1[:n1], buffer2[:n2]) {
+			Debug("Files are different")
+			return true, nil
+		}
+
+		if err1 == io.EOF && err2 == io.EOF {
+			Debug("Files are identical")
+			return false, nil
+		}
+		if err1 != nil {
+			Debug("Failed to read first file: %s", file1)
+			return false, err1
+		}
+		if err2 != nil {
+			Debug("Failed to read second file: %s", file2)
+			return false, err2
+		}
+	}
 }
