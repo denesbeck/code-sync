@@ -70,3 +70,26 @@ func Test_IsValidBranchName(t *testing.T) {
 		}
 	}
 }
+
+func Test_Capitalize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"hello", "Hello"},
+		{"WORLD", "World"},
+		{"gO", "Go"},
+		{"test", "Test"},
+		{"USERNAME", "Username"},
+		{"email", "Email"},
+		{"a", "A"},
+		{"Z", "Z"},
+		{"mIxEd", "Mixed"},
+	}
+	for _, test := range tests {
+		result := Capitalize(test.input)
+		if result != test.expected {
+			t.Errorf("Expected '%s' for input '%s', but got '%s'", test.expected, test.input, result)
+		}
+	}
+}
