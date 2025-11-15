@@ -10,18 +10,41 @@ func Test_ParsePath(t *testing.T) {
 		expectedPath     string
 		expectedFileName string
 	}{
+		// Existing tests
 		{"/path/to/file.txt", "/path/to/", "file.txt"},
 		{"file.txt", "", "file.txt"},
 		{"/path/to/another/file.txt", "/path/to/another/", "file.txt"},
-	}
 
+		// Edge case: empty path (prevents panic)
+		{"", "", ""},
+
+		// Trailing slashes
+		{"path/to/file.txt/", "path/to/", "file.txt"},
+		{"/path/to/file.txt/", "/path/to/", "file.txt"},
+		{"file.txt/", "", "file.txt"},
+
+		// Windows paths (backslash separators)
+		{"path\\to\\file.txt", "path/to/", "file.txt"},
+		{"C:\\path\\to\\file.txt", "C:/path/to/", "file.txt"},
+		{"\\path\\to\\file.txt", "/path/to/", "file.txt"},
+
+		// Mixed separators
+		{"path/to\\file.txt", "path/to/", "file.txt"},
+
+		// Relative paths
+		{"./file.txt", "", "file.txt"},
+		{"./path/to/file.txt", "path/to/", "file.txt"},
+
+		// Multiple trailing slashes
+		{"path/to/file.txt///", "path/to/", "file.txt"},
+	}
 	for _, test := range tests {
 		path, fileName := ParsePath(test.fullPath)
 		if path != test.expectedPath {
-			t.Errorf("Expected path %s, but got %s", test.expectedPath, path)
+			t.Errorf("Input: '%s' - Expected path '%s', but got '%s'", test.fullPath, test.expectedPath, path)
 		}
 		if fileName != test.expectedFileName {
-			t.Errorf("Expected file name %s, but got %s", test.expectedFileName, fileName)
+			t.Errorf("Input: '%s' - Expected file name '%s', but got '%s'", test.fullPath, test.expectedFileName, fileName)
 		}
 	}
 }

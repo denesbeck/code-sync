@@ -35,13 +35,30 @@ func GenRandHex(length int) string {
 }
 
 func ParsePath(fullPath string) (path string, fileName string) {
-	tmpArr := strings.Split(fullPath, "/")
+	// Handle empty path
+	if fullPath == "" {
+		return "", ""
+	}
 
-	dirs := strings.Join(tmpArr[:len(tmpArr)-1], "/")
+	// Normalize path separators (converts \ to / on Windows) and clean trailing slashes
+	cleanPath := filepath.ToSlash(filepath.Clean(fullPath))
+
+	// Split by forward slash
+	tmpArr := strings.Split(cleanPath, "/")
+
+	// Safety check (shouldn't happen after clean, but defensive)
+	if len(tmpArr) == 0 {
+		return "", ""
+	}
+
 	file := tmpArr[len(tmpArr)-1]
 
-	if dirs != "" {
-		dirs = dirs + "/"
+	var dirs string
+	if len(tmpArr) > 1 {
+		dirs = strings.Join(tmpArr[:len(tmpArr)-1], "/")
+		if dirs != "" {
+			dirs = dirs + "/"
+		}
 	}
 
 	return dirs, file
