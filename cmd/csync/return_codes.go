@@ -36,6 +36,8 @@ var BRANCH_RETURN_CODES = map[int]string{
 	212: "Branch does not exist.",                           // switch
 	213: "Current branch: ",                                 // switch
 	214: "Cannot switch branches with uncommitted changes.", // switch
+	215: "Target branch already set as default.",            // config
+	216: "Branch does not exist.",                           // config
 }
 
 var WORKDIR_RETURN_CODES = map[int]string{

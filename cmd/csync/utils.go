@@ -142,3 +142,7 @@ func IsValidBranchName(name string) bool {
 	Debug("Branch name validation result: %v", matched)
 	return matched
 }
+
+func Capitalize(text string) string {
+	return strings.ToUpper(text[:1]) + strings.ToLower(text[1:])
+}

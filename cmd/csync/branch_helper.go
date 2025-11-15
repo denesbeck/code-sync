@@ -2,10 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"slices"
-
-	"github.com/fatih/color"
 )
 
 type BranchMetadata struct {
@@ -59,16 +58,14 @@ func GetBranchesMetadata() (m *BranchMetadata) {
 	return &metadata
 }
 
-func SetBranch(branch string, configParam string) {
+func SetBranch(branch string, configParam string) error {
 	Debug("Setting branch: branch=%s, config=%s", branch, configParam)
-
 	err := WithLock(dirs.BranchesMetadata, DefaultLockTimeout, func() error {
 		metadata := GetBranchesMetadata()
 
 		if (configParam == DefaultBranch && metadata.Default == branch) || (configParam == CurrentBranch && metadata.Current == branch) {
-			Debug("Branch already set as %s", configParam)
-			color.Red("Branch already set as " + configParam)
-			return nil
+			Debug("%s", BRANCH_RETURN_CODES[215])
+			return errors.New(BRANCH_RETURN_CODES[215])
 		}
 
 		branches := ListBranches()
@@ -82,26 +79,30 @@ func SetBranch(branch string, configParam string) {
 			}
 		} else {
 			Debug("Branch does not exist: %s", branch)
-			color.Red("Branch does not exist")
+			return errors.New(BRANCH_RETURN_CODES[216])
 		}
 
 		jsonData, err := json.Marshal(metadata)
 		if err != nil {
 			Debug("Failed to marshal branch metadata")
-			return err
+			MustSucceed(err, "operation failed")
 		}
-
 		if err = os.WriteFile(dirs.BranchesMetadata, jsonData, 0644); err != nil {
 			Debug("Failed to write branch metadata")
-			return err
+			MustSucceed(err, "operation failed")
 		}
 		Debug("Branch metadata updated successfully")
 		return nil
 	})
 
 	if err != nil {
-		MustSucceed(err, "operation failed")
+		if err.Error() == BRANCH_RETURN_CODES[215] || err.Error() == BRANCH_RETURN_CODES[216] {
+			return err
+		} else {
+			MustSucceed(err, "operation failed")
+		}
 	}
+	return nil
 }
 
 func ListBranches() []string {

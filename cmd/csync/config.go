@@ -132,7 +132,7 @@ var configCmd = &cobra.Command{
 func setConfig(key string, value string) int {
 	Debug("Setting config: key=%s, value=%s", key, value)
 	if initialized := IsInitialized(); !initialized {
-		color.Red(COMMON_RETURN_CODES[001])
+		Fail(COMMON_RETURN_CODES[001])
 		return 001
 	}
 	config, err := os.ReadFile(dirs.Config)
@@ -165,50 +165,60 @@ func setConfig(key string, value string) int {
 		MustSucceed(err, "operation failed")
 	}
 	Debug("Config updated successfully")
+	Info(Capitalize(key) + " set to " + color.BlueString(value) + ".")
 	return 603
 }
 
 func getConfig(key string) (returnCode int, conf Config) {
 	Debug("Getting config: key=%s", key)
 	if initialized := IsInitialized(); !initialized {
-		color.Red(COMMON_RETURN_CODES[001])
+		Fail(COMMON_RETURN_CODES[001])
 		return 001, Config{}
 	}
 	config := GetConfig()
 	switch key {
 	case "username":
 		Debug("Username: %s", config.Username)
-		color.Cyan(config.Username)
+		Info(Capitalize(key) + ": " + color.BlueString(config.Username))
 	case "email":
 		Debug("Email: %s", config.Email)
-		color.Cyan(config.Email)
+		Info(Capitalize(key) + ": " + color.BlueString(config.Email))
 	case "user":
 		Debug("User: %s <%s>", config.Username, config.Email)
-		color.Cyan(config.Username + " <" + config.Email + ">")
+		Info(Capitalize(key) + ": " + color.BlueString(config.Username+" <"+config.Email+">"))
 	}
 	return 604, *config
 }
 
 func setDefaultBranch(branch string) int {
-	Debug("Setting default branch: %s", branch)
 	if initialized := IsInitialized(); !initialized {
-		color.Red(COMMON_RETURN_CODES[001])
+		Fail(COMMON_RETURN_CODES[001])
 		return 001
 	}
-	SetBranch(branch, "default")
+	err := SetBranch(branch, "default")
+	if err != nil {
+		if err.Error() == BRANCH_RETURN_CODES[215] {
+			Info("Default branch already set to " + Branch(branch) + ".")
+			return 215
+		}
+		if err.Error() == BRANCH_RETURN_CODES[216] {
+			Fail("Branch does not exist: " + Branch(branch))
+			return 216
+		}
+	}
 	Debug("Default branch set successfully")
-	color.Green("Default branch set to " + branch)
+	Success("Default branch set to " + Branch(branch) + ".")
 	return 602
 }
 
 func getDefaultBranch() (returnCode int, defaultBranch string) {
 	Debug("Getting default branch")
 	if initialized := IsInitialized(); !initialized {
-		color.Red(COMMON_RETURN_CODES[001])
+		Fail(COMMON_RETURN_CODES[001])
 		return 001, ""
 	}
 	branch := GetDefaultBranchName()
 	Debug("Default branch: %s", branch)
-	color.Cyan(branch)
+	Info("Default branch: " + Branch(branch))
 	return 601, branch
 }

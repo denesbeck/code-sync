@@ -8,35 +8,27 @@ import (
 )
 
 func Success(content string) {
-	pterm.Println()
 	contentStyle := pterm.NewStyle(pterm.Bold)
 	iconStyle := pterm.NewStyle(pterm.FgLightGreen, pterm.Bold)
 	contentStyle.Println(iconStyle.Sprint("> ") + content + "  ")
-	pterm.Println()
 }
 
 func Info(content string) {
-	pterm.Println()
 	contentStyle := pterm.NewStyle(pterm.Bold)
 	iconStyle := pterm.NewStyle(pterm.FgLightBlue, pterm.Bold)
 	contentStyle.Println(iconStyle.Sprint("> ") + content + "  ")
-	pterm.Println()
 }
 
 func Warning(content string) {
-	pterm.Println()
 	contentStyle := pterm.NewStyle(pterm.Bold)
 	iconStyle := pterm.NewStyle(pterm.FgLightYellow, pterm.Bold)
 	contentStyle.Println(iconStyle.Sprint("> ") + content + "  ")
-	pterm.Println()
 }
 
 func Fail(content string) {
-	pterm.Println()
 	contentStyle := pterm.NewStyle(pterm.Bold)
 	iconStyle := pterm.NewStyle(pterm.FgLightRed, pterm.Bold)
 	contentStyle.Println(iconStyle.Sprint("> ") + content + "  ")
-	pterm.Println()
 }
 
 func Spinner(labels []string, showTimer bool) func() {
@@ -98,4 +90,9 @@ func List(rootNode string, list []string) {
 	for i, item := range list {
 		fmt.Println("  " + fmt.Sprintf("%d. ", i+1) + item)
 	}
+}
+
+func Branch(branch string) string {
+	style := pterm.NewStyle(pterm.FgLightYellow)
+	return style.Sprint(branch)
 }

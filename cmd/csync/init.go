@@ -97,7 +97,9 @@ func runInitCommand() {
 	f.Close()
 
 	Debug("CSync initialized successfully")
+	BreakLine()
 	Info("Initializing CodeSync Repository")
+	BreakLine()
 
 	messages := []string{
 		"Creating directory structure...",
@@ -107,7 +109,9 @@ func runInitCommand() {
 	time.Sleep(1 * time.Second)
 	stop()
 
+	BreakLine()
 	Success("Repository initialized successfully!")
+	BreakLine()
 
 	Text(".csync created", "  ")
 	Text("Default branch: main", "  ")
