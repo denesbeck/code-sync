@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"time"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -25,8 +24,8 @@ var initCmd = &cobra.Command{
 
 func runInitCommand() {
 	if _, err := os.Stat(dirs.Root); !os.IsNotExist(err) {
-		Debug("CSync already initialized")
-		color.Red("CSync already initialized")
+		Debug("%s", COMMON_RETURN_CODES[003])
+		Fail(COMMON_RETURN_CODES[003])
 		return
 	}
 
@@ -98,7 +97,30 @@ func runInitCommand() {
 	f.Close()
 
 	Debug("CSync initialized successfully")
-	color.Green("CSync initialized successfully")
-	fmt.Println()
-	color.Cyan("Use `csync config set username <your-username>` to set your username and `csync config set email <your-email>` to set your email.")
+	Info("Initializing CodeSync Repository")
+
+	messages := []string{
+		"Creating directory structure...",
+		"Setting up branches...         ",
+		"Creating config file...        "}
+	stop := Spinner(messages, false)
+	time.Sleep(1 * time.Second)
+	stop()
+
+	Success("Repository initialized successfully!")
+
+	Text(".csync created", "  ")
+	Text("Default branch: main", "  ")
+	Text("User: Not configured", "  ")
+
+	BreakLine()
+	List("Next steps:", []string{
+		"csync config set username \"Your Name\"",
+		"csync config set email \"you@example.com\"",
+		"csync add <file>",
+		"csync commit -m \"Initial commit\""})
+
+	BreakLine()
+	Text("Learn more: csync --help", "")
+	BreakLine()
 }

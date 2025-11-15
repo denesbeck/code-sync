@@ -3,6 +3,7 @@ package main
 var COMMON_RETURN_CODES = map[int]string{
 	001: "CSync not initialized.",
 	002: "Path ignored by one of the rules defined in the rules file.",
+	003: "CSync already initialized.",
 }
 
 var ADD_RETURN_CODES = map[int]string{
