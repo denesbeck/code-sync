@@ -11,7 +11,7 @@ func FatalError(format string, args ...any) {
 	BreakLine()
 	Fail(fmt.Sprintf("Error: %s", message))
 	fmt.Fprintln(os.Stderr)
-	Info("If this is unexpected, try running with DEBUG=true for more information")
+	Fail("Try running with DEBUG=true for more information.")
 	BreakLine()
 	os.Exit(1)
 }
