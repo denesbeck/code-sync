@@ -106,3 +106,8 @@ func ErrorMsg(msg string) string {
 	style := pterm.NewStyle(pterm.Reset, pterm.FgRed)
 	return style.Sprint(msg)
 }
+
+func Bold(content string) string {
+	style := pterm.NewStyle(pterm.Bold)
+	return style.Sprint(content)
+}
