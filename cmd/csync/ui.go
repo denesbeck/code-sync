@@ -96,3 +96,13 @@ func Branch(branch string) string {
 	style := pterm.NewStyle(pterm.FgLightYellow)
 	return style.Sprint(branch)
 }
+
+func Code(code string) string {
+	style := pterm.NewStyle(pterm.Reset, pterm.FgCyan)
+	return style.Sprint(code)
+}
+
+func ErrorMsg(msg string) string {
+	style := pterm.NewStyle(pterm.Reset, pterm.FgRed)
+	return style.Sprint(msg)
+}
