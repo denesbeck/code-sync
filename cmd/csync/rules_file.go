@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/fatih/color"
 	"gopkg.in/yaml.v3"
 )
 
@@ -23,13 +22,12 @@ func readRules() (*Rules, error) {
 	_, err := os.Stat(".csync.rules.yml")
 	if os.IsNotExist(err) {
 		Debug("\".csync.rules.yml\" doesn't exist.")
-		color.Cyan("\".csync.rules.yml\" not found.")
 		return nil, err
 	}
 
 	if err != nil {
 		Debug("Unable to get metadata for \".csync.rules.yml\".")
-		color.Red("Unable to read \".csync.rules.yml\" file.")
+		MustSucceed(err, "operation failed")
 		return nil, err
 	}
 
@@ -37,12 +35,12 @@ func readRules() (*Rules, error) {
 	rulesFile, err := os.ReadFile(".csync.rules.yml")
 	if err != nil {
 		Debug("Unable to read \".csync.rules.yml\" file.")
-		color.Red("Unable to read \".csync.rules.yml\" file.")
+		MustSucceed(err, "operation failed")
 		return nil, err
 	}
 	if err = yaml.Unmarshal(rulesFile, &content); err != nil {
 		Debug("Unable to unmarshal `.csync.rules.yml` file.")
-		color.Red("Unable to read \".csync.rules.yml\" file.")
+		MustSucceed(err, "operation failed")
 		return nil, err
 	}
 	Debug("`.csync.rules.yml` found.")
@@ -107,12 +105,10 @@ func ShouldIgnore(path string) bool {
 	Debug("Checking if %s should be ignored...", path)
 	ignoreRegexps, allowRegexps, err := pathToRegexp()
 	if err != nil {
-		// If the rules file doesn't exist, don't ignore anything
 		if os.IsNotExist(err) {
 			Debug("Rules file not found, not ignoring path: %s", path)
 			return false
 		}
-		// For other errors, log and don't ignore
 		Debug("Error reading rules file: %v", err)
 		return false
 	}
