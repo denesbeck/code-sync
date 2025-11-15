@@ -106,7 +106,9 @@ func runInitCommand() {
 		"Setting up branches...         ",
 		"Creating config file...        "}
 	stop := Spinner(messages, false)
-	time.Sleep(1 * time.Second)
+	if os.Getenv("CSYNC_ENV") != "test" {
+		time.Sleep(1 * time.Second)
+	}
 	stop()
 
 	BreakLine()
