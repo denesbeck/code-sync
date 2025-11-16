@@ -12,7 +12,7 @@ func AddToStaging(id string, path string, op string) error {
 
 	if err := os.MkdirAll(dirs.Staging+op+"/"+id, 0755); err != nil {
 		Debug("Failed to create staging directory")
-		return err
+		MustSucceed(err, "operation failed")
 	}
 	if err := CopyFile(path, dirs.Staging+op+"/"+id+"/"+file); err != nil {
 		return err
@@ -111,9 +111,7 @@ func DisplayAddResults(results []AddResult) {
 
 func RemoveFileAndLog(id string, op string) error {
 	Debug("Removing file and log entry: id=%s, op=%s", id, op)
-	if err := RemoveFile(dirs.Staging + op + "/" + id); err != nil {
-		return err
-	}
+	RemoveFile(dirs.Staging + op + "/" + id)
 	RemoveLogEntry(id)
 	return nil
 }
@@ -141,7 +139,7 @@ func ExpandFilePaths(args []string) ([]string, error) {
 			err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 				if err != nil {
 					Debug("Error walking path %s: %v", path, err)
-					return err
+					MustSucceed(err, "operation failed")
 				}
 
 				if info.IsDir() {

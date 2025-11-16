@@ -69,15 +69,14 @@ func CopyFile(src, dst string) error {
 	return nil
 }
 
-func RemoveFile(path string) error {
+func RemoveFile(path string) {
 	Debug("Removing file/directory: %s", path)
 	err := os.RemoveAll(path)
 	if err != nil {
 		Debug("Failed to remove file/directory: %s", path)
-		return err
+		MustSucceed(err, "operation failed")
 	}
 	Debug("File/directory removed successfully")
-	return nil
 }
 
 func EmptyDir(path string) error {
