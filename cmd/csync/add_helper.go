@@ -38,7 +38,7 @@ func DisplayAddResults(results []AddResult) {
 			updated = append(updated, r.FilePath)
 		case 101, 104: // File deleted from filesystem (was staged)
 			removed = append(removed, r.FilePath)
-		case 103, 106, 108: // File already staged
+		case 103, 106, 108, 113: // File already staged or restored to original state
 			alreadyStaged = append(alreadyStaged, r.FilePath)
 		case 111: // File not modified
 			notModified = append(notModified, r.FilePath)

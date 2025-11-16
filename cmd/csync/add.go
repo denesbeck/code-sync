@@ -153,6 +153,8 @@ func runAddCommandInternal(filePath string, force bool, _ *AddResult) int {
 					}
 					return 107
 				}
+				Debug("File was removed but exists again without modifications, removed from staging")
+				return 113
 			} else {
 				Debug("File was removed and still doesn't exist")
 				return 108

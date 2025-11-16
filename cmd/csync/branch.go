@@ -104,7 +104,7 @@ func runBranchCommand() {
 
 	branches, err := os.ReadDir(dirs.Branches)
 	if err != nil {
-		Debug(BRANCH_RETURN_CODES[217]
+		Debug("%s", BRANCH_RETURN_CODES[217])
 		Fail(BRANCH_RETURN_CODES[217])
 		return
 	}
