@@ -32,36 +32,20 @@ func DisplayAddResults(results []AddResult) {
 		switch r.ReturnCode {
 		case 112, 110: // File added to staging (new file or modified committed file)
 			added = append(added, r.FilePath)
-			r.Success = true
-			r.Message = "Added"
 		case 109: // File deleted from filesystem (committed file)
 			removed = append(removed, r.FilePath)
-			r.Success = true
-			r.Message = "Removed from filesystem"
 		case 102, 105, 107: // Staged file updated
 			updated = append(updated, r.FilePath)
-			r.Success = true
-			r.Message = "Updated"
 		case 101, 104: // File deleted from filesystem (was staged)
 			removed = append(removed, r.FilePath)
-			r.Success = true
-			r.Message = "Removed from filesystem"
 		case 103, 106, 108: // File already staged
 			alreadyStaged = append(alreadyStaged, r.FilePath)
-			r.Success = true
-			r.Message = "Already staged"
 		case 111: // File not modified
 			notModified = append(notModified, r.FilePath)
-			r.Success = true
-			r.Message = "Not modified"
 		case 002: // Ignored by rules
 			ignored = append(ignored, r.FilePath)
-			r.Success = false
-			r.Message = "Ignored by rules"
 		default:
 			failed = append(failed, r.FilePath)
-			r.Success = false
-			r.Message = "Failed"
 		}
 	}
 

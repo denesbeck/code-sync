@@ -8,6 +8,7 @@ var COMMON_RETURN_CODES = map[int]string{
 }
 
 var ADD_RETURN_CODES = map[int]string{
+	100: "Fallback RC",
 	101: "File no longer exists, removed from staging.", // file was staged (ADD), but it got removed
 	102: "Staged file updated.",                         // file was staged (ADD), but it got modified
 	103: "File already staged.",                         // the user staged the same file again (ADD)
@@ -39,6 +40,7 @@ var BRANCH_RETURN_CODES = map[int]string{
 	214: "Cannot switch branches with uncommitted changes.", // switch
 	215: "Target branch already set as default.",            // config
 	216: "Branch does not exist.",                           // config
+	217: "No branches found. .csync folder seems to be corrupted!"
 }
 
 var WORKDIR_RETURN_CODES = map[int]string{

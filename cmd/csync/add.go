@@ -198,5 +198,5 @@ func runAddCommandInternal(filePath string, force bool, _ *AddResult) int {
 			return 112
 		}
 	}
-	return 100
+	return 100 // Fallback
 }
