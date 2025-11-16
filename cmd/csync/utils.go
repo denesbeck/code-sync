@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -40,8 +41,15 @@ func ParsePath(fullPath string) (path string, fileName string) {
 		return "", ""
 	}
 
-	// Normalize path separators (converts \ to / on Windows) and clean trailing slashes
-	cleanPath := filepath.ToSlash(filepath.Clean(fullPath))
+	// First, convert all backslashes to forward slashes for cross-platform compatibility
+	// This handles Windows paths on Unix systems and vice versa
+	normalizedPath := strings.ReplaceAll(fullPath, "\\", "/")
+
+	// Clean the path (removes trailing slashes, resolves . and .., etc.)
+	cleanPath := filepath.Clean(normalizedPath)
+
+	// Convert back to forward slashes (filepath.Clean might use OS-specific separators)
+	cleanPath = filepath.ToSlash(cleanPath)
 
 	// Split by forward slash
 	tmpArr := strings.Split(cleanPath, "/")
@@ -162,4 +170,11 @@ func IsValidBranchName(name string) bool {
 
 func Capitalize(text string) string {
 	return strings.ToUpper(text[:1]) + strings.ToLower(text[1:])
+}
+
+func FormatFileCount(count int) string {
+	if count == 1 {
+		return "1 file"
+	}
+	return fmt.Sprintf("%d files", count)
 }

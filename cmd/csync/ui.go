@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/pterm/pterm"
-	"github.com/pterm/pterm/putils"
 )
 
 func Success(content string) {
@@ -77,18 +77,37 @@ func BreakLine() {
 	pterm.Println()
 }
 
-func Tree(rootNode string, list pterm.LeveledList) {
-	root := putils.TreeFromLeveledList(list)
-	root.Text = rootNode
-
-	pterm.DefaultTree.WithRoot(root).Render()
-}
-
 func List(rootNode string, list []string) {
 	style := pterm.NewStyle(pterm.Bold)
 	style.Println(rootNode)
 	for i, item := range list {
 		fmt.Println("  " + fmt.Sprintf("%d. ", i+1) + item)
+	}
+}
+
+func Tree(files []string, sorted bool) {
+	if len(files) == 0 {
+		return
+	}
+
+	if len(files) == 1 {
+		pterm.Println("  └── " + files[0])
+		return
+	}
+
+	sortedFiles := make([]string, len(files))
+	copy(sortedFiles, files)
+
+	if sorted {
+		sort.Strings(sortedFiles)
+	}
+
+	for i, file := range sortedFiles {
+		if i == len(sortedFiles)-1 {
+			pterm.Println("  └── " + file)
+		} else {
+			pterm.Println("  ├── " + file)
+		}
 	}
 }
 
