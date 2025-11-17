@@ -1,6 +1,6 @@
 # CodeSync 🚀
 
-CodeSync (CSync) is a version control system inspired by Git written in Golang.
+CodeSync is a version control system inspired by Git, implemented in Golang.
 
 ## Tech Stack 🛠
 
