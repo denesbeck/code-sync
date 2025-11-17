@@ -63,8 +63,7 @@ jobs:
           fi
 
       - name: Run tests
-        working-directory: cmd/csync
-        run: pwd && CSYNC_ENV=test go test . -cover
+        run: bash ./scripts/run-tests.sh
 
       - name: Build
         run: go build -o csync ./cmd/csync
