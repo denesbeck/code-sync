@@ -29,9 +29,7 @@ var addCmd = &cobra.Command{
 
 		initialized := IsInitialized()
 		if !initialized {
-			BreakLine()
 			Fail(COMMON_RETURN_CODES[001])
-			BreakLine()
 			return
 		}
 
