@@ -129,6 +129,6 @@ func runInitCommand() {
 		"csync commit -m \"Initial commit\""})
 
 	BreakLine()
-	Text("Learn more: csync --help", "")
+	Text("Learn more: "+Code("csync --help"), "")
 	BreakLine()
 }
