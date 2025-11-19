@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 )
 
 func Test_ParsePath(t *testing.T) {
@@ -114,5 +115,139 @@ func Test_Capitalize(t *testing.T) {
 		if result != test.expected {
 			t.Errorf("Expected '%s' for input '%s', but got '%s'", test.expected, test.input, result)
 		}
+	}
+}
+
+func Test_TimeAgo(t *testing.T) {
+	now := time.Now()
+
+	tests := []struct {
+		name      string
+		timestamp string
+		expected  string
+	}{
+		// Just now (< 60 seconds)
+		{
+			name:      "just now - 30 seconds ago",
+			timestamp: now.Add(-30 * time.Second).Format(time.RFC3339),
+			expected:  "just now",
+		},
+		{
+			name:      "just now - 59 seconds ago",
+			timestamp: now.Add(-59 * time.Second).Format(time.RFC3339),
+			expected:  "just now",
+		},
+
+		// Minutes
+		{
+			name:      "1 minute ago",
+			timestamp: now.Add(-1 * time.Minute).Format(time.RFC3339),
+			expected:  "1 minute ago",
+		},
+		{
+			name:      "5 minutes ago",
+			timestamp: now.Add(-5 * time.Minute).Format(time.RFC3339),
+			expected:  "5 minutes ago",
+		},
+		{
+			name:      "45 minutes ago",
+			timestamp: now.Add(-45 * time.Minute).Format(time.RFC3339),
+			expected:  "45 minutes ago",
+		},
+
+		// Hours
+		{
+			name:      "1 hour ago",
+			timestamp: now.Add(-1 * time.Hour).Format(time.RFC3339),
+			expected:  "1 hour ago",
+		},
+		{
+			name:      "3 hours ago",
+			timestamp: now.Add(-3 * time.Hour).Format(time.RFC3339),
+			expected:  "3 hours ago",
+		},
+		{
+			name:      "12 hours ago",
+			timestamp: now.Add(-12 * time.Hour).Format(time.RFC3339),
+			expected:  "12 hours ago",
+		},
+
+		// Days
+		{
+			name:      "1 day ago",
+			timestamp: now.Add(-24 * time.Hour).Format(time.RFC3339),
+			expected:  "1 day ago",
+		},
+		{
+			name:      "4 days ago",
+			timestamp: now.Add(-4 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "4 days ago",
+		},
+		{
+			name:      "6 days ago",
+			timestamp: now.Add(-6 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "6 days ago",
+		},
+
+		// Weeks
+		{
+			name:      "1 week ago",
+			timestamp: now.Add(-7 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "1 week ago",
+		},
+		{
+			name:      "2 weeks ago",
+			timestamp: now.Add(-14 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "2 weeks ago",
+		},
+		{
+			name:      "3 weeks ago",
+			timestamp: now.Add(-21 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "3 weeks ago",
+		},
+
+		// Months
+		{
+			name:      "1 month ago",
+			timestamp: now.Add(-30 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "1 month ago",
+		},
+		{
+			name:      "2 months ago",
+			timestamp: now.Add(-60 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "2 months ago",
+		},
+		{
+			name:      "6 months ago",
+			timestamp: now.Add(-180 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "6 months ago",
+		},
+
+		// Years
+		{
+			name:      "1 year ago",
+			timestamp: now.Add(-365 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "1 year ago",
+		},
+		{
+			name:      "2 years ago",
+			timestamp: now.Add(-730 * 24 * time.Hour).Format(time.RFC3339),
+			expected:  "2 years ago",
+		},
+
+		// Invalid timestamp
+		{
+			name:      "invalid timestamp",
+			timestamp: "invalid-timestamp",
+			expected:  "unknown",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := TimeAgo(test.timestamp)
+			if result != test.expected {
+				t.Errorf("Expected '%s', but got '%s'", test.expected, result)
+			}
+		})
 	}
 }
