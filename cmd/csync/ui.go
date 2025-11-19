@@ -130,3 +130,20 @@ func Bold(content string) string {
 	style := pterm.NewStyle(pterm.Bold)
 	return style.Sprint(content)
 }
+
+func Box(title string, content string) {
+	box := pterm.DefaultBox.
+		WithBoxStyle(pterm.NewStyle(pterm.FgLightWhite)).
+		WithHorizontalString("─").
+		WithVerticalString("│").
+		WithTopPadding(0).
+		WithBottomPadding(0).
+		WithLeftPadding(2).
+		WithRightPadding(2)
+
+	if title == "" {
+		box.Print(content)
+	} else {
+		box.WithTitle(title).Print(content)
+	}
+}
