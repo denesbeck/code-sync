@@ -54,6 +54,24 @@ func GetLastCommitByBranch(branch string) Commit {
 	return content[len(content)-1]
 }
 
+func CountCommits() int {
+	Debug("Counting all commits")
+	currentBranchName := GetCurrentBranchName()
+	commits, err := os.ReadFile(dirs.Branches + currentBranchName + "/commits.json")
+	if err != nil {
+		Debug("Failed to read commits file")
+		MustSucceed(err, "operation failed")
+	}
+	var content []Commit
+	if err = json.Unmarshal(commits, &content); err != nil {
+		Debug("Failed to unmarshal commits")
+		MustSucceed(err, "operation failed")
+	}
+	Debug("Counted %d commits", len(content))
+
+	return len(content)
+}
+
 func GetCommits() *[]Commit {
 	Debug("Getting all commits")
 	currentBranchName := GetCurrentBranchName()

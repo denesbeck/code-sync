@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -20,7 +19,7 @@ type LogFileEntry struct {
 
 var (
 	add = color.New(color.FgGreen).SprintFunc()
-	mod = color.New(color.FgBlue).SprintFunc()
+	mod = color.New(color.FgYellow).SprintFunc()
 	rem = color.New(color.FgRed).SprintFunc()
 )
 
@@ -199,18 +198,20 @@ func SortByOperationAndPath(content []LogFileEntry) (result *[]LogFileEntry) {
 func PrintLogs(content []LogFileEntry) {
 	Debug("Printing %d log entries", len(content))
 	sortedContent := SortByOperationAndPath(content)
+	log := []string{}
 	for _, logEntry := range *sortedContent {
 		switch logEntry.Op {
 		case "ADD":
-			fmt.Println("  " + add(logEntry.Op) + "    " + logEntry.Path)
+			log = append(log, add(" "+logEntry.Op+":")+" "+logEntry.Path)
 		case "MOD":
-			fmt.Println("  " + mod(logEntry.Op) + "    " + logEntry.Path)
+			log = append(log, mod(" "+logEntry.Op+":")+" "+logEntry.Path)
 		case "REM":
-			fmt.Println("  " + rem(logEntry.Op) + "    " + logEntry.Path)
+			log = append(log, rem(" "+logEntry.Op+":")+" "+logEntry.Path)
 		default:
-			fmt.Println("  " + logEntry.Op + "    " + logEntry.Path)
+			log = append(log, logEntry.Op+" "+logEntry.Path)
 		}
 	}
+	Tree(log, false)
 	Debug("Log entries printed successfully")
 }
 

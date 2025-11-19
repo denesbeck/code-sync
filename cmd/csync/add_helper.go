@@ -73,18 +73,6 @@ func DisplayAddResults(results []AddResult) {
 		Tree(alreadyStaged, true)
 	}
 
-	if len(notModified) > 0 {
-		BreakLine()
-		Info(" Not modified: " + FormatFileCount(len(notModified)))
-		Tree(notModified, true)
-	}
-
-	if len(ignored) > 0 {
-		BreakLine()
-		Info(" Ignored by rules: " + FormatFileCount(len(ignored)))
-		Tree(ignored, true)
-	}
-
 	if len(failed) > 0 {
 		BreakLine()
 		Fail(" Failed: " + FormatFileCount(len(failed)))
