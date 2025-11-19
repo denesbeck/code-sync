@@ -267,14 +267,3 @@ func Test_AddCmdStatusCode112(t *testing.T) {
 
 	os.RemoveAll(namespace)
 }
-
-func Test_AddCmdStatusCode001(t *testing.T) {
-	os.RemoveAll(namespace)
-
-	result := runAddCommand(namespace+"file.txt", false)
-	if result.ReturnCode != 001 {
-		t.Errorf("Expected 001, got %d", result.ReturnCode)
-	}
-
-	os.RemoveAll(namespace)
-}

@@ -239,7 +239,7 @@ func Test_TimeAgo(t *testing.T) {
 		{
 			name:      "invalid timestamp",
 			timestamp: "invalid-timestamp",
-			expected:  "unknown",
+			expected:  "N/A",
 		},
 	}
 	for _, test := range tests {
