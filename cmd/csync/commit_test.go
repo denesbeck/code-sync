@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -91,7 +91,6 @@ func Test_CountCommits(t *testing.T) {
 
 	os.RemoveAll(namespace)
 }
-
 
 func Test_GetCommits_Simple(t *testing.T) {
 	os.RemoveAll(namespace)
