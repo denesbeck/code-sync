@@ -27,6 +27,14 @@ var addCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting add command with args: %v", args)
 
+		initialized := IsInitialized()
+		if !initialized {
+			BreakLine()
+			Fail(COMMON_RETURN_CODES[001])
+			BreakLine()
+			return
+		}
+
 		filePaths, err := ExpandFilePaths(args)
 		if err != nil {
 			Fail("Failed to expand file paths: " + err.Error())
@@ -53,10 +61,6 @@ func runAddCommand(filePath string, force bool) AddResult {
 
 func runAddCommandInternal(filePath string, force bool, _ *AddResult) int {
 	Debug("Processing file: %s", filePath)
-	initialized := IsInitialized()
-	if !initialized {
-		return 001
-	}
 
 	if err := ValidatePath(filePath); err != nil {
 		Debug("Path is invalid: %s", err.Error())
