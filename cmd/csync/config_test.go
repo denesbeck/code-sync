@@ -64,3 +64,69 @@ func Test_ConfigUsername(t *testing.T) {
 
 	os.RemoveAll(namespace)
 }
+
+func Test_SetDefaultBranch_Errors(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Test setting default to non-existent branch
+	returnCode := setDefaultBranch("nonexistent-branch")
+	if returnCode != 216 {
+		t.Errorf("Expected return code 216 for non-existent branch, got %d", returnCode)
+	}
+
+	// Test setting default branch twice (should return 215)
+	runNewCommand("test-branch", "", "")
+	setDefaultBranch("test-branch")
+	returnCode = setDefaultBranch("test-branch")
+	if returnCode != 215 {
+		t.Errorf("Expected return code 215 when setting same default branch, got %d", returnCode)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_GetConfig_All(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Set both username and email
+	setConfig("username", "testuser")
+	setConfig("email", "test@example.com")
+
+	// Get all config
+	returnCode, config := getConfig("")
+	if returnCode != 604 {
+		t.Errorf("Expected return code 604, got %d", returnCode)
+	}
+
+	if config.Username != "testuser" {
+		t.Errorf("Expected username 'testuser', got '%s'", config.Username)
+	}
+
+	if config.Email != "test@example.com" {
+		t.Errorf("Expected email 'test@example.com', got '%s'", config.Email)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_GetConfigHelper(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	setConfig("username", "testuser")
+	setConfig("email", "test@example.com")
+
+	config := GetConfig()
+
+	if config.Username != "testuser" {
+		t.Errorf("Expected username 'testuser', got '%s'", config.Username)
+	}
+
+	if config.Email != "test@example.com" {
+		t.Errorf("Expected email 'test@example.com', got '%s'", config.Email)
+	}
+
+	os.RemoveAll(namespace)
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"encoding/json"
 	"os"
 	"strconv"
@@ -55,4 +56,59 @@ func TestCommit(t *testing.T) {
 			t.Errorf("Expected commit author `test user <test@test.com>`, got '%s'", content.Author)
 		}
 	}
+}
+
+func Test_CountCommits(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Initially should have 0 commits
+	count := CountCommits()
+	if count != 0 {
+		t.Errorf("Expected 0 commits initially, got %d", count)
+	}
+
+	// Make a commit
+	file := namespace + "test.txt"
+	os.WriteFile(file, []byte("content"), 0644)
+	runAddCommand(file, false)
+	runCommitCommand("First commit")
+
+	count = CountCommits()
+	if count != 1 {
+		t.Errorf("Expected 1 commit, got %d", count)
+	}
+
+	// Make another commit
+	os.WriteFile(file, []byte("updated"), 0644)
+	runAddCommand(file, false)
+	runCommitCommand("Second commit")
+
+	count = CountCommits()
+	if count != 2 {
+		t.Errorf("Expected 2 commits, got %d", count)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+
+func Test_GetCommits_Simple(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Make some commits
+	for i := 1; i <= 3; i++ {
+		file := namespace + "file" + fmt.Sprintf("%d", i) + ".txt"
+		os.WriteFile(file, []byte("content"), 0644)
+		runAddCommand(file, false)
+		runCommitCommand(fmt.Sprintf("Commit %d", i))
+	}
+
+	commits := GetCommits()
+	if len(*commits) != 3 {
+		t.Errorf("Expected 3 commits, got %d", len(*commits))
+	}
+
+	os.RemoveAll(namespace)
 }

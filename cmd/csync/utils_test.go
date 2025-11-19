@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"os"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -247,6 +250,134 @@ func Test_TimeAgo(t *testing.T) {
 			result := TimeAgo(test.timestamp)
 			if result != test.expected {
 				t.Errorf("Expected '%s', but got '%s'", test.expected, result)
+			}
+		})
+	}
+}
+
+func Test_FormatFileCount(t *testing.T) {
+	tests := []struct {
+		count    int
+		expected string
+	}{
+		{0, "0 files"},
+		{1, "1 file"},
+		{2, "2 files"},
+		{10, "10 files"},
+		{100, "100 files"},
+	}
+	for _, test := range tests {
+		result := FormatFileCount(test.count)
+		if result != test.expected {
+			t.Errorf("Expected '%s' for count %d, but got '%s'", test.expected, test.count, result)
+		}
+	}
+}
+
+func Test_WriteJson(t *testing.T) {
+	// Create a temporary directory for testing
+	tempDir := namespace + "test_json"
+	os.RemoveAll(tempDir)
+	defer os.RemoveAll(tempDir)
+
+	// Test writing JSON to a new file
+	testData := map[string]interface{}{
+		"key1": "value1",
+		"key2": 123,
+		"key3": []string{"a", "b", "c"},
+	}
+
+	filePath := tempDir + "/test.json"
+	WriteJson(filePath, testData)
+
+	// Verify the file exists
+	if !FileExists(filePath) {
+		t.Errorf("Expected file to exist at %s", filePath)
+	}
+
+	// Read and verify the content
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Errorf("Failed to read file: %v", err)
+	}
+
+	// Check if content is valid JSON
+	var result map[string]interface{}
+	if err := json.Unmarshal(content, &result); err != nil {
+		t.Errorf("Failed to unmarshal JSON: %v", err)
+	}
+}
+
+func Test_GenRandHex(t *testing.T) {
+	// Test that it generates hex strings of correct length
+	tests := []int{10, 20, 32}
+
+	for _, length := range tests {
+		hex := GenRandHex(length)
+		expectedStrLen := length * 2 // Each byte becomes 2 hex characters
+		if len(hex) != expectedStrLen {
+			t.Errorf("Expected hex string of length %d, but got %d", expectedStrLen, len(hex))
+		}
+
+		// Verify it's a valid hex string
+		matched, _ := regexp.MatchString("^[a-f0-9]+$", hex)
+		if !matched {
+			t.Errorf("Generated string is not valid hex: %s", hex)
+		}
+	}
+
+	// Test uniqueness - generate multiple and ensure they're different
+	hex1 := GenRandHex(20)
+	hex2 := GenRandHex(20)
+	if hex1 == hex2 {
+		t.Errorf("Generated hex strings should be unique, but got duplicate: %s", hex1)
+	}
+}
+
+func Test_GetTimestamp(t *testing.T) {
+	timestamp := GetTimestamp()
+
+	// Verify it's a valid RFC3339 timestamp
+	_, err := time.Parse(time.RFC3339, timestamp)
+	if err != nil {
+		t.Errorf("GetTimestamp returned invalid RFC3339 timestamp: %s, error: %v", timestamp, err)
+	}
+
+	// Verify timestamp is recent (within last 5 seconds)
+	parsedTime, _ := time.Parse(time.RFC3339, timestamp)
+	now := time.Now()
+	diff := now.Sub(parsedTime)
+	if diff > 5*time.Second || diff < 0 {
+		t.Errorf("Timestamp is not recent. Difference: %v", diff)
+	}
+}
+
+func Test_ValidatePath(t *testing.T) {
+	// Get the current working directory for testing
+	workdir, _ := os.Getwd()
+
+	tests := []struct {
+		name        string
+		path        string
+		shouldError bool
+	}{
+		{"valid relative path", "test.txt", false},
+		{"valid nested path", "path/to/file.txt", false},
+		{"valid absolute path in workdir", workdir + "/test.txt", false},
+		{"path traversal attempt", "../../../etc/passwd", true},
+		{"path traversal with dots", "test/../../../etc/passwd", true},
+		{"current directory", ".", false},
+		{"current directory explicit", "./test.txt", false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := ValidatePath(test.path)
+			if test.shouldError && err == nil {
+				t.Errorf("Expected error for path '%s', but got none", test.path)
+			}
+			if !test.shouldError && err != nil {
+				t.Errorf("Expected no error for path '%s', but got: %v", test.path, err)
 			}
 		})
 	}

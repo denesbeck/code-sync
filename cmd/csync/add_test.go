@@ -25,6 +25,87 @@ func Test_AddToStaging(t *testing.T) {
 	os.RemoveAll(namespace)
 }
 
+func Test_DisplayAddResults(t *testing.T) {
+	// Test with empty results
+	DisplayAddResults([]AddResult{})
+
+	// Test with various result types
+	results := []AddResult{
+		{FilePath: "added1.txt", ReturnCode: 112},
+		{FilePath: "added2.txt", ReturnCode: 110},
+		{FilePath: "updated1.txt", ReturnCode: 102},
+		{FilePath: "updated2.txt", ReturnCode: 105},
+		{FilePath: "updated3.txt", ReturnCode: 107},
+		{FilePath: "removed1.txt", ReturnCode: 109},
+		{FilePath: "removed2.txt", ReturnCode: 101},
+		{FilePath: "removed3.txt", ReturnCode: 104},
+		{FilePath: "staged1.txt", ReturnCode: 103},
+		{FilePath: "staged2.txt", ReturnCode: 106},
+		{FilePath: "staged3.txt", ReturnCode: 108},
+		{FilePath: "staged4.txt", ReturnCode: 113},
+		{FilePath: "notmodified.txt", ReturnCode: 111},
+		{FilePath: "ignored.txt", ReturnCode: 002},
+		{FilePath: "failed.txt", ReturnCode: 999},
+	}
+
+	// Just test that it doesn't panic
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("DisplayAddResults panicked: %v", r)
+		}
+	}()
+
+	DisplayAddResults(results)
+}
+
+func Test_ExpandFilePaths(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Create some test files
+	testFiles := []string{
+		namespace + "test1.txt",
+		namespace + "test2.txt",
+		namespace + "subdir/test3.txt",
+	}
+
+	for _, file := range testFiles {
+		path, _ := ParsePath(file)
+		if path != "" {
+			os.MkdirAll(path, 0755)
+		}
+		os.Create(file)
+	}
+
+	// Test with specific files
+	result, err := ExpandFilePaths([]string{namespace + "test1.txt", namespace + "test2.txt"})
+	if err != nil {
+		t.Errorf("ExpandFilePaths failed: %v", err)
+	}
+	if len(result) != 2 {
+		t.Errorf("Expected 2 files, got %d", len(result))
+	}
+
+	// Test with "." would expand to all files, but this requires being in the test directory
+	// We'll skip that test for now as it's complex in a test environment
+
+	os.RemoveAll(namespace)
+}
+
+func Test_AddToStaging_EdgeCases(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Test adding a file that doesn't exist - should fail
+	id := GenRandHex(20)
+	err := AddToStaging(id, namespace+"nonexistent.txt", "added")
+	if err == nil {
+		t.Errorf("Expected error when adding non-existent file")
+	}
+
+	os.RemoveAll(namespace)
+}
+
 func Test_AddCmdStatusCode101(t *testing.T) {
 	os.RemoveAll(namespace)
 
@@ -266,4 +347,18 @@ func Test_AddCmdStatusCode112(t *testing.T) {
 	}
 
 	os.RemoveAll(namespace)
+}
+
+func Test_Debug_Function(t *testing.T) {
+	// Save original env
+	originalEnv := os.Getenv("DEBUG")
+	defer os.Setenv("DEBUG", originalEnv)
+
+	// Test with DEBUG=false
+	os.Setenv("DEBUG", "false")
+	Debug("This should not print")
+
+	// Test with DEBUG=true
+	os.Setenv("DEBUG", "true")
+	Debug("This should print: %s", "test message")
 }

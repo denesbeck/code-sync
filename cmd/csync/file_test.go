@@ -301,3 +301,115 @@ func Test_CopyFile_PreservesExecutableBit(t *testing.T) {
 		t.Errorf("Expected permissions 0755, got %o", dstInfo.Mode().Perm())
 	}
 }
+
+func Test_EmptyDir(t *testing.T) {
+	tmpDir := namespace + "test_empty_dir"
+	defer os.RemoveAll(tmpDir)
+
+	t.Run("empty_existing_directory", func(t *testing.T) {
+		testDir := filepath.Join(tmpDir, "test1")
+		os.MkdirAll(testDir, 0755)
+
+		// Create some files and directories
+		os.WriteFile(filepath.Join(testDir, "file1.txt"), []byte("content1"), 0644)
+		os.WriteFile(filepath.Join(testDir, "file2.txt"), []byte("content2"), 0644)
+		os.MkdirAll(filepath.Join(testDir, "subdir"), 0755)
+		os.WriteFile(filepath.Join(testDir, "subdir", "file3.txt"), []byte("content3"), 0644)
+
+		// Empty the directory
+		err := EmptyDir(testDir)
+		if err != nil {
+			t.Errorf("EmptyDir failed: %v", err)
+		}
+
+		// Verify directory still exists but is empty
+		entries, err := os.ReadDir(testDir)
+		if err != nil {
+			t.Errorf("Failed to read directory: %v", err)
+		}
+		if len(entries) != 0 {
+			t.Errorf("Expected directory to be empty, but found %d entries", len(entries))
+		}
+	})
+
+	t.Run("create_nonexistent_directory", func(t *testing.T) {
+		testDir := filepath.Join(tmpDir, "nonexistent")
+
+		// Try to empty a non-existent directory - should create it
+		err := EmptyDir(testDir)
+		if err != nil {
+			t.Errorf("EmptyDir failed: %v", err)
+		}
+
+		// Verify directory was created
+		if _, err := os.Stat(testDir); os.IsNotExist(err) {
+			t.Errorf("Directory should have been created")
+		}
+	})
+}
+
+func Test_RemoveFile(t *testing.T) {
+	tmpDir := namespace + "test_remove"
+	defer os.RemoveAll(tmpDir)
+	os.MkdirAll(tmpDir, 0755)
+
+	t.Run("remove_file", func(t *testing.T) {
+		testFile := filepath.Join(tmpDir, "test.txt")
+		os.WriteFile(testFile, []byte("test"), 0644)
+
+		RemoveFile(testFile)
+
+		if _, err := os.Stat(testFile); !os.IsNotExist(err) {
+			t.Errorf("File should have been removed")
+		}
+	})
+
+	t.Run("remove_directory", func(t *testing.T) {
+		testDir := filepath.Join(tmpDir, "testdir")
+		os.MkdirAll(testDir, 0755)
+		os.WriteFile(filepath.Join(testDir, "file.txt"), []byte("test"), 0644)
+
+		RemoveFile(testDir)
+
+		if _, err := os.Stat(testDir); !os.IsNotExist(err) {
+			t.Errorf("Directory should have been removed")
+		}
+	})
+}
+
+func Test_IsModified(t *testing.T) {
+	tmpDir := namespace + "test_modified"
+	defer os.RemoveAll(tmpDir)
+	os.MkdirAll(tmpDir, 0755)
+
+	file1 := filepath.Join(tmpDir, "file1.txt")
+	file2 := filepath.Join(tmpDir, "file2.txt")
+
+	// Test with identical files
+	os.WriteFile(file1, []byte("same content"), 0644)
+	os.WriteFile(file2, []byte("same content"), 0644)
+
+	modified, err := IsModified(file1, file2)
+	if err != nil {
+		t.Errorf("IsModified failed: %v", err)
+	}
+	if modified {
+		t.Errorf("Expected files to be identical")
+	}
+
+	// Test with different files
+	os.WriteFile(file2, []byte("different content"), 0644)
+	modified, err = IsModified(file1, file2)
+	if err != nil {
+		t.Errorf("IsModified failed: %v", err)
+	}
+	if !modified {
+		t.Errorf("Expected files to be different")
+	}
+
+	// Test with non-existent file
+	_, err = IsModified(file1, filepath.Join(tmpDir, "nonexistent.txt"))
+	if err == nil {
+		t.Errorf("Expected error for non-existent file")
+	}
+}
