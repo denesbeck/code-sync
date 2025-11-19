@@ -1,7 +1,10 @@
 package main
 
 import (
-	"github.com/fatih/color"
+	"fmt"
+	"strconv"
+
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -22,15 +25,20 @@ var statusCmd = &cobra.Command{
 
 func runStatusCommand() (returnCode int, stagingLogs []LogFileEntry) {
 	if initialized := IsInitialized(); !initialized {
-		color.Red(COMMON_RETURN_CODES[001])
+		Fail(COMMON_RETURN_CODES[001])
 		return 001, nil
 	}
 	content := GetStagingLogsContent()
 	currentBranch := GetCurrentBranchName()
-	color.Cyan("On branch %s.", currentBranch)
+	commitCount := CountCommits()
+	lastCommit := GetLastCommit()
+	BreakLine()
+	Box(Bold("Status"), fmt.Sprintf(pterm.FgCyan.Sprint(" ")+"Branch: %s\n"+pterm.FgCyan.Sprint(" ")+"Commits: %d\n"+pterm.FgCyan.Sprint("")+" Last commit: %s", currentBranch, commitCount, TimeAgo(lastCommit.Timestamp)))
+	BreakLine()
 	if len(*content) != 0 {
 		Debug("Found %d files staged for commit.", len(*content))
-		color.Cyan("\nFiles staged for commit:")
+		BreakLine()
+		Info("Staged changes " + "(" + strconv.Itoa(len(*content)) + ")")
 		PrintLogs(*content)
 	} else {
 		Debug("%s", STATUS_RETURN_CODES[501])
@@ -39,32 +47,37 @@ func runStatusCommand() (returnCode int, stagingLogs []LogFileEntry) {
 	modified, deleted := GetModifiedOrDeletedFiles()
 	if len(modified) > 0 || len(deleted) > 0 {
 		Debug("Found %d tracked files that have been modified or deleted.", len(modified)+len(deleted))
-		color.Cyan("\nChanges not staged for commit:")
-		for _, file := range modified {
-			color.Yellow("  modified: " + file)
+		BreakLine()
+		Info("Unstaged changes " + "(" + strconv.Itoa(len(modified)+len(deleted)) + ")")
+		for i, file := range modified {
+			modified[i] = pterm.FgYellow.Sprint(" MOD: ") + file
 		}
-		for _, file := range deleted {
-			color.Yellow("  deleted: " + file)
+		for i, file := range deleted {
+			deleted[i] = pterm.FgRed.Sprint(" REM: ") + file
 		}
+		Tree(modified, false)
+		Tree(deleted, false)
 	} else {
 		Debug("%s", STATUS_RETURN_CODES[503])
 	}
 
 	untracked := GetUntrackedFiles()
 	if len(untracked) != 0 {
-		color.Cyan("\nUntracked files:")
-		for _, file := range untracked {
-			color.Yellow("  " + file)
-		}
-		color.Cyan("(use \"csync add <file>...\" to track)")
+		BreakLine()
+		Info("Untracked files " + "(" + strconv.Itoa(len(untracked)) + ")")
+		Tree(untracked, true)
+		BreakLine()
+		Text("Use "+Code("csync add <file>...")+" to track", "")
 	} else {
 		Debug("%s", STATUS_RETURN_CODES[504])
 	}
 
 	if len(*content) == 0 && len(modified) == 0 && len(deleted) == 0 && len(untracked) == 0 {
 		Debug("%s", STATUS_RETURN_CODES[505])
-		color.Cyan("\n" + STATUS_RETURN_CODES[505])
+		BreakLine()
+		Info(STATUS_RETURN_CODES[505])
 	}
+	BreakLine()
 	Debug("Status command completed successfully")
 	return 502, *content
 }
