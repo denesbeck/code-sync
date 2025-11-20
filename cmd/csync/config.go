@@ -198,16 +198,16 @@ func setDefaultBranch(branch string) int {
 	err := SetBranch(branch, "default")
 	if err != nil {
 		if err.Error() == BRANCH_RETURN_CODES[215] {
-			Info("Default branch already set to " + Branch(branch) + ".")
+			Info("Default branch already set to " + StyledBranch(branch) + ".")
 			return 215
 		}
 		if err.Error() == BRANCH_RETURN_CODES[216] {
-			Fail("Branch does not exist: " + Branch(branch))
+			Fail("Branch does not exist: " + StyledBranch(branch))
 			return 216
 		}
 	}
 	Debug("Default branch set successfully")
-	Success("Default branch set to " + Branch(branch) + ".")
+	Success("Default branch set to " + StyledBranch(branch) + ".")
 	return 602
 }
 
@@ -219,6 +219,6 @@ func getDefaultBranch() (returnCode int, defaultBranch string) {
 	}
 	branch := GetDefaultBranchName()
 	Debug("Default branch: %s", branch)
-	Info("Default branch: " + Branch(branch))
+	Info("Default branch: " + StyledBranch(branch))
 	return 601, branch
 }
