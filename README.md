@@ -61,6 +61,28 @@ go build -o csync ./cmd/csync
 ./csync
 ```
 
+## Development Setup 🔧
+
+### Installing Git Hooks
+
+To ensure code quality, install the pre-commit hook that runs linting and formatting checks:
+
+```bash
+make install-hooks
+```
+
+This will install a hook that automatically runs:
+- `go vet ./...` - Lints the code for common issues
+- `gofmt -l .` - Checks code formatting
+
+If formatting issues are found, run `gofmt -w .` to fix them.
+
+To uninstall the hooks:
+
+```bash
+make uninstall-hooks
+```
+
 ## Running Tests 🧪
 
 To run the test suite, use the provided test script:

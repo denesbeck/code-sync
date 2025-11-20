@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Pre-commit hook for CodeSync
+# This hook runs linting and formatting checks on Go files before commit
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Get list of staged Go files
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$' || true)
+
+if [ -z "$STAGED_GO_FILES" ]; then
+  echo "No Go files to check. Skipping pre-commit checks."
+  exit 0
+fi
+
+echo "Checking Go files: $STAGED_GO_FILES"
+
+# Run go vet (lint check)
+echo "Running go vet..."
+if ! go vet ./...; then
+  echo "❌ go vet found issues. Please fix them before committing."
+  exit 1
+fi
+
+# Check formatting with gofmt
+echo "Checking code formatting..."
+UNFORMATTED_FILES=$(gofmt -l . 2>&1)
+
+if [ -n "$UNFORMATTED_FILES" ]; then
+  echo "❌ The following files need formatting:"
+  echo "$UNFORMATTED_FILES"
+  echo ""
+  echo "Run 'gofmt -w .' to format all files, or 'gofmt -w <file>' for specific files."
+  exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0
