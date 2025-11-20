@@ -39,7 +39,6 @@ func runHistoryCommand() (returnCode int, history []History) {
 		return
 	}
 
-	BreakLine()
 	commits := GetCommits()
 	if len(*commits) == 0 {
 		Debug("No commits found.")
@@ -55,6 +54,7 @@ func runHistoryCommand() (returnCode int, history []History) {
 
 	history = make([]History, 0, len(*commits))
 
+	BreakLine()
 	for i, commit := range *commits {
 		Debug("Processing commit: %s", commit.Id)
 		data, err := os.ReadFile(dirs.Commits + commit.Id + "/metadata.json")
