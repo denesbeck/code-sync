@@ -111,9 +111,14 @@ func Tree(files []string, sorted bool) {
 	}
 }
 
-func Branch(branch string) string {
+func StyledBranch(branch string) string {
 	style := pterm.NewStyle(pterm.FgLightYellow)
 	return style.Sprint(branch)
+}
+
+func StyledCommit(commit string) string {
+	style := pterm.NewStyle(pterm.FgLightRed)
+	return style.Sprint(commit)
 }
 
 func Code(code string) string {

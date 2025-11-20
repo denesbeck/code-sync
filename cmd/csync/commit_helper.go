@@ -239,7 +239,11 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 func WriteCommitMetadata(commitId string, message string) {
 	Debug("Writing commit metadata: id=%s, message=%s", commitId, message)
 	config := GetConfig()
-	WriteJson(dirs.Commits+commitId+"/metadata.json", CommitMetadata{Author: config.Username + " <" + config.Email + ">", Message: message})
+	author := config.Username + " <" + config.Email + ">"
+	if config.Username == "" || config.Email == "" {
+		author = ""
+	}
+	WriteJson(dirs.Commits+commitId+"/metadata.json", CommitMetadata{Author: author, Message: message})
 	Debug("Commit metadata written successfully")
 }
 
