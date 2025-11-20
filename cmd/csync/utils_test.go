@@ -260,11 +260,11 @@ func Test_FormatFileCount(t *testing.T) {
 		count    int
 		expected string
 	}{
-		{0, "0 files"},
-		{1, "1 file"},
-		{2, "2 files"},
-		{10, "10 files"},
-		{100, "100 files"},
+		{0, "(0)"},
+		{1, "(1)"},
+		{2, "(2)"},
+		{10, "(10)"},
+		{100, "(100)"},
 	}
 	for _, test := range tests {
 		result := FormatFileCount(test.count)
