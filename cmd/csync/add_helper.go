@@ -23,6 +23,8 @@ func AddToStaging(id string, path string, op string) error {
 
 func DisplayAddResults(results []AddResult) {
 	if len(results) == 0 {
+		Debug("Results length is 0.")
+		Info("No files to stage.")
 		return
 	}
 
@@ -49,35 +51,42 @@ func DisplayAddResults(results []AddResult) {
 		}
 	}
 
+	if len(added)+len(updated)+len(removed)+len(alreadyStaged)+len(failed) == 0 {
+		Info("Nothing to stage.")
+		Debug("Nothing to stage.")
+		return
+	}
+
 	if len(added) > 0 {
 		BreakLine()
-		Success("󰐙 Added to staging: " + FormatFileCount(len(added)))
+		Success("󰐙 Added to staging " + FormatFileCount(len(added)))
 		Tree(added, true)
 	}
 
 	if len(updated) > 0 {
 		BreakLine()
-		Success("󰓦 Updated in staging: " + FormatFileCount(len(updated)))
+		Success("󰓦 Updated in staging " + FormatFileCount(len(updated)))
 		Tree(updated, true)
 	}
 
 	if len(removed) > 0 {
 		BreakLine()
-		Info("󰍷 Removed from filesystem: " + FormatFileCount(len(removed)))
+		Info("󰍷 Removed from filesystem " + FormatFileCount(len(removed)))
 		Tree(removed, true)
 	}
 
 	if len(alreadyStaged) > 0 {
 		BreakLine()
-		Info(" Already staged: " + FormatFileCount(len(alreadyStaged)))
+		Info(" Already staged " + FormatFileCount(len(alreadyStaged)))
 		Tree(alreadyStaged, true)
 	}
 
 	if len(failed) > 0 {
 		BreakLine()
-		Fail(" Failed: " + FormatFileCount(len(failed)))
+		Fail(" Failed (" + FormatFileCount(len(failed)) + ")")
 		Tree(failed, true)
 	}
+
 	BreakLine()
 }
 

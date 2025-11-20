@@ -174,9 +174,9 @@ func Capitalize(text string) string {
 
 func FormatFileCount(count int) string {
 	if count == 1 {
-		return "1 file"
+		return "(1)"
 	}
-	return fmt.Sprintf("%d files", count)
+	return fmt.Sprintf("(%d)", count)
 }
 
 // TimeAgo converts a timestamp to a human-readable "time ago" format
