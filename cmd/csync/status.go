@@ -33,7 +33,7 @@ func runStatusCommand() (returnCode int, stagingLogs []LogFileEntry) {
 	commitCount := CountCommits()
 	lastCommit := GetLastCommit()
 	BreakLine()
-	Box(Bold("Status"), fmt.Sprintf(pterm.FgCyan.Sprint(" ")+"Branch: %s\n"+pterm.FgCyan.Sprint(" ")+"Commits: %d\n"+pterm.FgCyan.Sprint("")+" Last commit: %s", currentBranch, commitCount, TimeAgo(lastCommit.Timestamp)))
+	Box(Bold("Status"), fmt.Sprintf(pterm.FgCyan.Sprint(" ")+"Branch: %s\n"+pterm.FgCyan.Sprint(" ")+"Commits: %d\n"+pterm.FgCyan.Sprint(" ")+"Last commit: %s", currentBranch, commitCount, TimeAgo(lastCommit.Timestamp)))
 	BreakLine()
 	if len(*content) != 0 {
 		Debug("Found %d files staged for commit.", len(*content))
