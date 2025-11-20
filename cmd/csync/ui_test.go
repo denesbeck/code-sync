@@ -34,7 +34,7 @@ func Test_ErrorMsg(t *testing.T) {
 }
 
 func Test_Branch(t *testing.T) {
-	result := Branch("main")
+	result := StyledBranch("main")
 	// Result should contain the text (even if styled)
 	if !strings.Contains(result, "main") && result == "" {
 		t.Errorf("Branch should return a non-empty string containing 'main'")

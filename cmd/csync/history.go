@@ -39,10 +39,11 @@ func runHistoryCommand() (returnCode int, history []History) {
 		return
 	}
 
+	BreakLine()
 	commits := GetCommits()
 	if len(*commits) == 0 {
-		Debug("No commits found")
-		color.Cyan("No commits found")
+		Debug("No commits found.")
+		Info("No commits found.")
 		return
 	}
 	if len(*commits) > 20 {
@@ -54,9 +55,8 @@ func runHistoryCommand() (returnCode int, history []History) {
 
 	history = make([]History, 0, len(*commits))
 
-	for _, commit := range *commits {
+	for i, commit := range *commits {
 		Debug("Processing commit: %s", commit.Id)
-		color.Yellow(commit.Id[:40])
 		data, err := os.ReadFile(dirs.Commits + commit.Id + "/metadata.json")
 		if err != nil {
 			Debug("Failed to read commit metadata")
@@ -67,10 +67,11 @@ func runHistoryCommand() (returnCode int, history []History) {
 			Debug("Failed to unmarshal commit metadata")
 			MustSucceed(err, "operation failed")
 		}
-		color.Cyan("Author:  " + metadata.Author)
-		color.Cyan("Date:    " + commit.Timestamp)
-		color.Cyan("Message: " + metadata.Message)
-		fmt.Println()
+
+		author := metadata.Author
+		if metadata.Author == "" {
+			author = "Unknown"
+		}
 
 		data, err = os.ReadFile(dirs.Commits + commit.Id + "/logs.json")
 		if err != nil {
@@ -83,8 +84,25 @@ func runHistoryCommand() (returnCode int, history []History) {
 			MustSucceed(err, "operation failed")
 		}
 		Debug("Displaying %d log entries for commit", len(logs))
-		PrintLogs(logs)
-		fmt.Println()
+
+		logsFormatted := FormatLogs(logs)
+		boxContent := fmt.Sprintf("Author:  %s\nDate:    %s\nMessage: %s",
+			author,
+			TimeAgo(commit.Timestamp),
+			metadata.Message,
+		)
+
+		add, mod, rem := CountOps(logs)
+
+		if logsFormatted != "" {
+			boxContent += "\nFiles: " + Code(fmt.Sprintf("+%d -%d ~%d", add, rem, mod)) + "\n" + logsFormatted
+		}
+
+		Box(Bold(StyledCommit(" "+commit.Id[:10])), boxContent)
+		BreakLine()
+		if i < len(*commits)-1 {
+			BreakLine()
+		}
 		history = append(history, History{
 			author:  metadata.Author,
 			date:    commit.Timestamp,

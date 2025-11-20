@@ -202,6 +202,30 @@ func PrintLogs(content []LogFileEntry) {
 	for _, logEntry := range *sortedContent {
 		switch logEntry.Op {
 		case "ADD":
+			log = append(log, add(" "+logEntry.Op+":")+" "+logEntry.Path)
+		case "MOD":
+			log = append(log, mod(" "+logEntry.Op+":")+" "+logEntry.Path)
+		case "REM":
+			log = append(log, rem(" "+logEntry.Op+":")+" "+logEntry.Path)
+		default:
+			log = append(log, logEntry.Op+" "+logEntry.Path)
+		}
+	}
+	Tree(log, false)
+	Debug("Log entries printed successfully")
+}
+
+func FormatLogs(content []LogFileEntry) string {
+	Debug("Formatting %d log entries", len(content))
+	if len(content) == 0 {
+		return ""
+	}
+
+	sortedContent := SortByOperationAndPath(content)
+	log := []string{}
+	for _, logEntry := range *sortedContent {
+		switch logEntry.Op {
+		case "ADD":
 			log = append(log, add(" "+logEntry.Op+":")+" "+logEntry.Path)
 		case "MOD":
 			log = append(log, mod(" "+logEntry.Op+":")+" "+logEntry.Path)
@@ -211,8 +235,36 @@ func PrintLogs(content []LogFileEntry) {
 			log = append(log, logEntry.Op+" "+logEntry.Path)
 		}
 	}
-	Tree(log, false)
-	Debug("Log entries printed successfully")
+
+	// Format as tree structure
+	var result strings.Builder
+	for i, file := range log {
+		if i == len(log)-1 {
+			result.WriteString("  └── " + file)
+		} else {
+			result.WriteString("  ├── " + file + "\n")
+		}
+	}
+
+	return result.String()
+}
+
+func CountOps(content []LogFileEntry) (add int, mod int, rem int) {
+	add = 0
+	mod = 0
+	rem = 0
+	for _, entry := range content {
+		if entry.Op == "ADD" {
+			add++
+		}
+		if entry.Op == "MOD" {
+			mod++
+		}
+		if entry.Op == "REM" {
+			rem++
+		}
+	}
+	return add, mod, rem
 }
 
 // ValidateStagingIntegrity checks if staging logs match actual staged files
