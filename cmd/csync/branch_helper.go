@@ -8,8 +8,8 @@ import (
 )
 
 type BranchMetadata struct {
-	Default string
-	Current string
+	Default string `json:"default"`
+	Current string `json:"current"`
 }
 
 const (

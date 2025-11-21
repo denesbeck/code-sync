@@ -6,9 +6,9 @@ import (
 )
 
 type FileListEntry struct {
-	Id       string
-	CommitId string
-	Path     string
+	Id       string `json:"id"`
+	CommitId string `json:"commitId"`
+	Path     string `json:"path"`
 }
 
 func IsFileStaged(filePath string) bool {

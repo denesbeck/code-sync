@@ -25,8 +25,8 @@ func init() {
 }
 
 type Config struct {
-	Username string
-	Email    string
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 var setCmd = &cobra.Command{

@@ -8,14 +8,14 @@ import (
 )
 
 type Commit struct {
-	Id        string
-	Timestamp string
-	Next      string
+	Id        string `json:"id"`
+	Timestamp string `json:"timestamp"`
+	Next      string `json:"next"`
 }
 
 type CommitMetadata struct {
-	Author  string
-	Message string
+	Author  string `json:"author"`
+	Message string `json:"message"`
 }
 
 func GetLastCommit() Commit {

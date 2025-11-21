@@ -12,9 +12,9 @@ import (
 )
 
 type LogFileEntry struct {
-	Id   string
-	Op   string
-	Path string
+	Id   string `json:"id"`
+	Op   string `json:"op"`
+	Path string `json:"path"`
 }
 
 var (
