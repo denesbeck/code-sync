@@ -15,18 +15,18 @@ func init() {
 	configCmd.AddCommand(getCmd)
 
 	setCmd.AddCommand(setDefaultBranchCmd)
-	setCmd.AddCommand(setUsernameCmd)
+	setCmd.AddCommand(setNameCmd)
 	setCmd.AddCommand(setEmailCmd)
 
 	getCmd.AddCommand(getDefaultBranchCmd)
-	getCmd.AddCommand(getUsernameCmd)
+	getCmd.AddCommand(getNameCmd)
 	getCmd.AddCommand(getEmailCmd)
 	getCmd.AddCommand(getUserCmd)
 }
 
 type Config struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 var setCmd = &cobra.Command{
@@ -46,14 +46,14 @@ var setDefaultBranchCmd = &cobra.Command{
 	},
 }
 
-var setUsernameCmd = &cobra.Command{
-	Use:     "username",
-	Short:   "Set username",
-	Example: "csync config set username <username>",
+var setNameCmd = &cobra.Command{
+	Use:     "name",
+	Short:   "Set name",
+	Example: "csync config set name <name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
-		Debug("Setting username: %s", args[0])
-		setConfig("username", args[0])
+		Debug("Setting name: %s", args[0])
+		setConfig("name", args[0])
 	},
 }
 
@@ -71,7 +71,7 @@ var setEmailCmd = &cobra.Command{
 var getCmd = &cobra.Command{
 	Use:     "get",
 	Short:   "Get config values",
-	Example: "csync config get username <username>",
+	Example: "csync config get name <name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Getting config value: %s", args[0])
@@ -90,14 +90,14 @@ var getDefaultBranchCmd = &cobra.Command{
 	},
 }
 
-var getUsernameCmd = &cobra.Command{
-	Use:     "username",
-	Short:   "Get username",
-	Example: "csync config get username",
+var getNameCmd = &cobra.Command{
+	Use:     "name",
+	Short:   "Get name",
+	Example: "csync config get name",
 	Args:    cobra.ExactArgs(0),
 	Run: func(_ *cobra.Command, args []string) {
-		Debug("Getting username")
-		getConfig("username")
+		Debug("Getting name")
+		getConfig("name")
 	},
 }
 
@@ -114,7 +114,7 @@ var getEmailCmd = &cobra.Command{
 
 var getUserCmd = &cobra.Command{
 	Use:     "user",
-	Short:   "Get username and email",
+	Short:   "Get name and email",
 	Example: "csync config get user",
 	Args:    cobra.ExactArgs(0),
 	Run: func(_ *cobra.Command, args []string) {
@@ -148,8 +148,8 @@ func setConfig(key string, value string) int {
 	}
 
 	switch key {
-	case "username":
-		content.Username = value
+	case "name":
+		content.Name = value
 	case "email":
 		content.Email = value
 	}
@@ -177,15 +177,15 @@ func getConfig(key string) (returnCode int, conf Config) {
 	}
 	config := GetConfig()
 	switch key {
-	case "username":
-		Debug("Username: %s", config.Username)
-		Info(Capitalize(key) + ": " + color.BlueString(config.Username))
+	case "name":
+		Debug("Name: %s", config.Name)
+		Info(Capitalize(key) + ": " + color.BlueString(config.Name))
 	case "email":
 		Debug("Email: %s", config.Email)
 		Info(Capitalize(key) + ": " + color.BlueString(config.Email))
 	case "user":
-		Debug("User: %s <%s>", config.Username, config.Email)
-		Info(Capitalize(key) + ": " + color.BlueString(config.Username+" <"+config.Email+">"))
+		Debug("User: %s <%s>", config.Name, config.Email)
+		Info(Capitalize(key) + ": " + color.BlueString(config.Name+" <"+config.Email+">"))
 	}
 	return 604, *config
 }

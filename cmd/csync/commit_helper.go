@@ -245,7 +245,7 @@ func WriteCommitMetadata(commitId string, message string) {
 	Debug("Writing commit metadata: id=%s, message=%s", commitId, message)
 	config := GetConfig()
 	author := Author{
-		Name:  config.Username,
+		Name:  config.Name,
 		Email: config.Email,
 	}
 	WriteJson(dirs.Commits+commitId+"/metadata.json", CommitMetadata{Author: author, Message: message})

@@ -12,7 +12,7 @@ func TestCommit(t *testing.T) {
 	os.RemoveAll(namespace)
 	runInitCommand()
 
-	setConfig("username", "test user")
+	setConfig("name", "test user")
 	setConfig("email", "test@test.com")
 
 	for i := range 10 {

@@ -36,7 +36,7 @@ var dirs = Dirs{
 	// `commits/<commit-hash>/logs.json`: copy of the staging logs file at the time of the commit.
 	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
 	// `commits/<commit-hash>/metadata.json` stores metadata for the commit, e.g. commit message, timestamp.
-	// Format: { Author: <username <user-email>>, Message: <commit-message> }
+	// Format: { Author: <name <email>>, Message: <commit-message> }
 	// For each commit hash a file called `commits/<commit-hash>/fileList.json` will be created. It represents the project state at the time of the commit listing all the files with commit hashes.
 	// Format: { Id: <hash>, CommitId: <hash>, Path: path/to/file }
 	// Before each commit, the `fileList.json` will be copied from the previous commit. This file will be updated according to the changes made in the commit.
@@ -58,8 +58,8 @@ var dirs = Dirs{
 	// Format: { Default: <branch-name>, Current: <branch-name> }
 	BranchesMetadata: namespace + ".csync/branches/metadata.json",
 
-	// "config.json" stores CSync config data, e.g. username, email.
-	// Format: { Username: <username>, Email: <email> }
+	// "config.json" stores CSync config data, e.g. name, email.
+	// Format: { Name: <name>, Email: <email> }
 	Config: namespace + ".csync/config.json",
 }
 

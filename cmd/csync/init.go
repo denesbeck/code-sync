@@ -91,7 +91,7 @@ func runInitCommand() {
 		Debug("Failed to create config file")
 		MustSucceed(err, "operation failed")
 	}
-	_, err = f.WriteString("{ \"Username\": \"\", \"Email\": \"\" }")
+	_, err = f.WriteString("{ \"name\": \"\", \"email\": \"\" }")
 	if err != nil {
 		Debug("Failed to write initial config")
 		MustSucceed(err, "operation failed")
@@ -123,7 +123,7 @@ func runInitCommand() {
 
 	BreakLine()
 	List("Next steps:", []string{
-		"csync config set username \"Your Name\"",
+		"csync config set name \"Your Name\"",
 		"csync config set email \"you@example.com\"",
 		"csync add <file>",
 		"csync commit -m \"Initial commit\""})

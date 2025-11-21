@@ -19,6 +19,6 @@ func GetConfig() *Config {
 		MustSucceed(err, "failed to parse config file")
 	}
 
-	Debug("Config retrieved successfully: username=%s, email=%s", content.Username, content.Email)
+	Debug("Config retrieved successfully: name=%s, email=%s", content.Name, content.Email)
 	return &content
 }

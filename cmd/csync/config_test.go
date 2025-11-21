@@ -34,21 +34,21 @@ func Test_ConfigDefaultBranch(t *testing.T) {
 	os.RemoveAll(namespace)
 }
 
-func Test_ConfigUsername(t *testing.T) {
+func Test_ConfigName(t *testing.T) {
 	os.RemoveAll(namespace)
 
 	runInitCommand()
 
-	returnCode := setConfig("username", "testuser")
+	returnCode := setConfig("name", "testuser")
 	if returnCode != 603 {
 		t.Errorf("Expected return code 603, got %d", returnCode)
 	}
-	returnCode, config := getConfig("username")
+	returnCode, config := getConfig("name")
 	if returnCode != 604 {
 		t.Errorf("Expected return code 604, got %d", returnCode)
 	}
-	if config.Username != "testuser" {
-		t.Errorf("Expected username 'testuser', got '%s'", config.Username)
+	if config.Name != "testuser" {
+		t.Errorf("Expected name 'testuser', got '%s'", config.Name)
 	}
 	returnCode = setConfig("email", "email@email.com")
 	if returnCode != 603 {
@@ -90,8 +90,8 @@ func Test_GetConfig_All(t *testing.T) {
 	os.RemoveAll(namespace)
 	runInitCommand()
 
-	// Set both username and email
-	setConfig("username", "testuser")
+	// Set both name and email
+	setConfig("name", "testuser")
 	setConfig("email", "test@example.com")
 
 	// Get all config
@@ -100,8 +100,8 @@ func Test_GetConfig_All(t *testing.T) {
 		t.Errorf("Expected return code 604, got %d", returnCode)
 	}
 
-	if config.Username != "testuser" {
-		t.Errorf("Expected username 'testuser', got '%s'", config.Username)
+	if config.Name != "testuser" {
+		t.Errorf("Expected name 'testuser', got '%s'", config.Name)
 	}
 
 	if config.Email != "test@example.com" {
@@ -115,13 +115,13 @@ func Test_GetConfigHelper(t *testing.T) {
 	os.RemoveAll(namespace)
 	runInitCommand()
 
-	setConfig("username", "testuser")
+	setConfig("name", "testuser")
 	setConfig("email", "test@example.com")
 
 	config := GetConfig()
 
-	if config.Username != "testuser" {
-		t.Errorf("Expected username 'testuser', got '%s'", config.Username)
+	if config.Name != "testuser" {
+		t.Errorf("Expected name 'testuser', got '%s'", config.Name)
 	}
 
 	if config.Email != "test@example.com" {

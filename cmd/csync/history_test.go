@@ -11,12 +11,12 @@ func Test_History(t *testing.T) {
 
 	runInitCommand()
 
-	setConfig("username", "testuser")
+	setConfig("name", "testuser")
 	setConfig("email", "test@test.com")
 
 	for i := 1; i <= 10; i++ {
 		if i > 5 {
-			setConfig("username", "testuserX")
+			setConfig("name", "testuserX")
 			setConfig("email", "testX@test.com")
 		}
 		fileName := namespace + strconv.Itoa(i) + ".txt"
