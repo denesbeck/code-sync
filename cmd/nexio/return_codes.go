@@ -76,3 +76,8 @@ var REMOVE_RETURN_CODES = map[int]string{
 	801: "File removed from staging.",
 	802: "File was not staged.",
 }
+
+var PURGE_RETURN_CODES = map[int]string{
+	901: "Nexio purged successfully.",
+	902: "Cancelled.",
+}

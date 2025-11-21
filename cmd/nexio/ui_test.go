@@ -96,8 +96,8 @@ func Test_List(t *testing.T) {
 			t.Errorf("List function panicked: %v", r)
 		}
 	}()
-	List("Root", []string{"item1", "item2", "item3"})
-	List("Empty", []string{})
+	List("Root", []string{"item1", "item2", "item3"}, true)
+	List("Empty", []string{}, false)
 }
 
 func Test_Tree(t *testing.T) {

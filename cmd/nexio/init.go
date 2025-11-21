@@ -126,7 +126,7 @@ func runInitCommand() {
 		"nexio config set name \"Your Name\"",
 		"nexio config set email \"you@example.com\"",
 		"nexio add <file>",
-		"nexio commit -m \"Initial commit\""})
+		"nexio commit -m \"Initial commit\""}, true)
 
 	BreakLine()
 	Text("Learn more: "+Code("nexio --help"), "")
