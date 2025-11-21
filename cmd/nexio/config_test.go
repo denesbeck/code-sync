@@ -130,3 +130,73 @@ func Test_GetConfigHelper(t *testing.T) {
 
 	os.RemoveAll(namespace)
 }
+func Test_GetConfig_NameNotSet(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Don't set name, try to get it
+	returnCode, config := getConfig("name")
+	if returnCode != 605 {
+		t.Errorf("Expected return code 605 for unset name, got %d", returnCode)
+	}
+	if config.Name != "" {
+		t.Errorf("Expected empty name, got '%s'", config.Name)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_GetConfig_EmailNotSet(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Don't set email, try to get it
+	returnCode, config := getConfig("email")
+	if returnCode != 606 {
+		t.Errorf("Expected return code 606 for unset email, got %d", returnCode)
+	}
+	if config.Email != "" {
+		t.Errorf("Expected empty email, got '%s'", config.Email)
+	}
+
+	os.RemoveAll(namespace)
+}
+
+func Test_GetConfig_UserNotSet(t *testing.T) {
+	os.RemoveAll(namespace)
+	runInitCommand()
+
+	// Test with neither name nor email set
+	returnCode, config := getConfig("user")
+	if returnCode != 607 {
+		t.Errorf("Expected return code 607 when neither name nor email is set, got %d", returnCode)
+	}
+
+	// Test with only name set (email missing)
+	setConfig("name", "testuser")
+	returnCode, config = getConfig("user")
+	if returnCode != 607 {
+		t.Errorf("Expected return code 607 when email is not set, got %d", returnCode)
+	}
+
+	// Test with only email set (name missing)
+	os.RemoveAll(namespace)
+	runInitCommand()
+	setConfig("email", "test@example.com")
+	returnCode, config = getConfig("user")
+	if returnCode != 607 {
+		t.Errorf("Expected return code 607 when name is not set, got %d", returnCode)
+	}
+
+	// Verify that when both are set, it returns 604
+	setConfig("name", "testuser")
+	returnCode, config = getConfig("user")
+	if returnCode != 604 {
+		t.Errorf("Expected return code 604 when both name and email are set, got %d", returnCode)
+	}
+	if config.Name != "testuser" || config.Email != "test@example.com" {
+		t.Errorf("Expected name 'testuser' and email 'test@example.com', got '%s' and '%s'", config.Name, config.Email)
+	}
+
+	os.RemoveAll(namespace)
+}
