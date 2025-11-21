@@ -202,11 +202,11 @@ func PrintLogs(content []LogFileEntry) {
 	for _, logEntry := range *sortedContent {
 		switch logEntry.Op {
 		case "ADD":
-			log = append(log, add(" "+logEntry.Op+":")+" "+logEntry.Path)
+			log = append(log, add(" "+logEntry.Op+":")+" "+logEntry.Path)
 		case "MOD":
-			log = append(log, mod(" "+logEntry.Op+":")+" "+logEntry.Path)
+			log = append(log, mod(" "+logEntry.Op+":")+" "+logEntry.Path)
 		case "REM":
-			log = append(log, rem(" "+logEntry.Op+":")+" "+logEntry.Path)
+			log = append(log, rem(" "+logEntry.Op+":")+" "+logEntry.Path)
 		default:
 			log = append(log, logEntry.Op+" "+logEntry.Path)
 		}

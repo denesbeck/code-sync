@@ -174,12 +174,27 @@ func getConfig(key string) (returnCode int, conf Config) {
 	config := GetConfig()
 	switch key {
 	case "name":
+		if config.Name == "" {
+			Debug("%s", CONFIG_RETURN_CODES[605])
+			Fail(CONFIG_RETURN_CODES[605])
+			return 605, Config{}
+		}
 		Debug("Name: %s", config.Name)
 		Info(Capitalize(key) + ": " + color.BlueString(config.Name))
 	case "email":
+		if config.Email == "" {
+			Debug("%s", CONFIG_RETURN_CODES[606])
+			Fail(CONFIG_RETURN_CODES[606])
+			return 606, Config{}
+		}
 		Debug("Email: %s", config.Email)
 		Info(Capitalize(key) + ": " + color.BlueString(config.Email))
 	case "user":
+		if config.Name == "" || config.Email == "" {
+			Debug("%s", CONFIG_RETURN_CODES[607])
+			Fail(CONFIG_RETURN_CODES[607])
+			return 607, Config{}
+		}
 		Debug("User: %s <%s>", config.Name, config.Email)
 		Info(Capitalize(key) + ": " + color.BlueString(config.Name+" <"+config.Email+">"))
 	}

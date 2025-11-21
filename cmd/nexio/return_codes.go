@@ -65,6 +65,9 @@ var CONFIG_RETURN_CODES = map[int]string{
 	602: "Set default branch success.",
 	603: "Set config success.",
 	604: "Get config success.",
+	605: "Name not set.",
+	606: "Email not set.",
+	607: "Name and/or email not set.",
 }
 
 var COMMIT_RETURN_CODES = map[int]string{
