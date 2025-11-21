@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +12,7 @@ var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Short:   "Remove the selected files from the staging area",
 	Example: "nexio remove <path/to/your/file>",
-	Args:    cobra.MinimumNArgs(1),
+	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		for _, arg := range args {
 			runRemoveCommand(arg)
@@ -24,7 +23,7 @@ var removeCmd = &cobra.Command{
 func runRemoveCommand(filePath string) {
 	initialized := IsInitialized()
 	if !initialized {
-		color.Red(COMMON_RETURN_CODES[001])
+		Fail(COMMON_RETURN_CODES[001])
 		return
 	}
 
@@ -39,8 +38,8 @@ func runRemoveCommand(filePath string) {
 	if isLogged {
 		RemoveFile(dirs.Staging + ops[operation] + "/" + logId)
 		RemoveLogEntry(logId)
-		color.Green("File removed from staging")
+		Success(REMOVE_RETURN_CODES[801])
 	} else {
-		color.Red("File not staged")
+		Info(REMOVE_RETURN_CODES[802])
 	}
 }

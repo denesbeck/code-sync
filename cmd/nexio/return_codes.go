@@ -71,3 +71,8 @@ var COMMIT_RETURN_CODES = map[int]string{
 	701: "Nothing to commit.",
 	702: "Commit success.",
 }
+
+var REMOVE_RETURN_CODES = map[int]string{
+	801: "File removed from staging.",
+	802: "File was not staged.",
+}

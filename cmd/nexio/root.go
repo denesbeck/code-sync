@@ -10,7 +10,5 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		MustSucceed(err, "operation failed")
-	}
+	rootCmd.Execute()
 }
