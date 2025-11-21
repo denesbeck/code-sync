@@ -39,22 +39,26 @@ func Test_History(t *testing.T) {
 	}
 
 	for i, commit := range history {
-		if commit.message != "Commit "+strconv.Itoa(i+1) {
-			t.Errorf("Expected commit message 'Commit %d', got '%s'", i+1, commit.message)
+		if commit.Message != "Commit "+strconv.Itoa(i+1) {
+			t.Errorf("Expected commit message 'Commit %d', got '%s'", i+1, commit.Message)
 		}
 
-		if i < 5 && commit.author != "testuser <test@test.com>" {
-			t.Errorf("Expected author 'testuser', got '%s'", commit.author)
-		}
-		if i > 5 && commit.author != "testuserX <testX@test.com>" {
-			t.Errorf("Expected author 'testuser', got '%s'", commit.author)
+		expectedAuthor := "testuser <test@test.com>"
+		if i >= 5 {
+			expectedAuthor = "testuserX <testX@test.com>"
 		}
 
-		if i%2 == 0 && len(commit.commits) != 1 {
-			t.Errorf("Expected 1 file in commit %d, got %d", i+1, len(commit.commits))
+		actualAuthor := commit.AuthorName + " <" + commit.AuthorEmail + ">"
+
+		if actualAuthor != expectedAuthor {
+			t.Errorf("Expected author %s, got '%s'", expectedAuthor, actualAuthor)
 		}
-		if i%2 > 0 && len(commit.commits) != 2 {
-			t.Errorf("Expected 2 file in commit %d, got %d", i+1, len(commit.commits))
+
+		if i%2 == 0 && len(commit.Commits) != 1 {
+			t.Errorf("Expected 1 file in commit %d, got %d", i+1, len(commit.Commits))
+		}
+		if i%2 > 0 && len(commit.Commits) != 2 {
+			t.Errorf("Expected 2 file in commit %d, got %d", i+1, len(commit.Commits))
 		}
 
 	}

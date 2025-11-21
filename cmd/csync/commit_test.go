@@ -52,8 +52,11 @@ func TestCommit(t *testing.T) {
 		if content.Message != "test commit "+strconv.Itoa(i) {
 			t.Errorf("Expected commit message 'test commit %s', got '%s'", strconv.Itoa(i), content.Message)
 		}
-		if content.Author != "test user <test@test.com>" {
-			t.Errorf("Expected commit author `test user <test@test.com>`, got '%s'", content.Author)
+		if content.Author.Name != "test user" {
+			t.Errorf("Expected commit author `test user`, got '%s'", content.Author.Name)
+		}
+		if content.Author.Email != "test@test.com" {
+			t.Errorf("Expected commit author `test@test.com`, got '%s'", content.Author.Email)
 		}
 	}
 }

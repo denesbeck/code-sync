@@ -13,8 +13,13 @@ type Commit struct {
 	Next      string `json:"next"`
 }
 
+type Author struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 type CommitMetadata struct {
-	Author  string `json:"author"`
+	Author  Author `json:"author"`
 	Message string `json:"message"`
 }
 
@@ -239,9 +244,9 @@ func ProcessFileList(latestCommitId string, newCommitId string) {
 func WriteCommitMetadata(commitId string, message string) {
 	Debug("Writing commit metadata: id=%s, message=%s", commitId, message)
 	config := GetConfig()
-	author := config.Username + " <" + config.Email + ">"
-	if config.Username == "" || config.Email == "" {
-		author = ""
+	author := Author{
+		Name:  config.Username,
+		Email: config.Email,
 	}
 	WriteJson(dirs.Commits+commitId+"/metadata.json", CommitMetadata{Author: author, Message: message})
 	Debug("Commit metadata written successfully")

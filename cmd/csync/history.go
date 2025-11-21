@@ -25,11 +25,11 @@ var historyCmd = &cobra.Command{
 }
 
 type History struct {
-	author  string
-	email   string
-	date    string
-	message string
-	commits []LogFileEntry
+	AuthorName  string
+	AuthorEmail string
+	Date        string
+	Message     string
+	Commits     []LogFileEntry
 }
 
 func runHistoryCommand() (returnCode int, history []History) {
@@ -68,8 +68,8 @@ func runHistoryCommand() (returnCode int, history []History) {
 			MustSucceed(err, "operation failed")
 		}
 
-		author := metadata.Author
-		if metadata.Author == "" {
+		author := metadata.Author.Name + " <" + metadata.Author.Email + ">"
+		if metadata.Author.Name == "" || metadata.Author.Email == "" {
 			author = "Unknown"
 		}
 
@@ -104,10 +104,11 @@ func runHistoryCommand() (returnCode int, history []History) {
 			BreakLine()
 		}
 		history = append(history, History{
-			author:  metadata.Author,
-			date:    commit.Timestamp,
-			message: metadata.Message,
-			commits: logs,
+			AuthorName:  metadata.Author.Name,
+			AuthorEmail: metadata.Author.Email,
+			Date:        commit.Timestamp,
+			Message:     metadata.Message,
+			Commits:     logs,
 		})
 	}
 	Debug("History command completed successfully")
