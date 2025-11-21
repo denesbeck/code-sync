@@ -1,6 +1,6 @@
-# Contributing to CodeSync
+# Contributing to Nexio
 
-Thank you for your interest in contributing to CodeSync! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to Nexio! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -24,12 +24,12 @@ This project adheres to a code of conduct that all contributors are expected to 
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/code-sync.git
-   cd code-sync
+   git clone https://github.com/YOUR_USERNAME/nexio.git
+   cd nexio
    ```
 3. Add the upstream repository:
    ```bash
-   git remote add upstream https://github.com/denesbeck/code-sync.git
+   git remote add upstream https://github.com/denesbeck/nexio.git
    ```
 4. Create a new branch for your work:
    ```bash
@@ -53,7 +53,7 @@ go mod download
 ### Build the Project
 
 ```bash
-go build -o csync ./cmd/csync
+go build -o nexio ./cmd/nexio
 ```
 
 ### Install Git Hooks
@@ -81,7 +81,7 @@ We welcome various types of contributions:
 
 ### Finding Work
 
-- Check the [issue tracker](https://github.com/denesbeck/code-sync/issues) for open issues
+- Check the [issue tracker](https://github.com/denesbeck/nexio/issues) for open issues
 - Look for issues labeled `good first issue` or `help wanted`
 - Comment on an issue to express interest before starting work
 - Feel free to propose new features or improvements
@@ -98,7 +98,7 @@ We welcome various types of contributions:
 
 ### Code Organization
 
-- Place all CLI commands in `cmd/csync/`
+- Place all CLI commands in `cmd/nexio/`
 - Keep related functionality grouped together
 - Use meaningful package names
 - Avoid circular dependencies
@@ -169,7 +169,7 @@ Returns clear error message to the user.
 
 ### Before Submitting
 
-1. **Ensure your code builds**: Run `go build -o csync ./cmd/csync`
+1. **Ensure your code builds**: Run `go build -o nexio ./cmd/nexio`
 2. **Run tests**: Execute `bash ./scripts/run-tests.sh`
 3. **Run linting**: Execute `go vet ./...`
 4. **Format code**: Run `gofmt -w .`
@@ -260,7 +260,7 @@ We welcome feature suggestions!
 
 ## Questions?
 
-- Open a [discussion](https://github.com/denesbeck/code-sync/discussions) for general questions
+- Open a [discussion](https://github.com/denesbeck/nexio/discussions) for general questions
 - Comment on relevant issues for specific questions
 - Check existing documentation and issues first
 
@@ -270,4 +270,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 ---
 
-Thank you for contributing to CodeSync!
+Thank you for contributing to Nexio!

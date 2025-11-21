@@ -321,8 +321,8 @@ func GetUntrackedFiles() []string {
 
 		// Skip directories
 		if info.IsDir() {
-			// Skip .csync directory
-			if strings.Contains(path, ".csync") {
+			// Skip .nexio directory
+			if strings.Contains(path, ".nexio") {
 				return filepath.SkipDir
 			}
 			return nil

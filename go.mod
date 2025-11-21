@@ -1,4 +1,4 @@
-module github.com/denesbeck/code-sync
+module github.com/denesbeck/nexio
 
 go 1.24.4
 

@@ -15,7 +15,7 @@ func init() {
 var statusCmd = &cobra.Command{
 	Use:     "status",
 	Short:   "List the files that are staged for commit",
-	Example: "csync status",
+	Example: "nexio status",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting status command")
@@ -67,7 +67,7 @@ func runStatusCommand() (returnCode int, stagingLogs []LogFileEntry) {
 		Info("Untracked files " + "(" + strconv.Itoa(len(untracked)) + ")")
 		Tree(untracked, true)
 		BreakLine()
-		Text("Use "+Code("csync add <file>...")+" to track", "")
+		Text("Use "+Code("nexio add <file>...")+" to track", "")
 	} else {
 		Debug("%s", STATUS_RETURN_CODES[504])
 	}

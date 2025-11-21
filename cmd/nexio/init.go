@@ -13,8 +13,8 @@ func init() {
 
 var initCmd = &cobra.Command{
 	Use:     "init",
-	Short:   "Initialize the CSync version control system",
-	Example: "csync init",
+	Short:   "Initialize the Nexio version control system",
+	Example: "nexio init",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, _ []string) {
 		Debug("Starting init command")
@@ -98,9 +98,9 @@ func runInitCommand() {
 	}
 	f.Close()
 
-	Debug("CSync initialized successfully")
+	Debug("Nexio initialized successfully")
 	BreakLine()
-	Info("Initializing CodeSync Repository")
+	Info("Initializing Nexio Repository")
 	BreakLine()
 
 	messages := []string{
@@ -108,7 +108,7 @@ func runInitCommand() {
 		"Setting up branches...         ",
 		"Creating config file...        "}
 	stop := Spinner(messages, false)
-	if os.Getenv("CSYNC_ENV") != "test" {
+	if os.Getenv("NEXIO_ENV") != "test" {
 		time.Sleep(1 * time.Second)
 	}
 	stop()
@@ -117,18 +117,18 @@ func runInitCommand() {
 	Success("Repository initialized successfully!")
 	BreakLine()
 
-	Text(".csync created", "  ")
+	Text(".nexio created", "  ")
 	Text("Default branch: main", "  ")
 	Text("User: Not configured", "  ")
 
 	BreakLine()
 	List("Next steps:", []string{
-		"csync config set name \"Your Name\"",
-		"csync config set email \"you@example.com\"",
-		"csync add <file>",
-		"csync commit -m \"Initial commit\""})
+		"nexio config set name \"Your Name\"",
+		"nexio config set email \"you@example.com\"",
+		"nexio add <file>",
+		"nexio commit -m \"Initial commit\""})
 
 	BreakLine()
-	Text("Learn more: "+Code("csync --help"), "")
+	Text("Learn more: "+Code("nexio --help"), "")
 	BreakLine()
 }

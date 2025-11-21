@@ -13,8 +13,8 @@ func init() {
 
 var purgeCmd = &cobra.Command{
 	Use:     "purge",
-	Short:   "Purge CSync and all its data. THIS COMMAND IS IRREVERSIBLE!",
-	Example: "csync purge",
+	Short:   "Purge Nexio and all its data. THIS COMMAND IS IRREVERSIBLE!",
+	Example: "nexio purge",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		runPurgeCommand()
@@ -33,5 +33,5 @@ func runPurgeCommand() {
 		os.RemoveAll(namespace)
 	}
 
-	color.Green("CSync purged successfully")
+	color.Green("Nexio purged successfully")
 }

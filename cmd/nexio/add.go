@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	addCmd.Flags().BoolVarP(&Force, "force", "f", false, "Disregard the rules defined in `.csync.rules.yml`")
+	addCmd.Flags().BoolVarP(&Force, "force", "f", false, "Disregard the rules defined in `.nexio.rules.yml`")
 
 	rootCmd.AddCommand(addCmd)
 }
@@ -22,7 +22,7 @@ type AddResult struct {
 var addCmd = &cobra.Command{
 	Use:     "add",
 	Short:   "Add the selected files to the staging area",
-	Example: "csync add <path/to/your/file>\ncsync add file1 file2 file3\ncsync add .",
+	Example: "nexio add <path/to/your/file>\nnexio add file1 file2 file3\nnexio add .",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting add command with args: %v", args)

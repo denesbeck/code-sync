@@ -5,8 +5,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "csync",
-	Short: "CodeSync (CSync) is a version control system inspired by Git",
+	Use:   "nexio",
+	Short: "Nexio (Nexio) is a version control system inspired by Git",
 }
 
 func Execute() {

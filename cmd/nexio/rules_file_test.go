@@ -46,7 +46,7 @@ func Test_patternToRegexp(t *testing.T) {
 
 func Test_ShouldIgnore_NoRulesFile(t *testing.T) {
 	// Ensure no rules file exists
-	os.Remove(".csync.rules.yml")
+	os.Remove(".nexio.rules.yml")
 
 	// Without a rules file, nothing should be ignored
 	result := ShouldIgnore("test.txt")
@@ -64,11 +64,11 @@ func Test_ShouldIgnore_WithRules(t *testing.T) {
 allow:
   - "important.log"
 `
-	err := os.WriteFile(".csync.rules.yml", []byte(rulesContent), 0644)
+	err := os.WriteFile(".nexio.rules.yml", []byte(rulesContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test rules file: %v", err)
 	}
-	defer os.Remove(".csync.rules.yml")
+	defer os.Remove(".nexio.rules.yml")
 
 	tests := []struct {
 		path         string
@@ -101,11 +101,11 @@ func Test_pathToRegexp_EmptyRules(t *testing.T) {
 	emptyRules := `ignore: []
 allow: []
 `
-	err := os.WriteFile(".csync.rules.yml", []byte(emptyRules), 0644)
+	err := os.WriteFile(".nexio.rules.yml", []byte(emptyRules), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test rules file: %v", err)
 	}
-	defer os.Remove(".csync.rules.yml")
+	defer os.Remove(".nexio.rules.yml")
 
 	ignore, allow, err := pathToRegexp()
 	if err != nil {

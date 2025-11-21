@@ -20,16 +20,16 @@ type Dirs struct {
 }
 
 var dirs = Dirs{
-	Root: namespace + ".csync/",
+	Root: namespace + ".nexio/",
 	// Staging directories for `added`, `modified`, `removed` operations.
-	Staging:         namespace + ".csync/staging/",
-	StagingAdded:    namespace + ".csync/staging/added/",
-	StagingModified: namespace + ".csync/staging/modified/",
-	StagingRemoved:  namespace + ".csync/staging/removed/",
+	Staging:         namespace + ".nexio/staging/",
+	StagingAdded:    namespace + ".nexio/staging/added/",
+	StagingModified: namespace + ".nexio/staging/modified/",
+	StagingRemoved:  namespace + ".nexio/staging/removed/",
 
 	// Log file for tracking staging operations.
 	// Format: { Id: <hash>, Op: ADD | MOD | REM, Path: path/to/file }
-	StagingLogs: namespace + ".csync/staging/logs.json",
+	StagingLogs: namespace + ".nexio/staging/logs.json",
 
 	// Commits directory stores directories for each commit hash.
 	// `commits/<commit-hash>/<file-id>/<file-name>`: refers to the file in the commit.
@@ -43,24 +43,24 @@ var dirs = Dirs{
 	// Whenever a file is added to the project, it is added to the `fileList.json` file.
 	// Whenever a file is modified, its commit hash is updated in the fileList.json file with the new commit hash.
 	// Whenever a file is removed from the project, it is removed from the fileList.json file.
-	Commits: namespace + ".csync/commits/",
+	Commits: namespace + ".nexio/commits/",
 
-	Branches: namespace + ".csync/branches/",
+	Branches: namespace + ".nexio/branches/",
 
 	// Initial branch is named `main`.
-	DefaultBranch: namespace + ".csync/branches/main/",
+	DefaultBranch: namespace + ".nexio/branches/main/",
 
 	// "branches/<branch-name>/commits.json" stores commit hashes for the given branch.
 	// Format: [ { Id: <commit-hash>, Timestamp: <timestamp> }, ... ]
-	DefaultBranchCommits: namespace + ".csync/branches/main/commits.json",
+	DefaultBranchCommits: namespace + ".nexio/branches/main/commits.json",
 
 	// "branches/metadata.json" stores default branch and current branch names.
 	// Format: { Default: <branch-name>, Current: <branch-name> }
-	BranchesMetadata: namespace + ".csync/branches/metadata.json",
+	BranchesMetadata: namespace + ".nexio/branches/metadata.json",
 
-	// "config.json" stores CSync config data, e.g. name, email.
+	// "config.json" stores Nexio config data, e.g. name, email.
 	// Format: { Name: <name>, Email: <email> }
-	Config: namespace + ".csync/config.json",
+	Config: namespace + ".nexio/config.json",
 }
 
 func (d Dirs) GetDirs() []string {

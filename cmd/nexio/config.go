@@ -38,7 +38,7 @@ var setCmd = &cobra.Command{
 var setDefaultBranchCmd = &cobra.Command{
 	Use:     "default-branch",
 	Short:   "Set default branch",
-	Example: "csync config set default-branch <branch-name>",
+	Example: "nexio config set default-branch <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Setting default branch: %s", args[0])
@@ -49,7 +49,7 @@ var setDefaultBranchCmd = &cobra.Command{
 var setNameCmd = &cobra.Command{
 	Use:     "name",
 	Short:   "Set name",
-	Example: "csync config set name <name>",
+	Example: "nexio config set name <name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Setting name: %s", args[0])
@@ -60,7 +60,7 @@ var setNameCmd = &cobra.Command{
 var setEmailCmd = &cobra.Command{
 	Use:     "email",
 	Short:   "Set email",
-	Example: "csync config set email <email>",
+	Example: "nexio config set email <email>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Setting email: %s", args[0])
@@ -71,14 +71,14 @@ var setEmailCmd = &cobra.Command{
 var getCmd = &cobra.Command{
 	Use:     "get",
 	Short:   "Get config values",
-	Example: "csync config get name <name>",
+	Example: "nexio config get name <name>",
 	Args:    cobra.ExactArgs(1),
 }
 
 var getDefaultBranchCmd = &cobra.Command{
 	Use:     "default-branch",
 	Short:   "Get default branch",
-	Example: "csync config get default-branch",
+	Example: "nexio config get default-branch",
 	Args:    cobra.ExactArgs(0),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Getting default branch")
@@ -89,7 +89,7 @@ var getDefaultBranchCmd = &cobra.Command{
 var getNameCmd = &cobra.Command{
 	Use:     "name",
 	Short:   "Get name",
-	Example: "csync config get name",
+	Example: "nexio config get name",
 	Args:    cobra.ExactArgs(0),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Getting name")
@@ -100,7 +100,7 @@ var getNameCmd = &cobra.Command{
 var getEmailCmd = &cobra.Command{
 	Use:     "email",
 	Short:   "Get email",
-	Example: "csync config get email <email>",
+	Example: "nexio config get email <email>",
 	Args:    cobra.ExactArgs(0),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Getting email")
@@ -111,7 +111,7 @@ var getEmailCmd = &cobra.Command{
 var getUserCmd = &cobra.Command{
 	Use:     "user",
 	Short:   "Get name and email",
-	Example: "csync config get user",
+	Example: "nexio config get user",
 	Args:    cobra.ExactArgs(0),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Getting user info")

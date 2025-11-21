@@ -17,7 +17,7 @@ var Message string
 var commitCmd = &cobra.Command{
 	Use:     "commit",
 	Short:   "Record changes to the repository",
-	Example: "csync commit -m <your commit message>",
+	Example: "nexio commit -m <your commit message>",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting commit command with message: %s", Message)

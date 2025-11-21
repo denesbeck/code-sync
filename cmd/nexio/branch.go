@@ -30,7 +30,7 @@ var (
 var branchCmd = &cobra.Command{
 	Use:     "branch",
 	Short:   "Branch management",
-	Example: "csync branch",
+	Example: "nexio branch",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting branch command")
@@ -41,7 +41,7 @@ var branchCmd = &cobra.Command{
 var currentCmd = &cobra.Command{
 	Use:     "current",
 	Short:   "Get current branch",
-	Example: "csync branch current",
+	Example: "nexio branch current",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting current branch command")
@@ -52,7 +52,7 @@ var currentCmd = &cobra.Command{
 var defaultCmd = &cobra.Command{
 	Use:     "default",
 	Short:   "Get default branch",
-	Example: "csync branch default",
+	Example: "nexio branch default",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting default branch command")
@@ -63,7 +63,7 @@ var defaultCmd = &cobra.Command{
 var newCmd = &cobra.Command{
 	Use:     "new",
 	Short:   "Create a new branch",
-	Example: "csync new <branch-name> --from-commit <commit-id> --from-branch <branch-name>",
+	Example: "nexio new <branch-name> --from-commit <commit-id> --from-branch <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting new branch command: name=%s, from-commit=%s, from-branch=%s", args[0], FromCommit, FromBranch)
@@ -74,7 +74,7 @@ var newCmd = &cobra.Command{
 var dropCmd = &cobra.Command{
 	Use:     "drop",
 	Short:   "Delete a branch",
-	Example: "csync drop <branch-name>",
+	Example: "nexio drop <branch-name>",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting drop branch command with args: %v", args)
@@ -87,7 +87,7 @@ var dropCmd = &cobra.Command{
 var switchCmd = &cobra.Command{
 	Use:     "switch",
 	Short:   "Switch to a branch",
-	Example: "csync switch <branch-name>",
+	Example: "nexio switch <branch-name>",
 	Args:    cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting switch branch command: branch=%s", args[0])

@@ -21,12 +21,12 @@ func Test_IsInitialized(t *testing.T) {
 	os.RemoveAll(namespace)
 
 	if IsInitialized() {
-		t.Errorf("CSync initialized")
+		t.Errorf("Nexio initialized")
 	}
 
 	runInitCommand()
 	if !IsInitialized() {
-		t.Errorf("CSync not initialized")
+		t.Errorf("Nexio not initialized")
 	}
 
 	os.RemoveAll(namespace)

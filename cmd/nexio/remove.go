@@ -12,7 +12,7 @@ func init() {
 var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Short:   "Remove the selected files from the staging area",
-	Example: "csync remove <path/to/your/file>",
+	Example: "nexio remove <path/to/your/file>",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		for _, arg := range args {

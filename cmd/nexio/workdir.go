@@ -15,7 +15,7 @@ func init() {
 var workdirCmd = &cobra.Command{
 	Use:     "workdir",
 	Short:   "List the files that are committed",
-	Example: "csync workdir",
+	Example: "nexio workdir",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		runWorkdirCommand()

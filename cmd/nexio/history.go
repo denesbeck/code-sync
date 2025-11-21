@@ -16,7 +16,7 @@ func init() {
 var historyCmd = &cobra.Command{
 	Use:     "history",
 	Short:   "List all commits for the current branch",
-	Example: "csync history",
+	Example: "nexio history",
 	Args:    cobra.NoArgs,
 	Run: func(_ *cobra.Command, args []string) {
 		Debug("Starting history command")

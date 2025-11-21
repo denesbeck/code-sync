@@ -19,31 +19,31 @@ type Rules struct {
 
 func readRules() (*Rules, error) {
 	Debug("Reading rules...")
-	_, err := os.Stat(".csync.rules.yml")
+	_, err := os.Stat(".nexio.rules.yml")
 	if os.IsNotExist(err) {
-		Debug("\".csync.rules.yml\" doesn't exist.")
+		Debug("\".nexio.rules.yml\" doesn't exist.")
 		return nil, err
 	}
 
 	if err != nil {
-		Debug("Unable to get metadata for \".csync.rules.yml\".")
+		Debug("Unable to get metadata for \".nexio.rules.yml\".")
 		MustSucceed(err, "operation failed")
 		return nil, err
 	}
 
 	var content Rules
-	rulesFile, err := os.ReadFile(".csync.rules.yml")
+	rulesFile, err := os.ReadFile(".nexio.rules.yml")
 	if err != nil {
-		Debug("Unable to read \".csync.rules.yml\" file.")
+		Debug("Unable to read \".nexio.rules.yml\" file.")
 		MustSucceed(err, "operation failed")
 		return nil, err
 	}
 	if err = yaml.Unmarshal(rulesFile, &content); err != nil {
-		Debug("Unable to unmarshal `.csync.rules.yml` file.")
+		Debug("Unable to unmarshal `.nexio.rules.yml` file.")
 		MustSucceed(err, "operation failed")
 		return nil, err
 	}
-	Debug("`.csync.rules.yml` found.")
+	Debug("`.nexio.rules.yml` found.")
 	Debug("Content: %+v", content)
 	return &content, nil
 }

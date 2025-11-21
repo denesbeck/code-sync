@@ -5,7 +5,7 @@ import (
 )
 
 func calculateNamespace() string {
-	environment := os.Getenv("CSYNC_ENV")
+	environment := os.Getenv("NEXIO_ENV")
 	if environment == "test" {
 		return "__" + environment + "__/"
 	}

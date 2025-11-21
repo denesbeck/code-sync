@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pre-commit hook for CodeSync
+# Pre-commit hook for Nexio
 # This hook runs linting and formatting checks on Go files before commit
 
 set -e

@@ -1,14 +1,14 @@
-# CodeSync
+# Nexio
 
-[![CI](https://github.com/denesbeck/code-sync/actions/workflows/main.yml/badge.svg)](https://github.com/denesbeck/code-sync/actions/workflows/main.yml)
+[![CI](https://github.com/denesbeck/nexio/actions/workflows/main.yml/badge.svg)](https://github.com/denesbeck/nexio/actions/workflows/main.yml)
 [![Go Version](https://img.shields.io/badge/Go-1.24.4-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A lightweight version control system inspired by Git, built from scratch in Go. CodeSync implements core version control concepts including staging, commits, branching, and history tracking.
+A lightweight version control system inspired by Git, built from scratch in Go. Nexio implements core version control concepts including staging, commits, branching, and history tracking.
 
 ## Overview
 
-CodeSync is an educational project that demonstrates the fundamental principles behind modern version control systems. It provides a simplified implementation of Git-like functionality, making it easier to understand how version control works under the hood.
+Nexio is an educational project that demonstrates the fundamental principles behind modern version control systems. It provides a simplified implementation of Git-like functionality, making it easier to understand how version control works under the hood.
 
 **Key Features:**
 - Stage and commit file changes
@@ -28,8 +28,8 @@ CodeSync is an educational project that demonstrates the fundamental principles 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/denesbeck/code-sync.git
-cd code-sync
+git clone https://github.com/denesbeck/nexio.git
+cd nexio
 ```
 
 2. Install dependencies:
@@ -41,14 +41,14 @@ go mod download
 3. Build the binary:
 
 ```bash
-go build -o csync ./cmd/csync
+go build -o nexio ./cmd/nexio
 ```
 
 4. (Optional) Add to PATH:
 
 ```bash
 # Add to your shell profile (.bashrc, .zshrc, etc.)
-export PATH="$PATH:/path/to/code-sync"
+export PATH="$PATH:/path/to/nexio"
 ```
 
 ## Usage
@@ -56,54 +56,54 @@ export PATH="$PATH:/path/to/code-sync"
 ### Initialize a Repository
 
 ```bash
-./csync init
+./nexio init
 ```
 
 ### Configure User Settings
 
 ```bash
-./csync config set username "Your Name"
-./csync config set email "your.email@example.com"
-./csync config set default-branch "main"
+./nexio config set username "Your Name"
+./nexio config set email "your.email@example.com"
+./nexio config set default-branch "main"
 ```
 
 ### Basic Workflow
 
 ```bash
 # Check file status
-./csync status
+./nexio status
 
 # Add files to staging area
-./csync add file1.txt file2.txt
+./nexio add file1.txt file2.txt
 
 # Commit changes
-./csync commit -m "Initial commit"
+./nexio commit -m "Initial commit"
 
 # View commit history
-./csync history
+./nexio history
 ```
 
 ### Branch Management
 
 ```bash
 # Create and switch to new branch
-./csync branch new feature-branch
+./nexio branch new feature-branch
 
 # List branches
-./csync branch current
+./nexio branch current
 
 # Switch branches
-./csync branch switch main
+./nexio branch switch main
 
 # Delete a branch
-./csync branch drop feature-branch
+./nexio branch drop feature-branch
 ```
 
 ## Available Commands
 
 | Command    | Description                                                       |
 |------------|-------------------------------------------------------------------|
-| `init`     | Initialize the CodeSync version control system                    |
+| `init`     | Initialize the Nexio version control system                    |
 | `add`      | Add files to the staging area                                     |
 | `remove`   | Remove files from the staging area                                |
 | `commit`   | Commit staged changes with a message                              |
@@ -112,12 +112,12 @@ export PATH="$PATH:/path/to/code-sync"
 | `branch`   | Manage branches (new, drop, switch, default, current)             |
 | `workdir`  | List files in the current working directory state                 |
 | `config`   | Get or set configuration values (username, email, default-branch) |
-| `purge`    | Remove CodeSync and all its data (irreversible)                   |
+| `purge`    | Remove Nexio and all its data (irreversible)                   |
 
 For detailed command usage, run:
 
 ```bash
-./csync [command] --help
+./nexio [command] --help
 ```
 
 ## Development
@@ -154,13 +154,13 @@ Run the test suite using the provided script:
 bash ./scripts/run-tests.sh
 ```
 
-**Important:** Always use `run-tests.sh` instead of `go test` directly. The script sets the `CSYNC_ENV=test` environment variable, which ensures tests run in an isolated namespace to prevent conflicts with your actual `.csync` directory.
+**Important:** Always use `run-tests.sh` instead of `go test` directly. The script sets the `NEXIO_ENV=test` environment variable, which ensures tests run in an isolated namespace to prevent conflicts with your actual `.nexio` directory.
 
 ### Project Structure
 
 ```
-code-sync/
-├── cmd/csync/          # CLI application and commands
+nexio/
+├── cmd/nexio/          # CLI application and commands
 ├── scripts/            # Build and test scripts
 ├── .github/workflows/  # CI/CD configuration
 └── go.mod              # Go module dependencies
@@ -175,18 +175,18 @@ code-sync/
 
 ## How It Works
 
-CodeSync stores version control data in a `.csync` directory at the root of your project:
+Nexio stores version control data in a `.nexio` directory at the root of your project:
 
 - **Staging area**: Tracks files prepared for commit
 - **Commits**: Stores snapshots of file states with metadata
 - **Branches**: Maintains separate lines of development
 - **Configuration**: Stores user settings and repository configuration
 
-Unlike Git, CodeSync uses a simpler file-based storage system and YAML for metadata, making the internals easier to understand and inspect.
+Unlike Git, Nexio uses a simpler file-based storage system and YAML for metadata, making the internals easier to understand and inspect.
 
 ## Limitations
 
-CodeSync is designed for educational purposes and lacks several features found in production version control systems:
+Nexio is designed for educational purposes and lacks several features found in production version control systems:
 
 - No remote repository support
 - No merge conflict resolution

@@ -127,7 +127,7 @@ func ExpandFilePaths(args []string) ([]string, error) {
 					return nil
 				}
 
-				if strings.HasPrefix(path, ".csync") {
+				if strings.HasPrefix(path, ".nexio") {
 					return nil
 				}
 

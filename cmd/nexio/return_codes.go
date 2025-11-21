@@ -1,9 +1,9 @@
 package main
 
 var COMMON_RETURN_CODES = map[int]string{
-	001: "CodeSync not initialized.",
+	001: "Nexio not initialized.",
 	002: "Path ignored by one of the rules defined in the rules file.",
-	003: "CodeSync already initialized.",
+	003: "Nexio already initialized.",
 	004: "Invalid path.",
 }
 
@@ -41,7 +41,7 @@ var BRANCH_RETURN_CODES = map[int]string{
 	214: "Cannot switch branches with uncommitted changes.", // switch
 	215: "Target branch already set as default.",            // config
 	216: "Branch does not exist.",                           // config
-	217: "No branches found. .csync folder seems to be corrupted!",
+	217: "No branches found. .nexio folder seems to be corrupted!",
 }
 
 var WORKDIR_RETURN_CODES = map[int]string{

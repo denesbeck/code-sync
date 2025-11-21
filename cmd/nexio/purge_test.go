@@ -9,7 +9,7 @@ func Test_Purge(t *testing.T) {
 	// Clean __test__ namespace
 	os.RemoveAll(namespace)
 
-	// Initialize CSync
+	// Initialize Nexio
 	runInitCommand()
 
 	// Check if directories are created
@@ -19,7 +19,7 @@ func Test_Purge(t *testing.T) {
 		}
 	}
 
-	// Purge CSync
+	// Purge Nexio
 	runPurgeCommand()
 
 	// Check if directories are purged
@@ -30,7 +30,7 @@ func Test_Purge(t *testing.T) {
 	}
 
 	if IsInitialized() {
-		t.Errorf("CSync not purged")
+		t.Errorf("Nexio not purged")
 	}
 
 	os.RemoveAll(namespace)
