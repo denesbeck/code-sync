@@ -73,10 +73,6 @@ var getCmd = &cobra.Command{
 	Short:   "Get config values",
 	Example: "csync config get name <name>",
 	Args:    cobra.ExactArgs(1),
-	Run: func(_ *cobra.Command, args []string) {
-		Debug("Getting config value: %s", args[0])
-		getConfig(args[0])
-	},
 }
 
 var getDefaultBranchCmd = &cobra.Command{
