@@ -1,9 +1,9 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve CodeSync
-title: '[BUG] '
+about: Report a bug to help us improve Nexio
+title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ## Bug Description
@@ -37,12 +37,13 @@ Paste any error messages or relevant output here
 
 - **OS**: [e.g., macOS 14.0, Ubuntu 22.04, Windows 11]
 - **Go Version**: [e.g., 1.24.4]
-- **CodeSync Version**: [e.g., commit hash or version number]
+- **Nexio Version**: [e.g., commit hash or version number]
 - **Terminal**: [e.g., iTerm2, Windows Terminal, GNOME Terminal]
 
 ## Additional Context
 
 Add any other context about the problem here, such as:
+
 - Does this happen consistently or intermittently?
 - Did this work in a previous version?
 - Are there any workarounds?

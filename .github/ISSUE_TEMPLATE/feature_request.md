@@ -1,9 +1,9 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement for CodeSync
-title: '[FEATURE] '
+about: Suggest a new feature or enhancement for Nexio
+title: "[FEATURE] "
 labels: enhancement
-assignees: ''
+assignees: ""
 ---
 
 ## Feature Summary
@@ -13,8 +13,6 @@ A clear and concise description of the feature you'd like to see.
 ## Problem Statement
 
 Describe the problem or limitation you're trying to solve. Why is this feature needed?
-
-**Example**: "I'm always frustrated when..."
 
 ## Proposed Solution
 
@@ -26,7 +24,7 @@ Show how you envision using this feature:
 
 ```bash
 # Example command usage
-csync your-new-command --option value
+nexio your-new-command --option value
 ```
 
 ### Expected Behavior
@@ -39,7 +37,7 @@ Describe any alternative solutions or features you've considered.
 
 ## Benefits
 
-Explain how this feature would benefit CodeSync users:
+Explain how this feature would benefit Nexio users:
 
 - Benefit 1
 - Benefit 2
